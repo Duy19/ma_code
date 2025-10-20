@@ -1,27 +1,56 @@
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  Button,
+  Box,
+  Container,
+} from "@mui/material";
+
 export default function Home() {
   return (
-    <div className="min-h-[calc(100vh-4rem)] flex flex-col justify-center items-center text-center bg-gradient-to-br from-gray-50 to-blue-50">
-      <h2 className="text-5xl font-bold mb-4 text-gray-800 tracking-tight">
-        Welcome to <span className="text-blue-600">Real-Time Games</span>
-      </h2>
-      <p className="text-gray-600 text-lg max-w-xl">
-        Learn, explore, and experiment with real-time scheduling concepts through
-        interactive puzzles and visual tools.
-      </p>
-      <div className="mt-8 flex space-x-4">
-        <a
-          href="/free-scheduler"
-          className="px-6 py-3 bg-blue-600 text-white rounded-xl shadow-md hover:bg-blue-700 transition-transform transform hover:scale-105"
+    <Box
+      sx={{
+        minHeight: "100vh",
+        bgcolor: "background.default",
+        color: "text.primary",
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
+      {/* Hero Section */}
+      <Container
+        sx={{
+          flexGrow: 1,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          textAlign: "center",
+        }}
+      >
+        <Typography variant="h2" fontWeight="bold" gutterBottom>
+          Willkommen 🚀
+        </Typography>
+        <Typography variant="h6" color="text.secondary" gutterBottom>
+          Starte deinen Einstieg in die Welt der Real-Time Systems!
+        </Typography>
+        <Button
+          variant="contained"
+          size="large"
+          href="/chapter1"
+          sx={{ mt: 4 }}
         >
-          Try Free Scheduler
-        </a>
-        <a
-          href="/chapter-1"
-          className="px-6 py-3 border border-blue-600 text-blue-600 rounded-xl hover:bg-blue-50 transition-transform transform hover:scale-105"
-        >
-          Start Learning
-        </a>
-      </div>
-    </div>
+          Beginnen
+        </Button>
+      </Container>
+
+      {/* Footer */}
+      <Box component="footer" sx={{ p: 2, textAlign: "center" }}>
+        <Typography variant="body2" color="text.secondary">
+          © {new Date().getFullYear()} Real-Time Games. Alle Rechte vorbehalten.
+        </Typography>
+      </Box>
+    </Box>
   );
 }
