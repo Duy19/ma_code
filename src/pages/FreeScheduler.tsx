@@ -11,13 +11,13 @@ const sampleTasks: Task[] = [
 ];
 
 export default function FreeScheduler() {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   return ( 
     <Box sx={{ display: "flex", overflow: "hidden" }}>
 
 
       {!sidebarOpen && (
-        <Box sx={{ position: "fixed", top: 64 + 16, right: 16, zIndex: (theme) => theme.zIndex.appBar + 1 }}>
+        <Box sx={{ position: "absolute", top: 16, right: 16, zIndex: (theme) => theme.zIndex.appBar + 1}}>
           <IconButton onClick={() => setSidebarOpen(true)}>
             <MenuIcon />
           </IconButton>
@@ -43,8 +43,7 @@ export default function FreeScheduler() {
         sx={{
           width: 280,
           flexShrink: 0,
-          zIndex: (theme) => theme.zIndex.appBar - 1,
-          "& .MuiDrawer-paper": { width: 240, boxSizing: "border-box", p: 2, top: 64},
+          "& .MuiDrawer-paper": { width: 280, boxSizing: "border-box", p: 2},
         }}>
           <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
           <IconButton onClick={() => setSidebarOpen(false)}>
