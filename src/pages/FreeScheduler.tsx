@@ -1,10 +1,13 @@
 import SchedulerCanvas from "../components/SchedulerCanvas";
 import type { Task } from "../core/task";
-import { Box, Typography, Drawer, IconButton } from "@mui/material";
+import FreeSchedulerSidebar from "../components/FreeSchedulerSidebar";
+import { Box, Drawer, IconButton } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { simulateEDF, type ScheduleEntry } from "../logic/simulator";
+import { lcmArray } from "../utils/formulas";
 
-const sampleTasks: Task[] = [
+const initialTasks: Task[] = [
   { id: "t1", name: "τ1", color: "#d8e68f", C: 3, T: 8, D: 8 },
   { id: "t2", name: "τ2", color: "#e3b47d", C: 2, T: 6, D: 6 },
   { id: "t3", name: "τ3", color: "#e17c7c", C: 2, T: 12, D: 12 },
@@ -12,9 +15,39 @@ const sampleTasks: Task[] = [
 
 export default function FreeScheduler() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  return ( 
-    <Box sx={{ display: "flex", overflow: "hidden" }}>
+  const [tasks, setTasks] = useState<Task[]>(initialTasks);
+  const[algorithm, setAlgorithm] = useState<string>("EDF");
+  const [hyperperiod, setHyperperiod] = useState(24);
+  const [schedule, setSchedule] = useState<ScheduleEntry[]>([]);
 
+  useEffect(() => {
+  if (tasks.length === 0) return;
+
+  // Hyperperiode = LCM aller Task-Perioden
+  const periods = tasks.map(t => t.T);
+  const hp = lcmArray(periods);
+  setHyperperiod(hp);
+
+  // Schedule berechnen
+  let newSchedule: ScheduleEntry[] = [];
+  if (algorithm === "EDF") {
+    newSchedule = simulateEDF(tasks, hp);
+  }
+  // später: andere Algorithmen wie RM oder DM
+
+  setSchedule(newSchedule);
+}, [tasks, algorithm]);
+
+
+  useEffect(() => {
+    const newSchedule = simulateEDF(tasks, hyperperiod);
+    setSchedule(newSchedule);
+  }, [tasks, hyperperiod]);
+
+
+  return (
+
+    <Box sx={{ display: "flex", overflow: "hidden" }}>
 
       {!sidebarOpen && (
         <Box sx={{ position: "absolute", top: 16, right: 16, zIndex: (theme) => theme.zIndex.appBar + 1}}>
@@ -33,7 +66,7 @@ export default function FreeScheduler() {
           p: 2,
         }}
       >
-        <SchedulerCanvas tasks={sampleTasks as Task[]} hyperperiod={80} pxPerStep={28} timeStepLabelEvery={2} />
+        <SchedulerCanvas tasks={tasks} hyperperiod={hyperperiod} schedule={schedule} pxPerStep={28} timeStepLabelEvery={2} />
       </Box>
 
       <Drawer         
@@ -43,15 +76,15 @@ export default function FreeScheduler() {
         sx={{
           width: 280,
           flexShrink: 0,
-          "& .MuiDrawer-paper": { width: 280, boxSizing: "border-box", p: 2},
+          "& .MuiDrawer-paper": { width: 350, boxSizing: "border-box", p: 2},
         }}>
-          <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-          <IconButton onClick={() => setSidebarOpen(false)}>
-            <MenuIcon />
-          </IconButton>
-        </Box>
-        <Typography variant="h6">Sidebar</Typography>
-        <Typography></Typography>
+          <FreeSchedulerSidebar
+            tasks={tasks}
+            algorithm={algorithm}
+            onAlgorithmChange={setAlgorithm}
+            onTasksChange={setTasks}
+            onClose={() => setSidebarOpen(false)}
+          />
       </Drawer>
     </Box>
   );

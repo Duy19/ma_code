@@ -1,9 +1,10 @@
 import type { Schedule, Task } from "../core/task";
+import type { ScheduleEntry } from "../logic/simulator";
 
 type Props = {
   tasks: Task[];
   hyperperiod: number;
-  scheduler?: Schedule;
+  schedule?: ScheduleEntry[];
   pxPerStep?: number;
   timeStepLabelEvery?: number;
   heightPerTask?: number;
@@ -13,12 +14,12 @@ type Props = {
 export default function SchedulerCanvas({
   tasks,
   hyperperiod,
+  schedule = [],
   pxPerStep = 28,
   timeStepLabelEvery = 1,
   heightPerTask = 125,
   leftLabelWidth = 72,
 }: Props) {
-  const canvasWidth = Math.min(leftLabelWidth + hyperperiod * pxPerStep + 40, 1200);  
   const svgWidth = leftLabelWidth + hyperperiod * pxPerStep + 40;
   const svgHeight = tasks.length * heightPerTask + 80;
   const axisColor = "#0d2b6cff";
@@ -39,6 +40,32 @@ export default function SchedulerCanvas({
                 <pattern id="lightGrid" width={pxPerStep} height={pxPerStep} patternUnits="userSpaceOnUse">
                 <rect width={pxPerStep} height={pxPerStep} fill="transparent" />
                 </pattern>
+            </defs>
+
+            <defs>
+              <marker
+                id="arrowUp"
+                markerWidth="6"
+                markerHeight="6"
+                refX="3"
+                refY="-6"
+                orient="180"
+                markerUnits="strokeWidth"
+              >
+                <path d="M0,0 L6,0 L3,6 Z" fill="green" />
+              </marker>
+
+              <marker
+                id="arrowDown"
+                markerWidth="6"
+                markerHeight="6"
+                refX="3"
+                refY="6"
+                orient="180"
+                markerUnits="strokeWidth"
+              >
+                <path d="M0,6 L6,6 L3,0 Z" fill="red" />
+              </marker>
             </defs>
 
             {/* Background */}
@@ -125,6 +152,64 @@ export default function SchedulerCanvas({
 
                     {/* small marker on the left */}
                     <circle cx={leftLabelWidth - 18} cy={centerY - 10} r={4} fill={task.color ?? "#60a5fa"} />
+                    {/* --- EDF Schedule Blocks --- */}
+                {schedule
+                  .filter((s) => s.taskId === task.id)
+                  .map((s) => {
+                    const x = leftLabelWidth + s.time * pxPerStep;
+                    const y = centerY - heightPerTask / 2 + 10; 
+                    const blockHeight = heightPerTask / 2 - 20;
+                    return (
+                      <rect
+                        key={`${task.id}-${s.time}`}
+                        x={x}
+                        y={y}
+                        width={pxPerStep}
+                        height={blockHeight}
+                        fill={task.color}
+                        opacity={0.85}
+                        stroke="#1e293b"
+                        strokeWidth={0.5}
+                        rx={3}
+                      />
+                    );
+                  })}
+
+                {Array.from({ length: Math.ceil(hyperperiod / task.T) }, (_, k) => {
+                  const releaseTime = k * task.T;
+                  const deadlineTime = releaseTime + task.D;
+
+                  const centerY = yTop + heightPerTask / 2;
+                  const arrowLength = 12;
+                  const offset = 0; // Abstand vom Task-Line
+
+                  return (
+                    <g key={`markers-${k}`}>
+                      {/* Release-Pfeil nach oben (über der Linie) */}
+                      <line
+                        x1={leftLabelWidth + releaseTime * pxPerStep}
+                        y1={centerY + arrowLength}
+                        x2={leftLabelWidth + releaseTime * pxPerStep}
+                        y2={centerY}
+                        stroke="green"
+                        strokeWidth={2}
+                        markerEnd="url(#arrowUp)"
+                      />
+
+                      {/* Deadline-Pfeil nach unten */}
+                      <line
+                        x1={leftLabelWidth + deadlineTime * pxPerStep}
+                        y1={centerY + offset}
+                        x2={leftLabelWidth + deadlineTime * pxPerStep}
+                        y2={centerY + offset + 15}
+                        stroke="red"
+                        strokeWidth={2}
+                        markerEnd="url(#arrowDown)"
+                      />
+                    </g>
+                  );
+                })}
+
                 </g>
                 );
             })}

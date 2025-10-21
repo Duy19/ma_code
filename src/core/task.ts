@@ -15,7 +15,7 @@ export interface Task {
   D: number;          // Deadline
   O?: number;         // Offset
   S?: number;         // Suspension
-  color: string;
+  color?: string;
   jobs?: Job[];
 }
 

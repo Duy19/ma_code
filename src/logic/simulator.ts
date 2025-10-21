@@ -1,20 +1,53 @@
-import { edfSchedule } from "./schedulers/edf";
-import type { Task, Job } from "../core/task";
+// core/schedulerSimulator.ts
+import type { Task } from "../core/task";
 
-export function simulateEDF(tasks: Task[], hyperperiod: number): (Job | null)[] {
-  const jobs = edfSchedule(tasks, hyperperiod);
-  const timeline: (Job | null)[] = Array(hyperperiod).fill(null);
+export interface ScheduleEntry {
+  time: number;
+  taskId: string | null; // null = idle
+}
+
+export function simulateEDF(tasks: Task[], hyperperiod: number): ScheduleEntry[] {
+  const schedule: ScheduleEntry[] = [];
+
+  // interne Task-Kopie mit verbleibender Ausführungszeit usw.
+  interface ActiveInstance {
+    id: string;
+    release: number;
+    deadline: number;
+    remaining: number;
+  }
+
+  let active: ActiveInstance[] = [];
 
   for (let t = 0; t < hyperperiod; t++) {
-    const ready = jobs.filter(
-      (j) => j.release <= t && (j.start ?? Infinity) > t - j.C
-    );
-    if (ready.length > 0) {
-      const next = ready.sort((a, b) => a.deadline - b.deadline)[0];
-      if (!next.start) next.start = t;
-      timeline[t] = next;
+    // neue Instanzen freigeben
+    for (const task of tasks) {
+      if (t % task.T === 0) {
+        active.push({
+          id: task.id,
+          release: t,
+          deadline: t + task.D,
+          remaining: task.C,
+        });
+      }
+    }
+
+    // nur Tasks mit verbleibender Arbeit behalten
+    active = active.filter((a) => a.remaining > 0);
+
+    // sortiere nach frühester Deadline
+    active.sort((a, b) => a.deadline - b.deadline);
+
+    // wähle den mit frühester Deadline
+    const current = active[0];
+
+    if (current) {
+      current.remaining -= 1;
+      schedule.push({ time: t, taskId: current.id });
+    } else {
+      schedule.push({ time: t, taskId: null }); // idle
     }
   }
 
-  return timeline;
+  return schedule;
 }
