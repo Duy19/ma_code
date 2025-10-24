@@ -1,4 +1,4 @@
-// core/schedulerSimulator.ts
+// EDF-Simulator
 import type { Task } from "../core/task";
 
 export interface ScheduleEntry {
@@ -9,7 +9,7 @@ export interface ScheduleEntry {
 export function simulateEDF(tasks: Task[], hyperperiod: number): ScheduleEntry[] {
   const schedule: ScheduleEntry[] = [];
 
-  // interne Task-Kopie mit verbleibender Ausführungszeit usw.
+  // active task instances
   interface ActiveInstance {
     id: string;
     release: number;
@@ -20,7 +20,6 @@ export function simulateEDF(tasks: Task[], hyperperiod: number): ScheduleEntry[]
   let active: ActiveInstance[] = [];
 
   for (let t = 0; t < hyperperiod; t++) {
-    // neue Instanzen freigeben
     for (const task of tasks) {
       if (t % task.T === 0) {
         active.push({
@@ -31,14 +30,13 @@ export function simulateEDF(tasks: Task[], hyperperiod: number): ScheduleEntry[]
         });
       }
     }
-
-    // nur Tasks mit verbleibender Arbeit behalten
+    // remove finished tasks
     active = active.filter((a) => a.remaining > 0);
 
-    // sortiere nach frühester Deadline
+    // sort by deadline
     active.sort((a, b) => a.deadline - b.deadline);
 
-    // wähle den mit frühester Deadline
+    // execute the task with the earliest deadline
     const current = active[0];
 
     if (current) {

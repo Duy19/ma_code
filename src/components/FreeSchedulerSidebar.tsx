@@ -4,6 +4,13 @@ import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import type { Task } from "../core/task";
 
+/**
+  
+Sidebar exclusive for Freescheduler with UI to set task parameters.
+Need a prop to to handle change of task parameters and algorithm selection. 
+
+**/
+
 interface FreeSchedulerSidebarProps {
   tasks: Task[];
   algorithm?: string;
@@ -14,41 +21,46 @@ interface FreeSchedulerSidebarProps {
 
 export default function FreeSchedulerSidebar({ tasks, algorithm, onTasksChange, onAlgorithmChange, onClose }: FreeSchedulerSidebarProps) {
   
-    const handleTaskChange = (index: number, field: keyof Task, value: any) => {
-        const newTasks = [...tasks];
-        newTasks[index] = { ...newTasks[index], [field]: value };
-        onTasksChange(newTasks);
+  const handleTaskChange = (index: number, field: keyof Task, value: any) => {
+    const newTasks = [...tasks];
+    newTasks[index] = { ...newTasks[index], [field]: value };
+    onTasksChange(newTasks);
+  };
+
+  // Function to add a new task. Default values can be adjusted as needed.
+  const addTask = () => {
+    const newTask: Task = {
+      id: `t${tasks.length + 1}`,
+      name: `τ${tasks.length + 1}`,
+      color: "#a65a5aff",
+      C: 1,
+      T: 5,
+      D: 5,
+      S: 0,
+      };
+      onTasksChange([...tasks, newTask]);
     };
 
-    const addTask = () => {
-        const newTask: Task = {
-        id: `t${tasks.length + 1}`,
-        name: `τ${tasks.length + 1}`,
-        color: "#a65a5aff",
-        C: 1,
-        T: 5,
-        D: 5,
-        S: 0,
-        };
-        onTasksChange([...tasks, newTask]);
-    };
-
-    const removeTask = (index: number) => {
-        const newTasks = tasks.filter((_, i) => i !== index);
-        onTasksChange(newTasks);
-    };
+  // Function to remove a task by index  
+  const removeTask = (index: number) => {
+    const newTasks = tasks.filter((_, i) => i !== index);
+      onTasksChange(newTasks);
+  };
     
-  
-    return (
+  // Rendering sidebar UI
+  return (
+    // Sidebar Container and Title
     <Box sx={{ width: 240, p: 2 }}>
       <Typography variant="h6" gutterBottom>
         Scheduler Setting
       </Typography>
 
+      {/* Close Button */}
       <Button variant="contained" onClick={onClose}>
         Close
-      </Button>  
-      {/* Algorithm Selection */}
+      </Button>
+
+      {/* Algorithm Selection using MUI formcontrol */}
       <FormControl fullWidth margin="normal" size="small">
         <InputLabel>Algorithm</InputLabel>
         <Select
@@ -64,7 +76,7 @@ export default function FreeSchedulerSidebar({ tasks, algorithm, onTasksChange, 
 
       <Divider sx={{ my: 2 }} />
 
-      {/* Task List */}
+      {/* Task List with parameters*/}
       <Typography variant="subtitle1" gutterBottom>
         Tasks
       </Typography>
@@ -116,6 +128,8 @@ export default function FreeSchedulerSidebar({ tasks, algorithm, onTasksChange, 
           />
         </Box>
       ))}
+
+      {/* Button to add a new task */}
 
       <Button startIcon={<AddIcon />} fullWidth variant="outlined" onClick={addTask}>
         Add Task

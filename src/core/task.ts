@@ -1,3 +1,5 @@
+/* Data structures for tasks, jobs, and schedules */
+
 export interface Job {
   id: string;
   release: number;

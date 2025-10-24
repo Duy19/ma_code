@@ -23,17 +23,17 @@ export default function FreeScheduler() {
   useEffect(() => {
   if (tasks.length === 0) return;
 
-  // Hyperperiode = LCM aller Task-Perioden
+  // Hyperperiod = LCM of all Task Periods
   const periods = tasks.map(t => t.T);
   const hp = lcmArray(periods);
   setHyperperiod(hp);
 
-  // Schedule berechnen
+  // Schedule based on selected algorithm
   let newSchedule: ScheduleEntry[] = [];
   if (algorithm === "EDF") {
     newSchedule = simulateEDF(tasks, hp);
   }
-  // später: andere Algorithmen wie RM oder DM
+// TODO: Add more algorithms here as needed
 
   setSchedule(newSchedule);
 }, [tasks, algorithm]);
