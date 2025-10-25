@@ -1,4 +1,4 @@
-import { AppBar, Toolbar, Typography, Button, Box } from "@mui/material";
+import { AppBar, Toolbar, Button, Box } from "@mui/material";
 import { Outlet, Link } from "react-router-dom";
 import HomeButton from "../components/HomeButton";
 

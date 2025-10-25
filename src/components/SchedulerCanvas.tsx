@@ -1,4 +1,4 @@
-import type { Schedule, Task } from "../core/task";
+import type { Task } from "../core/task";
 import type { ScheduleEntry } from "../logic/simulator";
 
 /*
