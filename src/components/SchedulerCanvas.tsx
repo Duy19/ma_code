@@ -30,7 +30,7 @@ export default function SchedulerCanvas({
   hyperperiod,
   schedule = [],
   pxPerStep = 28,
-  timeStepLabelEvery = 1,
+  //timeStepLabelEvery = 1,
   heightPerTask = 125,
   leftLabelWidth = 72,
 }: Props) {
