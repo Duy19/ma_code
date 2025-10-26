@@ -1,5 +1,5 @@
 import { ThemeProvider, CssBaseline } from "@mui/material";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { HashRouter as Router, Routes, Route } from "react-router-dom";
 import theme from "./theme";
 import Layout from "./components/Layout";
 import Home from "./pages/Home";
@@ -9,7 +9,7 @@ import Chapter2 from "./pages/Chapter2";
 import Chapter3 from "./pages/Chapter3";
 
 function App() {
-  return (
+  return ( 
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Router>
@@ -23,7 +23,7 @@ function App() {
           </Route>
         </Routes>
       </Router>
-    </ThemeProvider>  
+    </ThemeProvider> 
   );
 }
 
