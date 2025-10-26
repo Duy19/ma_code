@@ -34,7 +34,8 @@ export default function SchedulerCanvas({
   heightPerTask = 125,
   leftLabelWidth = 72,
 }: Props) {
-  const svgWidth = leftLabelWidth + hyperperiod * pxPerStep + 40;
+  const maxOffset = Math.max(...tasks.map(t => t.O ?? 0));
+  const svgWidth = leftLabelWidth + (hyperperiod + maxOffset) * pxPerStep + 40;
   const svgHeight = tasks.length * heightPerTask + 80;
   const axisColor = "#0d2b6cff";
   const timeFontSize = 15;
@@ -64,9 +65,9 @@ export default function SchedulerCanvas({
             markerWidth="6"
             markerHeight="6"
             refX="3"
-            refY="-6"
+            refY="6"
             orient="180"
-            markerUnits="strokeWidth"
+            markerUnits="userSpaceOnUse"
             >
             <path d="M0,0 L6,0 L3,6 Z" fill="green" />
           </marker>
@@ -78,7 +79,7 @@ export default function SchedulerCanvas({
             refX="3"
             refY="6"
             orient="180"
-            markerUnits="strokeWidth"
+            markerUnits="userSpaceOnUse"
             >
             <path d="M0,6 L6,6 L3,0 Z" fill="red" />
           </marker>
@@ -88,6 +89,9 @@ export default function SchedulerCanvas({
         <rect x={0} y={0} width={svgWidth} height={svgHeight} fill="white" />
 
         {tasks.map((task, i) => {
+          if (!task.T || task.T <= 0 || isNaN(task.T)) {
+            return null; // Task wird übersprungen, Canvas bleibt stabil
+          }
           const yTop = 24 + i * heightPerTask;
           const centerY = yTop + heightPerTask / 2;
 
@@ -114,31 +118,31 @@ export default function SchedulerCanvas({
                   {task.name}
                 </text>
 
-              {/* horizontale Task-X-Achse */}
+              {/* X-axis */}
               <line
                 x1={leftLabelWidth}
                 y1={centerY - 10}
-                x2={leftLabelWidth + hyperperiod * pxPerStep}
+                x2={leftLabelWidth + (hyperperiod + maxOffset) * pxPerStep}
                 y2={centerY - 10}
                 stroke="#1442a5ff"
                 strokeWidth={2}
               />
 
-              {/* kleine vertikale Y-Achse links für diese Task */}
+              {/* Y-axis */}
               <line
                 x1={leftLabelWidth}
                 y1={yTop}
                 x2={leftLabelWidth}
-                y2={yTop + heightPerTask - heightPerTask / 1.75} // bis zur Mini-X-Achse
+                y2={yTop + heightPerTask - heightPerTask / 1.75}
                 stroke={axisColor}
                 strokeWidth={2}
               />
 
               {/* timesteps for x-axis */}
               <g transform={`translate(${leftLabelWidth}, ${yTop + heightPerTask - heightPerTask / 1.75})`}>
-                {Array.from({ length: hyperperiod + 1 }).map((_, t) => {
+                {Array.from({ length: hyperperiod + maxOffset + 1 }).map((_, t) => {
                   const x = t * pxPerStep;
-                  const showLabel = t % timeStepLabelEvery === 0;
+                  const showLabel = 1;
                   return (
                     <g key={t}>
                       {/* small tick */}
@@ -168,7 +172,7 @@ export default function SchedulerCanvas({
               </g>
 
               {/* small marker on the left */}
-              <circle cx={leftLabelWidth - 18} cy={centerY - 10} r={4} fill={task.color ?? "#60a5fa"} />
+              {/*<circle cx={leftLabelWidth - 18} cy={centerY - 10} r={4} fill={task.color ?? "#60a5fa"} />*/}
                     
                     
               {/* Execution Blocks */}
@@ -195,20 +199,17 @@ export default function SchedulerCanvas({
               {/* Release and Deadline Markers */}
 
               {Array.from({ length: Math.ceil(hyperperiod / task.T) }, (_, k) => {
-                const releaseTime = k * task.T;
+                const releaseTime = k === 0 ? (task.O ?? 0) : k * task.T;
                 const deadlineTime = releaseTime + task.D;
 
-                const centerY = yTop + heightPerTask / 2;
-                const arrowLength = 12;
-                const offset = 10; 
                 return (
                   <g key={`markers-${k}`}>
                     {/* Release marker (Up) */}
                     <line
                       x1={leftLabelWidth + releaseTime * pxPerStep}
-                      y1={centerY + arrowLength}
+                      y1={centerY - 11.5}
                       x2={leftLabelWidth + releaseTime * pxPerStep}
-                      y2={centerY}
+                      y2={centerY- 37.5}
                       stroke="green"
                       strokeWidth={2}
                       markerEnd="url(#arrowUp)"
@@ -217,9 +218,9 @@ export default function SchedulerCanvas({
                     {/* Deadline marker (Down) */}
                     <line
                       x1={leftLabelWidth + deadlineTime * pxPerStep}
-                      y1={centerY + offset}
+                      y1={centerY - 36.5}
                       x2={leftLabelWidth + deadlineTime * pxPerStep}
-                      y2={centerY + offset + 15}
+                      y2={centerY - 16.5}
                       stroke="red"
                       strokeWidth={2}
                       markerEnd="url(#arrowDown)"

@@ -1,8 +1,11 @@
 import { Box, Typography, TextField, IconButton, Divider, 
-    MenuItem, Select, FormControl, InputLabel, Button } from "@mui/material";
+    MenuItem, Select, FormControl, InputLabel, Button, FormGroup, FormControlLabel, Checkbox } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import type { Task } from "../core/task";
+import CloseIcon from '@mui/icons-material/Close';
+import { useRef } from "react";
+
 
 /**
   
@@ -21,18 +24,38 @@ interface FreeSchedulerSidebarProps {
 
 export default function FreeSchedulerSidebar({ tasks, algorithm, onTasksChange, onAlgorithmChange, onClose }: FreeSchedulerSidebarProps) {
   
+  const nextTaskNumber = useRef(1);
+  const taskColors = [
+    "#f94e8aff", 
+    "#3B82F6", 
+    "#4dd5eaff", 
+    "#b37914ff", 
+    "#8B5CF6", 
+  ];
   const handleTaskChange = (index: number, field: keyof Task, value: any) => {
+
+    if ((field === "id") || (field === "name") && tasks.some((t, i) => i !== index && t[field] === value)) {
+      alert(`Task with same ${field} already exist. They have to be unique.`);
+      return;
+    }
+
     const newTasks = [...tasks];
-    newTasks[index] = { ...newTasks[index], [field]: value };
+    newTasks[index] = { ...newTasks[index], [field]: value === "" ? "" : value };
     onTasksChange(newTasks);
   };
 
   // Function to add a new task. Default values can be adjusted as needed.
   const addTask = () => {
+
+    const id = `t${nextTaskNumber.current}`;
+    const name = `τ${nextTaskNumber.current}`;
+    const color = taskColors[(nextTaskNumber.current - 1) % taskColors.length];
+    nextTaskNumber.current += 1;
+
     const newTask: Task = {
-      id: `t${tasks.length + 1}`,
-      name: `τ${tasks.length + 1}`,
-      color: "#a65a5aff",
+      id,
+      name,
+      color,
       C: 1,
       T: 5,
       D: 5,
@@ -52,13 +75,17 @@ export default function FreeSchedulerSidebar({ tasks, algorithm, onTasksChange, 
     // Sidebar Container and Title
     <Box sx={{ width: 240, p: 2 }}>
       <Typography variant="h6" gutterBottom>
-        Scheduler Setting
+        Task Settings
+        <IconButton color="default" onClick={onClose} sx={{ float: 'right' }}>
+          <CloseIcon/>
+        </IconButton>
       </Typography>
 
       {/* Close Button */}
-      <Button variant="contained" onClick={onClose}>
-        Close
-      </Button>
+
+      <FormGroup>
+        <FormControlLabel control={<Checkbox />} label="Allow Suspension" />
+      </FormGroup>
 
       {/* Algorithm Selection using MUI formcontrol */}
       <FormControl fullWidth margin="normal" size="small">
@@ -91,6 +118,17 @@ export default function FreeSchedulerSidebar({ tasks, algorithm, onTasksChange, 
           </Box>
 
           <TextField
+            label="N (Task name)"
+            type="string"
+            size="small"
+            fullWidth
+            margin="dense"
+            value={task.name}
+            onChange={(e) => handleTaskChange(index, "name", String(e.target.value))}
+            slotProps={{ htmlInput: {maxLength: 5}}}
+          />
+
+          <TextField
             label="C (Execution)"
             type="number"
             size="small"
@@ -98,6 +136,7 @@ export default function FreeSchedulerSidebar({ tasks, algorithm, onTasksChange, 
             margin="dense"
             value={task.C}
             onChange={(e) => handleTaskChange(index, "C", Number(e.target.value))}
+            slotProps={{ htmlInput: { min: 0, step: 1 } }}
           />
           <TextField
             label="T (Period)"
@@ -107,6 +146,7 @@ export default function FreeSchedulerSidebar({ tasks, algorithm, onTasksChange, 
             margin="dense"
             value={task.T}
             onChange={(e) => handleTaskChange(index, "T", Number(e.target.value))}
+            slotProps={{ htmlInput: { min: 1, step: 1 } }}
           />
           <TextField
             label="D (Deadline)"
@@ -116,6 +156,17 @@ export default function FreeSchedulerSidebar({ tasks, algorithm, onTasksChange, 
             margin="dense"
             value={task.D}
             onChange={(e) => handleTaskChange(index, "D", Number(e.target.value))}
+            slotProps={{ htmlInput: { min: 1, step: 1 } }}
+          />
+          <TextField
+            label="O (Offset)"
+            type="number"
+            size="small"
+            fullWidth
+            margin="dense"
+            value={task.O ?? 0}
+            onChange={(e) => handleTaskChange(index, "O", Number(e.target.value))}
+            slotProps={{ htmlInput: { min: 0, step: 1 } }}
           />
           <TextField
             label="S (Suspension)"
@@ -125,6 +176,7 @@ export default function FreeSchedulerSidebar({ tasks, algorithm, onTasksChange, 
             margin="dense"
             value={task.S ?? 0}
             onChange={(e) => handleTaskChange(index, "S", Number(e.target.value))}
+            slotProps={{ htmlInput: { min: 0, step: 1 } }}
           />
         </Box>
       ))}

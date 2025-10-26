@@ -21,7 +21,8 @@ export function simulateEDF(tasks: Task[], hyperperiod: number): ScheduleEntry[]
 
   for (let t = 0; t < hyperperiod; t++) {
     for (const task of tasks) {
-      if (t % task.T === 0) {
+      const offset = task.O ?? 0;
+      if ((t-offset) >= 0 && (t-offset) % task.T === 0) {
         active.push({
           id: task.id,
           release: t,
