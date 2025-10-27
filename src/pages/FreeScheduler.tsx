@@ -4,7 +4,7 @@ import FreeSchedulerSidebar from "../components/FreeSchedulerSidebar";
 import { Box, Drawer, IconButton } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import { useEffect, useState } from "react";
-import { simulateEDF, type ScheduleEntry } from "../logic/simulator";
+import { simulateEDF, simulateRM, type ScheduleEntry } from "../logic/simulator";
 import { lcmArray } from "../utils/formulas";
 
 const initialTasks: Task[] = [
@@ -26,20 +26,19 @@ export default function FreeScheduler() {
   setHyperperiod(hp);
 
   // Schedule based on selected algorithm
+  
   let newSchedule: ScheduleEntry[] = [];
   if (algorithm === "EDF") {
     newSchedule = simulateEDF(tasks, hp);
+  }
+
+  else if (algorithm === "RM") {
+    newSchedule = simulateRM(tasks, hp);
   }
 // TODO: Add more algorithms here as needed
 
   setSchedule(newSchedule);
 }, [tasks, algorithm]);
-
-
-  useEffect(() => {
-    const newSchedule = simulateEDF(tasks, hyperperiod);
-    setSchedule(newSchedule);
-  }, [tasks, hyperperiod]);
 
 
   return (

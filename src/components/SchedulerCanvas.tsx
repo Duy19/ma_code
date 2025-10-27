@@ -90,7 +90,7 @@ export default function SchedulerCanvas({
 
         {tasks.map((task, i) => {
           if (!task.T || task.T <= 0 || isNaN(task.T)) {
-            return null; // Task wird übersprungen, Canvas bleibt stabil
+            return null;
           }
           const yTop = 24 + i * heightPerTask;
           const centerY = yTop + heightPerTask / 2;
@@ -169,11 +169,7 @@ export default function SchedulerCanvas({
                     </g>
                   );
                 })}
-              </g>
-
-              {/* small marker on the left */}
-              {/*<circle cx={leftLabelWidth - 18} cy={centerY - 10} r={4} fill={task.color ?? "#60a5fa"} />*/}
-                    
+              </g>  
                     
               {/* Execution Blocks */}
               {schedule.filter((s) => s.taskId === task.id).map((s) => {
