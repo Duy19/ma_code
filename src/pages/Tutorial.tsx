@@ -2,8 +2,6 @@ import SchedulerCanvas from "../components/SchedulerCanvas";
 import type { Task} from "../core/task";
 import type { ScheduleEntry} from "../logic/simulator";
 import { simulateEDF} from "../logic/simulator";
-import { useState } from "react";
-import FreeSchedulerSidebar from "../components/FreeSchedulerSidebar";
 
 const tutorialTasks: Task[] = [
   { id: "brake", name: "Bremsen", C: 2, T: 8, D: 8, color: "#f87171" },

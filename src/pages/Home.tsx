@@ -38,7 +38,7 @@ export default function Home() {
           variant="contained"
           size="large"
           component={Link}
-          to="/tutorial1"
+          to="/tutorial"
           sx={{ mt: 4 }}
         >
           Beginnen
