@@ -11,7 +11,7 @@ const initialTasks: Task[] = [
 ];
 
 export default function FreeScheduler() {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
   const[algorithm, setAlgorithm] = useState<string>("EDF");
   const [hyperperiod, setHyperperiod] = useState(24);

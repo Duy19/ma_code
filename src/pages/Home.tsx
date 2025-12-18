@@ -4,6 +4,7 @@ import {
   Box,
   Container,
 } from "@mui/material";
+import { Link } from "react-router-dom";
 
 export default function Home() {
   return (
@@ -36,7 +37,8 @@ export default function Home() {
         <Button
           variant="contained"
           size="large"
-          href="/chapter1"
+          component={Link}
+          to="/tutorial1"
           sx={{ mt: 4 }}
         >
           Beginnen

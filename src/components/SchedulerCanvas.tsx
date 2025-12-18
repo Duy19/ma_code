@@ -22,6 +22,19 @@ type Props = {
   timeStepLabelEvery?: number;
   heightPerTask?: number;
   leftLabelWidth?: number;
+  svgManualWidth?: number;
+  svgManualHeight?: number;
+  visibility?: Partial<typeof DEFAULT_VISIBILITY>;
+};
+
+const DEFAULT_VISIBILITY = {
+  showTaskLabels: true,
+  showXAxis: true,
+  showYAxis: true,
+  showTimeTicks: true,
+  showExecutionBlocks: true,
+  showReleaseMarkers: true,
+  showDeadlineMarkers: true,
 };
 
 // SchedulerCanvas function to visualize the scheduling
@@ -33,13 +46,20 @@ export default function SchedulerCanvas({
   //timeStepLabelEvery = 1,
   heightPerTask = 125,
   leftLabelWidth = 72,
+  visibility,
 }: Props) {
+
   const maxOffset = Math.max(...tasks.map(t => t.O ?? 0));
   const svgWidth = leftLabelWidth + (hyperperiod + maxOffset) * pxPerStep + 40;
   const svgHeight = tasks.length * heightPerTask + 80;
   const axisColor = "#0d2b6cff";
   const timeFontSize = 15;
   const labelFontSize = 18;
+
+  const mergedVisibility = {
+    ...DEFAULT_VISIBILITY,
+    ...visibility,
+  }
 
   return (
     <div className="flex h-screen">
@@ -99,98 +119,117 @@ export default function SchedulerCanvas({
             <g key={task.id}>
 
               {/* task label area at the left*/}
-              <rect
-                x={0}
-                y={yTop}
-                width={leftLabelWidth - 12}
-                height={heightPerTask - 12 - 20}
-                rx={8}
-                fill="#ffffffff"
-                />
+              {mergedVisibility.showTaskLabels && (
+                <>
+                  <rect
+                    x={0}
+                    y={yTop}
+                    width={leftLabelWidth - 12}
+                    height={heightPerTask - 12 - 20}
+                    rx={8}
+                    fill="#ffffffff"
+                  />
 
-                <text
-                  x={12}
-                  y={centerY - 10}
-                  fontSize={labelFontSize}
-                  fontWeight={600}
-                  fill="#111827"
-                  >
-                  {task.name}
-                </text>
-
+                  <text
+                    x={12}
+                    y={centerY - 10}
+                    fontSize={labelFontSize}
+                    fontWeight={600}
+                    fill="#111827"
+                    >
+                    {task.name}
+                  </text>
+                </>
+              )}
               {/* X-axis */}
-              <line
-                x1={leftLabelWidth}
-                y1={centerY - 10}
-                x2={leftLabelWidth + (hyperperiod + maxOffset) * pxPerStep}
-                y2={centerY - 10}
-                stroke="#1442a5ff"
-                strokeWidth={2}
-              />
+              {mergedVisibility.showXAxis && (
+                <>
+                  <line
+                    x1={leftLabelWidth}
+                    y1={centerY - 10}
+                    x2={leftLabelWidth + (hyperperiod + maxOffset) * pxPerStep}
+                    y2={centerY - 10}
+                    stroke="#1442a5ff"
+                    strokeWidth={2}
+                  />
+                </>
+              )}
 
-              {/* Y-axis */}
-              <line
-                x1={leftLabelWidth}
-                y1={yTop}
-                x2={leftLabelWidth}
-                y2={yTop + heightPerTask - heightPerTask / 1.75}
-                stroke={axisColor}
-                strokeWidth={2}
-              />
+              {mergedVisibility.showYAxis && (
+                <>
+                  {/* Y-axis */}
+                  <line
+                    x1={leftLabelWidth}
+                    y1={yTop}
+                    x2={leftLabelWidth}
+                    y2={yTop + heightPerTask - heightPerTask / 1.75}
+                    stroke={axisColor}
+                    strokeWidth={2}
+                  />
+                </>
+              )}
 
               {/* timesteps for x-axis */}
-              <g transform={`translate(${leftLabelWidth}, ${yTop + heightPerTask - heightPerTask / 1.75})`}>
-                {Array.from({ length: hyperperiod + maxOffset + 1 }).map((_, t) => {
-                  const x = t * pxPerStep;
-                  const showLabel = 1;
-                  return (
-                    <g key={t}>
-                      {/* small tick */}
-                      <line
-                        x1={x}
-                        y1={0}
-                        x2={x}
-                        y2={6}
-                        stroke={axisColor}
-                        strokeWidth={1}
-                      />
-                      {/* optional label */}
-                      {showLabel && (
-                        <text
-                          x={x}
-                          y={18}
-                          textAnchor="middle"
-                          fontSize={timeFontSize - 2}
-                          fill="#0f0e0dff"
-                        >
-                          {t}
-                        </text>
-                        )}
-                    </g>
-                  );
-                })}
-              </g>  
+              {mergedVisibility.showTimeTicks && (
+                <>
+                  <g transform={`translate(${leftLabelWidth}, ${yTop + heightPerTask - heightPerTask / 1.75})`}>
+                    {Array.from({ length: hyperperiod + maxOffset + 1 }).map((_, t) => {
+                      const x = t * pxPerStep;
+                      const showLabel = 1;
+                      return (
+                        <g key={t}>
+                          {/* small tick */}
+                          <line
+                            x1={x}
+                            y1={0}
+                            x2={x}
+                            y2={6}
+                            stroke={axisColor}
+                            strokeWidth={1}
+                          />
+                          {/* optional label */}
+                          {showLabel && (
+                            <text
+                              x={x}
+                              y={18}
+                              textAnchor="middle"
+                              fontSize={timeFontSize - 2}
+                              fill="#0f0e0dff"
+                            >
+                              {t}
+                            </text>
+                            )}
+                        </g>
+                      );
+                    })}
+                  </g>
+                </>
+              )}  
                     
               {/* Execution Blocks */}
-              {schedule.filter((s) => s.taskId === task.id).map((s) => {
-                const x = leftLabelWidth + s.time * pxPerStep;
-                const y = centerY - heightPerTask / 2 + 10; 
-                const blockHeight = heightPerTask / 2 - 20;
-                return (
-                  <rect
-                    key={`${task.id}-${s.time}`}
-                    x={x}
-                    y={y}
-                    width={pxPerStep}
-                    height={blockHeight}
-                    fill={task.color}
-                    opacity={0.85}
-                    stroke="#1e293b"
-                    strokeWidth={0.5}
-                    rx={3}
-                  />
-                );
-              })}
+              {mergedVisibility.showExecutionBlocks && (
+                <>
+                  {schedule.filter((s) => s.taskId === task.id).map((s) => {
+                    const x = leftLabelWidth + s.time * pxPerStep;
+                    const y = centerY - heightPerTask / 2 + 10; 
+                    const blockHeight = heightPerTask / 2 - 20;
+                    return (
+                      <rect
+                        key={`${task.id}-${s.time}`}
+                        x={x}
+                        y={y}
+                        width={pxPerStep}
+                        height={blockHeight}
+                        fill={task.color}
+                        opacity={0.85}
+                        stroke="#1e293b"
+                        strokeWidth={0.5}
+                        rx={3}
+                      />
+                    );
+                  })}
+                </>
+              )}
               
               {/* Release and Deadline Markers */}
 
@@ -201,26 +240,34 @@ export default function SchedulerCanvas({
                 return (
                   <g key={`markers-${k}`}>
                     {/* Release marker (Up) */}
-                    <line
-                      x1={leftLabelWidth + releaseTime * pxPerStep}
-                      y1={centerY - 11.5}
-                      x2={leftLabelWidth + releaseTime * pxPerStep}
-                      y2={centerY- 37.5}
-                      stroke="green"
-                      strokeWidth={2}
-                      markerEnd="url(#arrowUp)"
-                    />
+                    {mergedVisibility.showReleaseMarkers && (
+                      <>
+                        <line
+                          x1={leftLabelWidth + releaseTime * pxPerStep}
+                          y1={centerY - 11.5}
+                          x2={leftLabelWidth + releaseTime * pxPerStep}
+                          y2={centerY- 37.5}
+                          stroke="green"
+                          strokeWidth={2}
+                          markerEnd="url(#arrowUp)"
+                        />
+                      </>
+                    )}
 
                     {/* Deadline marker (Down) */}
-                    <line
-                      x1={leftLabelWidth + deadlineTime * pxPerStep}
-                      y1={centerY - 36.5}
-                      x2={leftLabelWidth + deadlineTime * pxPerStep}
-                      y2={centerY - 16.5}
-                      stroke="red"
-                      strokeWidth={2}
-                      markerEnd="url(#arrowDown)"
-                    />
+                    {mergedVisibility.showDeadlineMarkers && (
+                      <>
+                        <line
+                          x1={leftLabelWidth + deadlineTime * pxPerStep}
+                          y1={centerY - 36.5}
+                          x2={leftLabelWidth + deadlineTime * pxPerStep}
+                          y2={centerY - 16.5}
+                          stroke="red"
+                          strokeWidth={2}
+                          markerEnd="url(#arrowDown)"
+                        />
+                      </>
+                    )}
                   </g>
                 );
               })}

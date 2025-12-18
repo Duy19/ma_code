@@ -7,6 +7,7 @@ import FreeScheduler from "./pages/FreeScheduler";
 import Chapter1 from "./pages/Chapter1";
 import Chapter2 from "./pages/Chapter2";
 import Chapter3 from "./pages/Chapter3";
+import Tutorial from "./pages/Tutorial";
 
 function App() {
   return ( 
@@ -20,6 +21,7 @@ function App() {
             <Route path="chapter1" element={<Chapter1 />} />
             <Route path="chapter2" element={<Chapter2 />} />
             <Route path="chapter3" element={<Chapter3 />} />
+            <Route path="tutorial" element={<Tutorial />} />
           </Route>
         </Routes>
       </Router>

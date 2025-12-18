@@ -14,16 +14,44 @@ Need a prop to to handle change of task parameters and algorithm selection.
 
 **/
 
+interface SidebarVisibility {
+  showTaskNames?: boolean;
+  showExecutionTime?: boolean;
+  showPeriods?: boolean;  
+  showDeadlines?: boolean;
+  showOffsets?: boolean;
+  showSuspension?: boolean;  
+  showTaskControls?: boolean;
+  showAlgorithmSelection?: boolean;
+
+}
 interface FreeSchedulerSidebarProps {
   tasks: Task[];
   algorithm?: string;
   onTasksChange: (tasks: Task[]) => void;
   onAlgorithmChange?: (algorithm: string) => void;
   onClose: () => void;
+  visibility?: SidebarVisibility;
+  isFieldEditable?: (task: Task, field: keyof Task | "algorithm") => boolean;
 }
 
-export default function FreeSchedulerSidebar({ tasks, algorithm, onTasksChange, onAlgorithmChange, onClose }: FreeSchedulerSidebarProps) {
-  
+export default function FreeSchedulerSidebar({ tasks, algorithm, onTasksChange, onAlgorithmChange, onClose, visibility, isFieldEditable }: FreeSchedulerSidebarProps) {
+  const DEFAULT_VISIBILITY: SidebarVisibility = {
+    showTaskNames: true,
+    showExecutionTime: true,
+    showPeriods: true,
+    showDeadlines: true,
+    showOffsets: true,
+    showSuspension: true,
+    showTaskControls: true,
+    showAlgorithmSelection: true
+  };
+
+  const mergedVisibility = {
+    ...DEFAULT_VISIBILITY,
+    ...visibility,
+  };
+
   const nextTaskNumber = useRef(1);
   const taskColors = [
     "#f94e8aff", 
@@ -33,7 +61,6 @@ export default function FreeSchedulerSidebar({ tasks, algorithm, onTasksChange, 
     "#8B5CF6", 
   ];
   const handleTaskChange = (index: number, field: keyof Task, value: any) => {
-
     if ((field === "id") || (field === "name") && tasks.some((t, i) => i !== index && t[field] === value)) {
       alert(`Task with same ${field} already exist. They have to be unique.`);
       return;
@@ -45,6 +72,7 @@ export default function FreeSchedulerSidebar({ tasks, algorithm, onTasksChange, 
   };
 
   // Function to add a new task. Default values can be adjusted as needed.
+
   const addTask = () => {
 
     const id = `t${nextTaskNumber.current}`;
@@ -76,30 +104,38 @@ export default function FreeSchedulerSidebar({ tasks, algorithm, onTasksChange, 
     <Box sx={{ width: 240, p: 2 }}>
       <Typography variant="h6" gutterBottom>
         Task Settings
+        {/* Close Button */}
         <IconButton color="default" onClick={onClose} sx={{ float: 'right' }}>
           <CloseIcon/>
         </IconButton>
       </Typography>
 
-      {/* Close Button */}
-
-      <FormGroup>
-        <FormControlLabel control={<Checkbox />} label="Allow Suspension" />
-      </FormGroup>
+      {/* Suspension Checkbox */}
+      {mergedVisibility.showSuspension && (
+        <>
+          <FormGroup>
+            <FormControlLabel control={<Checkbox />} label="Allow Suspension" />
+          </FormGroup>
+        </>
+      )}
 
       {/* Algorithm Selection using MUI formcontrol */}
-      <FormControl fullWidth margin="normal" size="small">
-        <InputLabel>Algorithm</InputLabel>
-        <Select
-          value={algorithm ?? ""}
-          label="Algorithm"
-          onChange={(e) => onAlgorithmChange?.(e.target.value as string)}
-        >
-          <MenuItem value="DM">Deadline Monotonic (DM)</MenuItem>
-          <MenuItem value="EDF">Earliest Deadline First (EDF)</MenuItem>
-          <MenuItem value="RM">Rate Monotonic (RM)</MenuItem>
-        </Select>
-      </FormControl>
+      {mergedVisibility.showAlgorithmSelection && (
+        <>
+          <FormControl fullWidth margin="normal" size="small" disabled={isFieldEditable ? !isFieldEditable({} as Task, "algorithm") : false}>
+            <InputLabel>Algorithm</InputLabel>
+            <Select
+              value={algorithm ?? ""}
+              label="Algorithm"
+              onChange={(e) => onAlgorithmChange?.(e.target.value as string)}
+            >
+              <MenuItem value="DM">Deadline Monotonic (DM)</MenuItem>
+              <MenuItem value="EDF">Earliest Deadline First (EDF)</MenuItem>
+              <MenuItem value="RM">Rate Monotonic (RM)</MenuItem>
+            </Select>
+          </FormControl>
+        </>
+      )}
 
       <Divider sx={{ my: 2 }} />
 
@@ -110,82 +146,124 @@ export default function FreeSchedulerSidebar({ tasks, algorithm, onTasksChange, 
 
       {tasks.map((task, index) => (
         <Box key={task.id} sx={{ mb: 2, border: "1px solid #ddd", borderRadius: 2, p: 1 }}>
-          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <Typography variant="subtitle2">{task.name}</Typography>
-            <IconButton size="small" onClick={() => removeTask(index)}>
-              <DeleteIcon fontSize="small" />
-            </IconButton>
-          </Box>
+          {mergedVisibility.showTaskControls && (
+            <>
+              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <Typography variant="subtitle2">{task.name}</Typography>
+                <IconButton size="small" onClick={() => removeTask(index)}>
+                  <DeleteIcon fontSize="small" />
+                </IconButton>
+              </Box>
+            </>
+          )}
 
-          <TextField
-            label="N (Task name)"
-            type="string"
-            size="small"
-            fullWidth
-            margin="dense"
-            value={task.name}
-            onChange={(e) => handleTaskChange(index, "name", String(e.target.value))}
-            slotProps={{ htmlInput: {maxLength: 5}}}
-          />
+          {mergedVisibility.showTaskNames && (
+            <>
+              <TextField
+                label="N (Task name)"
+                type="string"
+                size="small"
+                fullWidth
+                margin="dense"
+                value={task.name}
+                onChange={(e) => handleTaskChange(index, "name", String(e.target.value))}
+                slotProps={{ htmlInput: {maxLength: 5}}}
+                disabled={isFieldEditable ? !isFieldEditable(task, "name") : false}
+              />
+            </>
+          )}
 
-          <TextField
-            label="C (Execution)"
-            type="number"
-            size="small"
-            fullWidth
-            margin="dense"
-            value={task.C}
-            onChange={(e) => handleTaskChange(index, "C", Number(e.target.value))}
-            slotProps={{ htmlInput: { min: 0, step: 1 } }}
-          />
-          <TextField
-            label="T (Period)"
-            type="number"
-            size="small"
-            fullWidth
-            margin="dense"
-            value={task.T}
-            onChange={(e) => handleTaskChange(index, "T", Number(e.target.value))}
-            slotProps={{ htmlInput: { min: 1, step: 1 } }}
-          />
-          <TextField
-            label="D (Deadline)"
-            type="number"
-            size="small"
-            fullWidth
-            margin="dense"
-            value={task.D}
-            onChange={(e) => handleTaskChange(index, "D", Number(e.target.value))}
-            slotProps={{ htmlInput: { min: 1, step: 1 } }}
-          />
-          <TextField
-            label="O (Offset)"
-            type="number"
-            size="small"
-            fullWidth
-            margin="dense"
-            value={task.O ?? 0}
-            onChange={(e) => handleTaskChange(index, "O", Number(e.target.value))}
-            slotProps={{ htmlInput: { min: 0, step: 1 } }}
-          />
-          <TextField
-            label="S (Suspension)"
-            type="number"
-            size="small"
-            fullWidth
-            margin="dense"
-            value={task.S ?? 0}
-            onChange={(e) => handleTaskChange(index, "S", Number(e.target.value))}
-            slotProps={{ htmlInput: { min: 0, step: 1 } }}
-          />
+          {mergedVisibility.showExecutionTime && (
+            <>
+              <TextField
+                label="C (Execution)"
+                type="number"
+                size="small"
+                fullWidth
+                margin="dense"
+                value={task.C}
+                onChange={(e) => handleTaskChange(index, "C", Number(e.target.value))}
+                slotProps={{ htmlInput: { min: 0, step: 1 } }}
+                disabled={isFieldEditable ? !isFieldEditable(task, "C") : false}
+              />
+            </>
+          )}
+
+          {mergedVisibility.showPeriods && (
+          <>
+              <TextField
+                label="T (Period)"
+                type="number"
+                size="small"
+                fullWidth
+                margin="dense"
+                value={task.T}
+                onChange={(e) => handleTaskChange(index, "T", Number(e.target.value))}
+                slotProps={{ htmlInput: { min: 1, step: 1 } }}
+                disabled={isFieldEditable ? !isFieldEditable(task, "T") : false}
+              />
+          </>
+          )}
+
+          {mergedVisibility.showDeadlines && (
+            <>
+              <TextField
+                label="D (Deadline)"
+                type="number"
+                size="small"
+                fullWidth
+                margin="dense"
+                value={task.D}
+                onChange={(e) => handleTaskChange(index, "D", Number(e.target.value))}
+                slotProps={{ htmlInput: { min: 1, step: 1 } }}
+                disabled={isFieldEditable ? !isFieldEditable(task, "D") : false}
+              />
+            </>
+          )}
+
+          {mergedVisibility.showOffsets && (
+            <>
+              <TextField
+                label="O (Offset)"
+                type="number"
+                size="small"
+                fullWidth
+                margin="dense"
+                value={task.O ?? 0}
+                onChange={(e) => handleTaskChange(index, "O", Number(e.target.value))}
+                slotProps={{ htmlInput: { min: 0, step: 1 } }}
+                disabled={isFieldEditable ? !isFieldEditable(task, "O") : false}
+              />
+            </>
+          )}
+
+          {mergedVisibility.showSuspension && ( 
+            <>
+              <TextField
+                label="S (Suspension)"
+                type="number"
+                size="small"
+                fullWidth
+                margin="dense"
+                value={task.S ?? 0}
+                onChange={(e) => handleTaskChange(index, "S", Number(e.target.value))}
+                slotProps={{ htmlInput: { min: 0, step: 1 } }}
+                disabled={isFieldEditable ? !isFieldEditable(task, "S") : false}
+              />
+            </>
+          )}
         </Box>
       ))}
 
       {/* Button to add a new task */}
 
-      <Button startIcon={<AddIcon />} fullWidth variant="outlined" onClick={addTask}>
-        Add Task
-      </Button>
+      {mergedVisibility.showTaskControls && (
+        <>
+          <Button startIcon={<AddIcon />} fullWidth variant="outlined" onClick={addTask}>
+            Add Task
+          </Button>
+        </>
+      )}
 
       <Divider sx={{ my: 2 }} />
     </Box>
