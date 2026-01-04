@@ -41,7 +41,7 @@ export default function Home() {
           to="/tutorial"
           sx={{ mt: 4 }}
         >
-          Beginnen
+          Tutorial
         </Button>
       </Container>
 

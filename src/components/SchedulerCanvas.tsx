@@ -25,6 +25,7 @@ type Props = {
   svgManualWidth?: number;
   svgManualHeight?: number;
   visibility?: Partial<typeof DEFAULT_VISIBILITY>;
+  highlight?: string | null;
 };
 
 const DEFAULT_VISIBILITY = {
@@ -47,6 +48,7 @@ export default function SchedulerCanvas({
   heightPerTask = 125,
   leftLabelWidth = 72,
   visibility,
+  highlight,
 }: Props) {
 
   const maxOffset = Math.max(...tasks.map(t => t.O ?? 0));
@@ -112,11 +114,17 @@ export default function SchedulerCanvas({
           if (!task.T || task.T <= 0 || isNaN(task.T)) {
             return null;
           }
+          const isHighlightedTask =  task.id === highlight;
           const yTop = 24 + i * heightPerTask;
           const centerY = yTop + heightPerTask / 2;
 
           return (
-            <g key={task.id}>
+            <g key={task.id}
+              style={{
+                opacity: highlight && !isHighlightedTask ? 0.25 : 1,
+                pointerEvents: isHighlightedTask ? "auto" : "none",
+              }}
+            >
 
               {/* task label area at the left*/}
               {mergedVisibility.showTaskLabels && (
@@ -126,8 +134,11 @@ export default function SchedulerCanvas({
                     y={yTop}
                     width={leftLabelWidth - 12}
                     height={heightPerTask - 12 - 20}
-                    rx={8}
-                    fill="#ffffffff"
+                    rx={3}
+                    fill={task.color}
+                    opacity={0.85}
+                    stroke="#1e293b"
+                    strokeWidth={0.5}
                   />
 
                   <text

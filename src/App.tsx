@@ -8,6 +8,8 @@ import Chapter1 from "./pages/Chapter1";
 import Chapter2 from "./pages/Chapter2";
 import Chapter3 from "./pages/Chapter3";
 import Tutorial from "./pages/Tutorial";
+import Tutorial2 from "./pages/Tutorial2";
+import Tutorial3 from "./pages/Tutorial3";
 
 function App() {
   return ( 
@@ -22,6 +24,8 @@ function App() {
             <Route path="chapter2" element={<Chapter2 />} />
             <Route path="chapter3" element={<Chapter3 />} />
             <Route path="tutorial" element={<Tutorial />} />
+            <Route path="tutorial2" element={<Tutorial2 />} />
+            <Route path="tutorial3" element={<Tutorial3 />} />
           </Route>
         </Routes>
       </Router>
