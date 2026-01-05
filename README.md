@@ -19,17 +19,18 @@ Meeting 05.01
    - Erstmal Beispiele Hardcoden
 
    - Kapitel 1: Verschiedenste Scheduling Policies genauer betrachten.
-    -> Kleine Einführung, Matching (Normal und Reverse)
+      - Kleine Einführung, Matching (Normal und Reverse)
 
    - Kapitel 2: CIT und Worst Cases betrachten
-    -> Kleine Einführung und Beispiele dafür zur Veranschaulichung
-    -> Evtl. Matching zum Schluss
+      - Kleine Einführung und Beispiele dafür zur Veranschaulichung
+    
+      - Evtl. Matching zum Schluss
 
 Ab ~ mitte Januar
 
    - Kapitel 3: Suspension und Co
-    -> Hier einige Beispiele Hardcoden
-    -> Worst Cases generieren ist hier schwieriger daher erstmal nur Kapitel 1 & 2
+      - Hier einige Beispiele Hardcoden
+      - Worst Cases generieren ist hier schwieriger daher erstmal nur Kapitel 1 & 2
 
    - Taskset Generierung durch Mutation der Parameter
 
@@ -37,4 +38,5 @@ Generell
 
    - Schreiben!
    - Hier und da Oberfläche etc. Anpassen für User
+
 
