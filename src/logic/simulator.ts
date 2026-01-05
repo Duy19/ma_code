@@ -14,10 +14,16 @@ export function simulateEDF(tasks: Task[], hyperperiod: number): ScheduleEntry[]
     id: string;
     release: number;
     deadline: number;
-    remaining: number;
+    remainingExecution: number;
   }
 
   let active: ActiveInstance[] = [];
+
+  // Map tasks to an deterministic order for tie-break
+  const taskOrder = new Map<string, number>();
+    tasks.forEach((task, index) => {
+      taskOrder.set(task.id, index);
+    });
 
   for (let t = 0; t < hyperperiod; t++) {
     for (const task of tasks) {
@@ -27,18 +33,26 @@ export function simulateEDF(tasks: Task[], hyperperiod: number): ScheduleEntry[]
           id: task.id,
           release: t,
           deadline: t + task.D,
-          remaining: task.C,
+          remainingExecution: task.C,
         });
       }
     }
 
-    active = active.filter((a) => a.remaining > 0);
-    // sort by deadline
-    active.sort((a, b) => a.deadline - b.deadline);
+    active = active.filter((a) => a.remainingExecution > 0);
+
+    active.sort((a, b) => {
+      // sort by deadline
+      if (a.deadline !== b.deadline) {
+        return a.deadline - b.deadline;
+      }
+      // tie-break via task order
+      return taskOrder.get(a.id)! - taskOrder.get(b.id)!;
+    });
+
     const current = active[0];
 
     if (current) {
-      current.remaining -= 1;
+      current.remainingExecution -= 1;
       schedule.push({ time: t, taskId: current.id });
     } else {
       schedule.push({ time: t, taskId: null });
@@ -63,6 +77,12 @@ export function simulateRM(tasks: Task[], hyperperiod: number): ScheduleEntry[] 
   }
 
   let active: ActiveInstance[] = [];
+    
+  // Map tasks to an deterministic order for tie-break
+  const taskOrder = new Map<string, number>();
+    tasks.forEach((task, index) => {
+      taskOrder.set(task.id, index);
+    });
 
   for (let t = 0; t < hyperperiod; t++) {
     for (const task of tasks) {
@@ -80,7 +100,15 @@ export function simulateRM(tasks: Task[], hyperperiod: number): ScheduleEntry[] 
 
     active = active.filter((a) => a.remaining > 0);
     // sort by period (Rate Monotonic)
-    active.sort((a, b) => a.period - b.period);
+    active.sort((a, b) => {
+      if (a.period !== b.period) {
+        return a.period - b.period;
+      }
+
+      // tie-break via task order
+      return taskOrder.get(a.id)! - taskOrder.get(b.id)!; 
+    });
+
     const current = active[0];
     if (current) {
       current.remaining -= 1;

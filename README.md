@@ -6,3 +6,5 @@ https://duy19.github.io/ma_code/
 
 Todo: 
 - Migrate code because of url name later on
+- WIP Chapter 1 
+- Check Survey
