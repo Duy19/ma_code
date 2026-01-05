@@ -86,8 +86,8 @@ export default function Tutorial3() {
               showYAxis: false,
               showTimeTicks: false,
               showExecutionBlocks: true,
-              showReleaseMarkers: true,
-              showDeadlineMarkers: false,
+              showReleaseMarkers: false,
+              showDeadlineMarkers: true,
             }}
             highlight={currentStep.highlight ?? (checked ? "sensor" : null)}
           />
