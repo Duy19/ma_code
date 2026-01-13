@@ -101,7 +101,7 @@ export default function FreeSchedulerSidebar({ tasks, algorithm, onTasksChange, 
   // Rendering sidebar UI
   return (
     // Sidebar Container and Title
-    <Box sx={{ width: 240, p: 2 }}>
+    <Box sx={{ width: "90%", p: 2, height: "100%", boxSizing: "border-box", overflowY: "auto" }}>
       <Typography variant="h6" gutterBottom>
         Task Settings
         {/* Close Button */}

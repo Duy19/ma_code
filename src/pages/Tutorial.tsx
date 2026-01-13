@@ -14,7 +14,7 @@ const tutorialTasks: Task[] = [
 ];
 
 const STORY = [
-  { text: "Moin! Ich bin **Mr. Tau** und erkläre dir, wie ein selbstfahrendes Auto Aufgaben plant. In diesem Fall hat das Auto **3 Funktionen** die an verschiedenen Zeitpunkten ausgeführt werden müssen.", highlight: null },
+  { text: "Moin! Ich bin **Mr. Tau** und erkläre dir, wie ein selbstfahrendes Auto Aufgaben plant. In diesem Fall hat das Auto **3 Funktionen** die an verschiedenen Zeitpunkten ausgeführt werden müssen. (**Sprechblase anklicken**)", highlight: null },
   { text: "Zunächst einmal die **Bremsen**. Diese sind sehr wichtig und sollten immer funktionsbereit sein. Die Bremsen brauchen hier **2 Zeitschritte** um ausgeführt zu werden.", highlight: "brake" },
   { text: "Die **grünen Pfeile** verraten dir den Zeitpunkt, ab wann die nächste Bremsaufgabe stattfinden kann.", highlight: "brake" },
   { text: "Als nächstes haben wir den **Sensor** für die Hinderniserkennung. Diese Funktion benötigt **1 Zeitschritt** um ausgeführt zu werden. Diese Aufgabe läuft frequentierter ab um Hindernisse erfolgreicher zu erkennen.", highlight: "sensor" },
@@ -39,68 +39,53 @@ export default function TutorialStep1() {
     }
   };
 
-  return (
-    <div style={{ display: "flex", width: "100%", minHeight: "500px", position: "relative" }}>
-      {/* SchedulerCanvas */}
-      <div style={{ flex: 1, position: "relative" }}>
-        <div style={{ width: "70%", height: "400px", border: "1px solid #ddd" }}>
-          <SchedulerCanvas
-            tasks={tutorialTasks}
-            hyperperiod={hyperperiod}
-            schedule={schedule}
-            pxPerStep={28}
-            leftLabelWidth={140}
-            visibility={{
-              showTaskLabels: true,
-              showXAxis: true,
-              showYAxis: false,
-              showTimeTicks: false,
-              showExecutionBlocks: true,
-              showReleaseMarkers: true,
-              showDeadlineMarkers: false,
-            }}
-            highlight={currentStep.highlight}
-          />
-        </div>
+ return (
+    <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+      {/* Mr.Tau + Car Scene */}
+      <div
+        style={{
+          flex: "0 0 25%",
+          display: "flex",
+          justifyContent: "flex-start",
+          alignItems: "center",
+          padding: "20px 40px",
+          gap: 40,
+        }}
+      >
+        <TutorialOverlay
+          visible
+          text={currentStep.text}
+          onNext={handleNext}
+        />
 
-        {step < STORY.length && (
-          <div
-            style={{
-              position: "absolute",
-              bottom: 16,
-              left: 16,
-              width: "60%",
-              pointerEvents: "auto",
-            }}
-          >
-            <TutorialOverlay
-              visible={true}
-              text={STORY[step].text}
-              onNext={handleNext}
-            />
-          </div>
-        )}
+        <TutorialScenario
+          step={step}
+          totalSteps={STORY.length}
+          crash={false}
+          stopBeforeObstacle={true}
+        />
       </div>
 
-      {/* Car Scene */}
-      {step < STORY.length && (
-        <div
-          style={{
-            position: "absolute",
-            bottom: 0,
-            right: 550,
-            width: 220,
-            height: 120,
+      {/* Schedulercanvas */}
+      <div style={{ flex: 1, padding: "0 24px 20px" }}>
+        <SchedulerCanvas
+          tasks={tutorialTasks}
+          hyperperiod={hyperperiod}
+          schedule={schedule}
+          pxPerStep={28}
+          leftLabelWidth={140}
+          visibility={{
+            showTaskLabels: true,
+            showXAxis: true,
+            showYAxis: false,
+            showTimeTicks: false,
+            showExecutionBlocks: true,
+            showReleaseMarkers: true,
+            showDeadlineMarkers: false,
           }}
-        >
-          <TutorialScenario 
-            step={step} 
-            totalSteps={STORY.length}
-            crash={false} 
-            stopBeforeObstacle={true}/>
-            
-        </div>
-      )}
+          highlight={currentStep.highlight}
+        />
+      </div>
     </div>
   );
 }

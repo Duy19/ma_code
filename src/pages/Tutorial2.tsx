@@ -39,65 +39,52 @@ export default function TutorialStep1() {
   };
 
   return (
-    <div style={{ display: "flex", width: "100%", minHeight: "500px", position: "relative" }}>
-      {/*SchedulerCanvas */}
-      <div style={{ flex: 1, position: "relative" }}>
-        <div style={{ width: "70%", height: "400px", border: "1px solid #ddd" }}>
-          <SchedulerCanvas
-            tasks={tutorialTasks}
-            hyperperiod={hyperperiod}
-            schedule={schedule}
-            pxPerStep={28}
-            leftLabelWidth={140}
-            visibility={{
-              showTaskLabels: true,
-              showXAxis: true,
-              showYAxis: false,
-              showTimeTicks: false,
-              showExecutionBlocks: true,
-              showReleaseMarkers: true,
-              showDeadlineMarkers: true,
-            }}
-            highlight={currentStep.highlight}
-          />
-        </div>
+    <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+      {/* Mr.Tau + Car Scene */}
+      <div
+        style={{
+          flex: "0 0 25%",
+          display: "flex",
+          justifyContent: "flex-start",
+          alignItems: "center",
+          padding: "20px 40px",
+          gap: 40,
+        }}
+      >
+        <TutorialOverlay
+          visible
+          text={currentStep.text}
+          onNext={handleNext}
+        />
 
-        {step < STORY.length && (
-          <div
-            style={{
-              position: "absolute",
-              bottom: 16,
-              left: 16,
-              width: "60%",
-              pointerEvents: "auto",
-            }}
-          >
-            <TutorialOverlay
-              visible={true}
-              text={STORY[step].text}
-              onNext={handleNext}
-            />
-          </div>
-        )}
+        <TutorialScenario
+          step={step}
+          totalSteps={STORY.length}
+          crash={true}
+        />
       </div>
 
-      {/* Car Scene */}
-      {step < STORY.length && (
-        <div
-          style={{
-            position: "absolute",
-            bottom: 0,
-            right: 550,
-            width: 220,
-            height: 120,
+      {/* Schedulercanvas */}
+      <div style={{ flex: 1, padding: "0 24px 20px" }}>
+        <SchedulerCanvas
+          tasks={tutorialTasks}
+          hyperperiod={hyperperiod}
+          schedule={schedule}
+          pxPerStep={28}
+          leftLabelWidth={140}
+          visibility={{
+            showTaskLabels: true,
+            showXAxis: true,
+            showYAxis: false,
+            showTimeTicks: false,
+            showExecutionBlocks: true,
+            showReleaseMarkers: true,
+            showDeadlineMarkers: true,
           }}
-        >
-          <TutorialScenario
-            step={step} 
-            totalSteps={STORY.length}
-            crash={true} />
-        </div>
-      )}
+          highlight={currentStep.highlight}
+        />
+      </div>
     </div>
   );
 }
+

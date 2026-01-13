@@ -13,52 +13,33 @@ export default function TutorialOverlay({ visible, text, onNext }: Props) {
   return (
     <div
       style={{
-        position: "fixed",
-        bottom: 40,
-        left: 50,
-        pointerEvents: "none",
-        zIndex: 1000,
+        display: "flex",
+        alignItems: "flex-end",
+        gap: 24,
+        pointerEvents: "auto",
       }}
     >
+      {/* Mr. Tau */}
+      <div style={{ width: 80, height: 80 }}>
+        <TutorialCharacter />
+      </div>
+
+      {/* Speechbubble */}
       <div
+        onClick={onNext}
         style={{
-          display: "flex",
-          alignItems: "flex-end",
-          gap: 16,
-          pointerEvents: "auto",
+          position: "relative",
+          background: "rgba(223, 224, 201, 0.85)",
+          borderRadius: 12,
+          width: 380,
+          padding: 14,
+          maxHeight: 120,
+          overflowY: "auto",
+          cursor: "pointer",
+          userSelect: "none",
         }}
       >
-        {/* Mr. Tau */}
-        <div
-          style={{
-            width: 80,
-            height: 80,
-            flexShrink: 0,
-            display: "flex",
-            alignItems: "flex-end",
-          }}
-        >
-          <TutorialCharacter />
-        </div>
-
-        {/* Speechbubble */}
-        <div
-          onClick={onNext}
-          style={{
-            background: "rgba(180,180,180,0.85)",
-            borderRadius: 12,
-            width: 380,
-            padding: 14,
-            maxHeight: 120,
-            overflowY: "auto",
-            cursor: "pointer",
-            userSelect: "none",
-            display: "flex",
-            alignItems: "stretch",
-          }}
-        >
-          <TypewriterText text={text} />
-        </div>
+        <TypewriterText text={text} />
       </div>
     </div>
   );

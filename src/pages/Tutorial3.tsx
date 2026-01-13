@@ -31,8 +31,8 @@ export default function Tutorial3() {
   const navigate = useNavigate();
   const hyperperiod = 24;
 
-  const [inputTasks, setInputTasks] = useState<Task[]>(structuredClone(BASE_TASKS));
-  const [activeTasks, setActiveTasks] = useState<Task[]>(structuredClone(BASE_TASKS));
+  const [inputTasks, setInputTasks] = useState(structuredClone(BASE_TASKS));
+  const [activeTasks, setActiveTasks] = useState(structuredClone(BASE_TASKS));
   const [checked, setChecked] = useState(false);
   const [crash, setCrash] = useState(false);
   const [sceneKey, setSceneKey] = useState(0);
@@ -47,7 +47,6 @@ export default function Tutorial3() {
     if (!sensor) return;
 
     const correct = sensor.C === 1 && sensor.T >= 3 && sensor.T <= 4;
-
     setActiveTasks(structuredClone(inputTasks));
     setCrash(!correct);
     setChecked(true);
@@ -63,107 +62,65 @@ export default function Tutorial3() {
     setStep(0);
   };
 
-  const handleNext = () => {
-    if (step < STORY.length - 1) {
-      setStep(s => s + 1);
-    }
-  };
-
   return (
-    <div style={{ display: "flex", width: "100%", minHeight: "520px", position: "relative" }}>
-      {/* Scheduler */}
-      <div style={{ flex: 1, position: "relative" }}>
-        <div style={{ width: "70%", height: "400px", border: "1px solid #ddd" }}>
+    <div style={{ display: "flex", height: "100%"}}>
+      {/* Left part of the Site (Mr.Tau + Car Scene + Canvas) */}
+      <div style={{ flex: "0 0 80%", display: "flex", flexDirection: "column", gap: 16 }}>
+        {/* At the Top Mr.Tau and Car Scene */}
+        <div style={{ flex: "0 0 25%", display: "flex", justifyContent: "space-between", alignItems: "center", WebkitJustifyContent: "flex-start", gap: 40, paddingLeft: 40, paddingTop: 20 }}>
+          <TutorialOverlay visible text={currentStep.text} onNext={() => setStep(s => Math.min(s + 1, STORY.length - 1))} />
+          <TutorialScenario
+            key={sceneKey}
+            step={checked ? 1 : 0}
+            totalSteps={2}
+            stopBeforeObstacle={checked && !crash}
+            crash={checked && crash}
+          />
+        </div>
+
+        {/* Schedulercanvas */}
+        <div style={{ flex: 1, paddingLeft: 24, paddingBottom: 20}}>
           <SchedulerCanvas
             tasks={activeTasks}
             hyperperiod={hyperperiod}
             schedule={schedule}
             pxPerStep={28}
             leftLabelWidth={140}
+          />
+        </div>
+      </div>
+
+      {/* Right part of the Site (Sidebar + Buttons) */}
+      <div style={{ flex: "0 0 20%", display: "flex", flexDirection: "column", marginTop: -40, boxSizing: "border-box" , padding: 8 }}>
+        {/* Sidebar */}
+        <div style={{ flex: "0 0 70%"}}>
+          <FreeSchedulerSidebar
+            tasks={inputTasks}
+            onTasksChange={setInputTasks}
+            algorithm="EDF"
+            onClose={() => {}}
             visibility={{
-              showTaskLabels: true,
-              showXAxis: true,
-              showYAxis: false,
-              showTimeTicks: false,
-              showExecutionBlocks: true,
-              showReleaseMarkers: false,
-              showDeadlineMarkers: true,
+              showExecutionTime: true,
+              showPeriods: true,
+              showDeadlines: false,
+              showOffsets: false,
+              showSuspension: false,
+              showTaskControls: false,
+              showTaskNames: false,
+              showAlgorithmSelection: false,
             }}
-            highlight={currentStep.highlight ?? (checked ? "sensor" : null)}
+            isFieldEditable={(task, field) =>
+              task.id === "sensor" && (field === "C" || field === "T")
+            }
           />
         </div>
 
-        {/* Mr. Tau */}
-        <div style={{ position: "absolute", bottom: 16, left: 16, width: "60%" }}>
-          <TutorialOverlay
-            visible
-            text={currentStep.text}
-            onNext={handleNext}
-          />
-        </div>
-      </div>
-
-      {/* Car Scene */}
-      <div style={{ position: "absolute", bottom: 0, right: 520, width: 220, height: 140, textAlign: "center" }}>
-        <TutorialScenario
-          key={sceneKey}
-          step={checked ? 1 : 0}
-          totalSteps={2}
-          stopBeforeObstacle={checked && !crash}
-          crash={checked && crash}
-        />
-
-        <Stack mt={4} alignItems={"flex-end"}>
-          {checked && crash && (
-            <Button variant="outlined" color="error" onClick={handleRetry}>
-              Nochmal
-            </Button>
-          )}
-
-          {checked && !crash && (
-            <Button variant="contained" color="success" onClick={() => navigate("/")}>
-              Geschafft!
-            </Button>
-          )}
+        {/* Buttons */}
+        <Stack p={2} spacing={1}>
+          {!checked && <Button variant="outlined" onClick={handleCheck}>Überprüfen</Button>}
+          {checked &&  <Button variant="outlined" sx={{borderColor: "#d32f2f", color: "#d32f2f"}} onClick={handleRetry}>Nochmal</Button>}
+          {checked && !crash && <Button variant="outlined" sx={{borderColor: "#2e7d32", color: "#2e7d32"}} onClick={() => navigate("/")}>Geschafft!</Button>}
         </Stack>
-      </div>
-
-      {/* Sidebar */}
-      <div style={{
-        position: "fixed",
-        right: 0,
-        top: 0,
-        height: "100%",
-        background: "white",
-        boxShadow: "-2px 0 8px rgba(0,0,0,0.1)",
-        zIndex: 1200,
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "space-between",
-      }}>
-        <FreeSchedulerSidebar
-          tasks={inputTasks}
-          onTasksChange={setInputTasks}
-          algorithm="EDF"
-          onClose={() => {}}
-          visibility={{
-            showExecutionTime: true,
-            showPeriods: true,
-            showDeadlines: false,
-            showOffsets: false,
-            showSuspension: false,
-            showTaskControls: false,
-            showTaskNames: false,
-            showAlgorithmSelection: false,
-          }}
-          isFieldEditable={(task, field) =>
-            task.id === "sensor" && (field === "C" || field === "T")
-          }
-        />
-
-        <Button variant="contained" color="primary" onClick={handleCheck} disabled={checked} sx={{ m: 2 }}>
-          Überprüfen
-        </Button>
       </div>
     </div>
   );

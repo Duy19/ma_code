@@ -108,7 +108,7 @@ export default function SchedulerCanvas({
         </defs>
 
         {/* Background */}
-        <rect x={0} y={0} width={svgWidth} height={svgHeight} fill="white" />
+        <rect x={0} y={0} width={svgWidth} height={svgHeight} fill="transparent" />
 
         {tasks.map((task, i) => {
           if (!task.T || task.T <= 0 || isNaN(task.T)) {
@@ -282,7 +282,6 @@ export default function SchedulerCanvas({
                   </g>
                 );
               })}
-
             </g>
           );
         })}

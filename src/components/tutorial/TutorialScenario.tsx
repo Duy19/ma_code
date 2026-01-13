@@ -19,25 +19,20 @@ export default function TutorialScenario({ step, totalSteps, stopBeforeObstacle,
   const [showCheck, setShowCheck] = useState(false);
 
   useEffect(() => {
-    
     if (step !== totalSteps - 1) return;
 
     const animation = setInterval(() => {
       setCarX(prev => {
         // Crash
         if (crash) {
-          if (prev + AUTO_WIDTH < ROCK_X + 20) {
-            return prev + AUTO_SPEED;
-          } else {
-            if (!showWarning) setShowWarning(true);
-            return prev;
-          }
+          if (prev + AUTO_WIDTH < ROCK_X + 20) return prev + AUTO_SPEED;
+          setShowWarning(true);
+          return prev;
         }
-
         // No Crash
         if (stopBeforeObstacle) {
           if (prev + AUTO_WIDTH >= ROCK_X - 10) {
-            if (!showCheck) setShowCheck(true);
+            setShowCheck(true);
             return prev;
           }
           return prev + AUTO_SPEED;
@@ -48,52 +43,30 @@ export default function TutorialScenario({ step, totalSteps, stopBeforeObstacle,
     }, 16);
 
     return () => clearInterval(animation);
-  }, [step, totalSteps, crash, stopBeforeObstacle, showWarning, showCheck]);
+  }, [step, totalSteps, crash, stopBeforeObstacle]);
 
   return (
     <div style={{ position: "relative", width: 400, height: 120 }}>
-      {/* Stein */}
-      <img
-        src={rockImg}
-        alt="Stein"
-        style={{ position: "absolute", bottom: 0, left: ROCK_X, width: 80, height: "auto" }}
-      />
+      
+      <img src={rockImg} alt="Stein" style={{ position: "absolute", bottom: 0, left: ROCK_X, width: 80 }} />
+      <img src={carImg} alt="Car" style={{ position: "absolute", bottom: 0, left: carX, width: AUTO_WIDTH }} />
 
-      {/* Car */}
-      <img
-        src={carImg}
-        alt="Car"
-        style={{ position: "absolute", bottom: 0, left: carX, width: AUTO_WIDTH, height: "auto" }}
-      />
-
-      {/* Ups */}
       {showWarning && crash && (
-        <div
-          style={{
-            position: "absolute",
-            left: ROCK_X + 20,
-            bottom: 60,
-            fontSize: 30,
-            color: "red",
-            fontWeight: "bold",
-          }}
-        >
+        <div style={{ 
+          position: "absolute", 
+          left: ROCK_X + 20, 
+          bottom: 60, 
+          fontSize: 30 }}>
           ❌
         </div>
       )}
 
-      {/* Good job! */}
       {showCheck && stopBeforeObstacle && (
-        <div
-          style={{
-            position: "absolute",
-            left: carX + AUTO_WIDTH + 10,
-            bottom: 60,
-            fontSize: 30,
-            color: "green",
-            fontWeight: "bold",
-          }}
-        >
+        <div style={{ 
+          position: "absolute", 
+          left: carX + AUTO_WIDTH + 10, 
+          bottom: 60, 
+          fontSize: 30 }}>
           ✔️
         </div>
       )}

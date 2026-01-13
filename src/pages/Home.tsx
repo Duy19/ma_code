@@ -10,7 +10,7 @@ export default function Home() {
   return (
     <Box
       sx={{
-        minHeight: "100vh",
+        flex: 1,
         bgcolor: "background.default",
         color: "text.primary",
         display: "flex",
@@ -20,7 +20,7 @@ export default function Home() {
 
       <Container
         sx={{
-          flexGrow: 1,
+          flex: 1,
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
