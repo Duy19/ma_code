@@ -121,7 +121,7 @@ export default function InteractiveSchedulerCanvas({
       if (time >= Math.min(start, end) && time <= Math.max(start, end)) return taskColor + "77";
     }
 
-    if (hintApplied) return taskColor;
+    if (hintApplied) return taskColor + 50;
     return filled ? taskColor : "#f0f0f0";
   };
 

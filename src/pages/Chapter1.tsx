@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { simulateEDF } from "../logic/simulator";
 import InteractiveSchedulerCanvas from "../components/InteractiveSchedulerCanvas";
 import TutorialOverlay from "../components/tutorial/TutorialOverlay";
@@ -9,9 +9,10 @@ import type { Task } from "../core/task";
 import { useHints } from "../logic/HintManager";
 import HintCheckboxes from "../components/HintCheckboxes";
 
+// Example for EDF vs RM 
 const BASE_TASKS: Task[] = [
   { id: "brake", name: "Bremsen", C: 2, T: 4, D: 4, O: 0, color: "#f87171" },
-  { id: "sensor", name: "Sensor", C: 1, T: 1, D: 4, color: "#60a5fa" },
+  { id: "sensor", name: "Sensor", C: 1, T: 3, D: 3, color: "#60a5fa" },
   { id: "media", name: "Multimedia", C: 1, T: 6, D: 6, color: "#34d399" },
 ];
 
@@ -22,37 +23,25 @@ const STORY = [
 
 export default function TutorialInteractiveScheduler() {
   const navigate = useNavigate();
-  const hyperperiod = 24;
+  const hyperperiod = 12;
   const correctSchedule = simulateEDF(BASE_TASKS, hyperperiod);
 
-  // State for Tasks, Schedule, Hints, etc.
+  // States Tasks, Schedule, Hints, etc.
   const [inputTasks, setInputTasks] = useState(structuredClone(BASE_TASKS));
   const [activeTasks, setActiveTasks] = useState(structuredClone(BASE_TASKS));
   const [userScheduleRef, setUserScheduleRef] = useState<Record<string, Set<number>>>({});
   const [checked, setChecked] = useState(false);
-  const [crash, setCrash] = useState(false);
+  const [allCorrect, setAllCorrect] = useState(false);
   const [step, setStep] = useState(0);
   const [failedCount, setFailedCount] = useState(0);
 
   const currentStep = STORY[step];
 
   // Hint Manager Hook
-  const {
-    hints,
-    unlockHint,
-    lockHint,
-    setHintTask,
-    getHintBlocks,
-  } = useHints(BASE_TASKS, correctSchedule, failedCount);
-
-  // Set which Task you want to show for the hints --> in this case media
-  useEffect(() => {
-    const execHint = hints.find(h => h.type === "fullExecution");
-    if (execHint && !execHint.taskId) setHintTask(execHint.id, "media"); 
-  }, [hints]);
+  const { hints, unlockHint, lockHint, setHintTask, getHintBlocks } = useHints(BASE_TASKS, correctSchedule, failedCount);
 
   // Execution Blocks for hints
-  const hintBlocks = getHintBlocks; // Execution Blocks
+  const hintBlocks = getHintBlocks;
 
   // Visibility for Markers as hints
   const [visibility, setVisibility] = useState({
@@ -60,38 +49,47 @@ export default function TutorialInteractiveScheduler() {
     showDeadlineMarkers: false,
   });
 
-  // Which hints are allowed to be toggled
-  const isHintAllowed = (hintId: string) => {
-    const hint = hints.find(h => h.id === hintId);
-    if (!hint) return false;
-    return failedCount >= hint.unlockAt;
-  };
+  // Prepare correctSchedule map for fast lookup
+  const correctScheduleMap = useMemo(() => {
+    const map: Record<string, Set<number>> = {};
+    BASE_TASKS.forEach(task => {
+      map[task.id] = new Set(correctSchedule.filter(e => e.taskId === task.id).map(e => e.time));
+    });
+    return map;
+  }, [correctSchedule]);
 
-  // TODO: Check Schedule ---> compare userScheduleRef with correctSchedule 
+  // Set which Task you want to show for the hints --> in this case media
+  useEffect(() => {
+    const execHint = hints.find(h => h.type === "fullExecution");
+    if (execHint && !execHint.taskId) setHintTask(execHint.id, "media");
+  }, [hints]);
+
+  // Check user schedule against correct schedule
   const handleCheck = () => {
-    const sensor = inputTasks.find(t => t.id === "sensor");
-    if (!sensor) return;
+    let allCorrectFlag = true;
 
-    // Prüfen, ob die Eingabe korrekt ist
-    const correct = sensor.C === 1 && sensor.T >= 3 && sensor.T <= 4;
+    for (const task of BASE_TASKS) {
+      const userTimes = userScheduleRef[task.id] ?? new Set<number>();
+      const correctTimes = correctScheduleMap[task.id] ?? new Set<number>();
+      if (userTimes.size !== correctTimes.size) {
+        allCorrectFlag = false;
+        break;
+      }
 
-    setActiveTasks(structuredClone(inputTasks));
-    setCrash(!correct);
-    setChecked(true);
+      // Check all userTimes are in correctTimes
+      for (const time of userTimes) {
+        if (!correctTimes.has(time)) {
+          allCorrectFlag = false;
+          break;
+        }
+      }
 
-    if (!correct) {
-      // Increase failedCount for hints
-      setFailedCount(fc => {
-        const newFailedCount = fc + 1;
-
-        // Unlock hints based on new failed count
-        hints.forEach(h => {
-          if (newFailedCount >= h.unlockAt) unlockHint(h.id);
-        });
-
-        return newFailedCount;
-      });
+      if (!allCorrectFlag) break;
     }
+    setChecked(true);
+    setAllCorrect(allCorrectFlag);
+
+    if (!allCorrectFlag) setFailedCount(fc => fc + 1);
   };
 
   const handleRetry = () => {
@@ -99,13 +97,17 @@ export default function TutorialInteractiveScheduler() {
     setActiveTasks(structuredClone(BASE_TASKS));
     setUserScheduleRef({});
     setChecked(false);
-    setCrash(false);
     setStep(0);
-    setFailedCount(failedCount);
+    setFailedCount(0);
     hints.forEach(h => lockHint(h.id));
   };
 
-  // Function to handle hint toggling
+  const isHintAllowed = (hintId: string) => {
+    const hint = hints.find(h => h.id === hintId);
+    if (!hint) return false;
+    return failedCount >= hint.unlockAt;
+  };
+
   const handleToggleHint = (hintId: string, enabled: boolean) => {
     const hint = hints.find(h => h.id === hintId);
     if (!hint) return;
@@ -133,7 +135,6 @@ export default function TutorialInteractiveScheduler() {
       lockHint(hintId);
     }
   };
-
 
   return (
     <div style={{ display: "flex", height: "100vh" }}>
@@ -221,26 +222,11 @@ export default function TutorialInteractiveScheduler() {
         </div>
 
         <Stack p={2} spacing={1}>
-          {!checked && (
-            <Button variant="outlined" onClick={handleCheck}>
-              Überprüfen
-            </Button>
-          )}
-          {checked && (
-            <Button
-              variant="outlined"
-              sx={{ borderColor: "#d32f2f", color: "#d32f2f" }}
-              onClick={handleRetry}
-            >
-              Nochmal
-            </Button>
-          )}
-          {checked && !crash && (
-            <Button
-              variant="outlined"
-              sx={{ borderColor: "#2e7d32", color: "#2e7d32" }}
-              onClick={() => navigate("/")}
-            >
+          <Button variant="outlined" onClick={handleCheck}>
+            Überprüfen
+          </Button>
+          {allCorrect && (
+            <Button variant="outlined" sx={{ borderColor: "#2e7d32", color: "#2e7d32" }} onClick={() => navigate("/")}>
               Geschafft!
             </Button>
           )}

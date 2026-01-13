@@ -13,7 +13,7 @@ export interface Hint {
   taskId?: string;
   type: HintType;
   unlocked: boolean;
-  unlockAt: number; // failedCount >= unlockAt
+  unlockAt: number; 
 }
 
 export function useHints(
@@ -21,7 +21,6 @@ export function useHints(
   schedule: ScheduleEntry[],
   failedCount: number
 ) {
-  /* ---------------- Hints Definition ---------------- */
 
   const [hints, setHints] = useState<Hint[]>([
     {
@@ -29,30 +28,27 @@ export function useHints(
       description: "Zeige Release-Zeitpunkte",
       type: "releaseMarker",
       unlocked: false,
-      unlockAt: 0,
+      unlockAt: 1,
     },
     {
       id: "hint-deadline",
       description: "Zeige Deadline-Zeitpunkte",
       type: "deadlineMarker",
       unlocked: false,
-      unlockAt: 0,
+      unlockAt: 2,
     },
     {
       id: "hint-exec",
       description: "Zeige vollständige Ausführung eines Tasks",
       type: "fullExecution",
       unlocked: false,
-      unlockAt: 0,
+      unlockAt: 3,
     },
   ]);
-
-  /* ---------------- Availability ---------------- */
 
   const isHintAvailable = (hint: Hint) =>
     failedCount >= hint.unlockAt;
 
-  /* ---------------- Mutations ---------------- */
 
   const unlockHint = (hintId: string) => {
     setHints(prev =>
@@ -80,7 +76,6 @@ export function useHints(
     );
   };
 
-  /* ---------------- Derived Data ---------------- */
 
   const getHintBlocks = useMemo(() => {
     const blocks: Record<string, Set<number>> = {};
@@ -143,8 +138,6 @@ export function useHints(
 
     return markers;
   }, [hints, tasks]);
-
-  /* ---------------- API ---------------- */
 
   return {
     hints,
