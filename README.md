@@ -10,8 +10,10 @@ https://github.com/Duy19/masterthesis-tex
 
 Todo: 
 - Migrate code because of url name later on
-- WIP Chapter 1 
-- Check Survey
+- WIP Chapter 1 (InteractiveCanvas has most of its features now)
+- Chapter 1 now needs the level design and examples
+- Chapter 2 needs CIT Hardcoded Example 
+- Pages are still WIP for Chapter 1 + 2
 
 Meeting 05.01
 
