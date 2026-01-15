@@ -120,3 +120,60 @@ export function simulateRM(tasks: Task[], hyperperiod: number): ScheduleEntry[] 
 
   return schedule;
 }
+
+export function simulateDM(tasks: Task[], hyperperiod: number): ScheduleEntry[] {
+  const schedule: ScheduleEntry[] = [];
+
+  // active task instances
+  interface ActiveInstance {
+    id: string;
+    release: number;
+    deadline: number;
+    remaining: number;
+    period: number;
+  }
+
+  let active: ActiveInstance[] = [];
+    
+  // Map tasks to an deterministic order for tie-break
+  const taskOrder = new Map<string, number>();
+    tasks.forEach((task, index) => {
+      taskOrder.set(task.id, index);
+    });
+
+  for (let t = 0; t < hyperperiod; t++) {
+    for (const task of tasks) {
+      const offset = task.O ?? 0;
+      if ((t-offset) >= 0 && (t-offset) % task.T === 0) {
+        active.push({
+          id: task.id,
+          release: t,
+          deadline: t + task.D,
+          remaining: task.C,
+          period: task.T,
+        });
+      }
+    }
+
+    active = active.filter((a) => a.remaining > 0);
+    // sort by Deadline (Deadline Monotonic)
+    active.sort((a, b) => {
+      if (a.deadline !== b.deadline) {
+        return a.deadline - b.deadline;
+      }
+
+      // tie-break via task order
+      return taskOrder.get(a.id)! - taskOrder.get(b.id)!; 
+    });
+
+    const current = active[0];
+    if (current) {
+      current.remaining -= 1;
+      schedule.push({ time: t, taskId: current.id });
+    } else {
+      schedule.push({ time: t, taskId: null });
+    }
+  }
+
+  return schedule;
+}

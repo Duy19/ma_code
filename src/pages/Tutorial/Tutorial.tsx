@@ -1,10 +1,10 @@
 import { useState } from "react";
-import SchedulerCanvas from "../components/SchedulerCanvas";
-import TutorialOverlay from "../components/tutorial/TutorialOverlay";
-import type { Task } from "../core/task";
-import type { ScheduleEntry } from "../logic/simulator";
-import { simulateEDF } from "../logic/simulator";
-import TutorialScenario from "../components/tutorial/TutorialScenario";
+import SchedulerCanvas from "../../components/SchedulerCanvas";
+import TutorialOverlay from "../../components/tutorial/TutorialOverlay";
+import type { Task } from "../../core/task";
+import type { ScheduleEntry } from "../../logic/simulator";
+import { simulateEDF } from "../../logic/simulator";
+import TutorialScenario from "../../components/tutorial/TutorialScenario";
 import { useNavigate } from "react-router-dom";
 
 const tutorialTasks: Task[] = [

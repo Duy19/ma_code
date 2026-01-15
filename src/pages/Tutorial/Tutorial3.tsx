@@ -1,11 +1,11 @@
 import { useState } from "react";
-import SchedulerCanvas from "../components/SchedulerCanvas";
-import TutorialOverlay from "../components/tutorial/TutorialOverlay";
-import TutorialScenario from "../components/tutorial/TutorialScenario";
-import FreeSchedulerSidebar from "../components/FreeSchedulerSidebar";
-import type { Task } from "../core/task";
-import type { ScheduleEntry } from "../logic/simulator";
-import { simulateEDF } from "../logic/simulator";
+import SchedulerCanvas from "../../components/SchedulerCanvas";
+import TutorialOverlay from "../../components/tutorial/TutorialOverlay";
+import TutorialScenario from "../../components/tutorial/TutorialScenario";
+import FreeSchedulerSidebar from "../../components/FreeSchedulerSidebar";
+import type { Task } from "../../core/task";
+import type { ScheduleEntry } from "../../logic/simulator";
+import { simulateEDF } from "../../logic/simulator";
 import { Button, Stack } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
@@ -91,9 +91,9 @@ export default function Tutorial3() {
       </div>
 
       {/* Right part of the Site (Sidebar + Buttons) */}
-      <div style={{ flex: "0 0 20%", display: "flex", flexDirection: "column", marginTop: -40, boxSizing: "border-box" , padding: 8 }}>
+      <div style={{ flex: "0 0 20%", display: "flex", flexDirection: "column", boxSizing: "border-box" , overflow: "hidden", height: "100%"}}>
         {/* Sidebar */}
-        <div style={{ flex: "0 0 70%"}}>
+        <div style={{ flex: 1, overflowY: "auto"}}>
           <FreeSchedulerSidebar
             tasks={inputTasks}
             onTasksChange={setInputTasks}

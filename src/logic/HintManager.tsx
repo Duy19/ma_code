@@ -25,21 +25,21 @@ export function useHints(
   const [hints, setHints] = useState<Hint[]>([
     {
       id: "hint-release",
-      description: "Zeige Release-Zeitpunkte",
+      description: "Release-Zeitpunkte anzeigen",
       type: "releaseMarker",
       unlocked: false,
       unlockAt: 1,
     },
     {
       id: "hint-deadline",
-      description: "Zeige Deadline-Zeitpunkte",
+      description: "Deadline-Zeitpunkte anzeigen",
       type: "deadlineMarker",
       unlocked: false,
       unlockAt: 2,
     },
     {
       id: "hint-exec",
-      description: "Zeige vollständige Ausführung eines Tasks",
+      description: "Eine Taskausführung anzeigen",
       type: "fullExecution",
       unlocked: false,
       unlockAt: 3,

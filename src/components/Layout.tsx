@@ -4,7 +4,7 @@ import HomeButton from "../components/HomeButton";
 
 export default function Layout() {
   return (
-    <Box sx={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+    <Box sx={{ height: "100vh", display: "flex", flexDirection: "column", overflow: "hidden" }}>
       <AppBar
         position="static"
         color="transparent"
@@ -19,9 +19,9 @@ export default function Layout() {
           </Box>
 
           {/* Navigation centered with links to the pages */}
-          <Box sx={{ display: "flex", gap: 2 }}>
+          <Box sx={{ display: "flex", gap: 2, position: "absolute" }}>
             <Button component={Link} to="/freeScheduler">FreeScheduler</Button>
-            <Button component={Link} to="/chapter1">Chapter 1</Button>
+            <Button component={Link} to="/chapter1_1">Chapter 1</Button>
             <Button component={Link} to="/chapter2">Chapter 2</Button>
             <Button component={Link} to="/chapter3">Chapter 3</Button>
           </Box>
@@ -29,7 +29,7 @@ export default function Layout() {
       </AppBar>
 
       {/* Main content area where routed components will be rendered */}
-      <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
+      <Box sx={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
         <Outlet />
       </Box>
     </Box>

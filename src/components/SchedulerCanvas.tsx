@@ -1,5 +1,6 @@
 import type { Task } from "../core/task";
 import type { ScheduleEntry } from "../logic/simulator";
+import { useMemo } from "react";
 
 /*
 The main canvas component to render the scheduling visualization.
@@ -14,6 +15,12 @@ Props:
 - leftLabelWidth: Width of the left label area for task names.
 */
 
+// Type for highlighted execution blocks
+type HighlightBlocks = {
+  taskId: string;
+  steps: number[];
+};
+
 type Props = {
   tasks: Task[];
   hyperperiod: number;
@@ -26,6 +33,7 @@ type Props = {
   svgManualHeight?: number;
   visibility?: Partial<typeof DEFAULT_VISIBILITY>;
   highlight?: string | null;
+  highlightExecutions?: HighlightBlocks[];
 };
 
 const DEFAULT_VISIBILITY = {
@@ -49,6 +57,7 @@ export default function SchedulerCanvas({
   leftLabelWidth = 72,
   visibility,
   highlight,
+  highlightExecutions = [],
 }: Props) {
 
   const maxOffset = Math.max(...tasks.map(t => t.O ?? 0));
@@ -62,6 +71,19 @@ export default function SchedulerCanvas({
     ...DEFAULT_VISIBILITY,
     ...visibility,
   }
+
+  // Lookup Map for highlighted executions
+  const highlightExecutionMap = useMemo(() => {
+    const map = new Map<string, Set<number>>();
+    highlightExecutions.forEach(h => {
+      map.set(h.taskId, new Set(h.steps));
+    });
+    return map;
+  }, [highlightExecutions]);
+
+  const isExecutionHighlighted = (taskId: string, time: number) => {
+    return highlightExecutionMap.get(taskId)?.has(time) ?? false;
+  };
 
   return (
     <div className="flex h-screen">
@@ -152,6 +174,7 @@ export default function SchedulerCanvas({
                   </text>
                 </>
               )}
+              
               {/* X-axis */}
               {mergedVisibility.showXAxis && (
                 <>
@@ -216,7 +239,33 @@ export default function SchedulerCanvas({
                   </g>
                 </>
               )}  
-                    
+
+              {/* Highlighting for Execution Blocks */}
+              {highlightExecutionMap.has(task.id) && (
+                <g>
+                  {[...highlightExecutionMap.get(task.id)!].map(t => {
+                    const x = leftLabelWidth + t * pxPerStep;
+                    const y = centerY - heightPerTask / 2 - 5;
+                    const blockHeight = heightPerTask / 2 + 10
+
+                    return (
+                      <rect
+                        key={`exec-highlight-${task.id}-${t}`}
+                        x={x}
+                        y={y}
+                        width={pxPerStep}
+                        height={blockHeight}
+                        rx={3}
+                        fill="#fde68a"
+                        opacity={0.45}
+                        pointerEvents="none"
+                      />
+                    );
+                  })}
+                </g>
+              )}
+
+
               {/* Execution Blocks */}
               {mergedVisibility.showExecutionBlocks && (
                 <>

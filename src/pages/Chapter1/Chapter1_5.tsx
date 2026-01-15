@@ -1,24 +1,28 @@
+// @ts-nocheck
 import { useState, useEffect, useMemo } from "react";
-import { simulateEDF } from "../logic/simulator";
-import InteractiveSchedulerCanvas from "../components/InteractiveSchedulerCanvas";
-import TutorialOverlay from "../components/tutorial/TutorialOverlay";
-import FreeSchedulerSidebar from "../components/FreeSchedulerSidebar";
+import { simulateEDF } from "../../logic/simulator";
+import InteractiveSchedulerCanvas from "../../components/InteractiveSchedulerCanvas";
+import TutorialOverlay from "../../components/tutorial/TutorialOverlay";
+import FreeSchedulerSidebar from "../../components/FreeSchedulerSidebar";
 import { Button, Stack } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import type { Task } from "../core/task";
-import { useHints } from "../logic/HintManager";
-import HintCheckboxes from "../components/HintCheckboxes";
+import type { Task } from "../../core/task";
+import { useHints } from "../../logic/HintManager";
+import HintCheckboxes from "../../components/HintCheckboxes";
 
 // Example for EDF vs RM 
 const BASE_TASKS: Task[] = [
-  { id: "brake", name: "Bremsen", C: 2, T: 4, D: 4, O: 0, color: "#f87171" },
+  { id: "brake", name: "Bremsen", C: 2, T: 4, D: 4, color: "#f87171" },
   { id: "sensor", name: "Sensor", C: 1, T: 3, D: 3, color: "#60a5fa" },
   { id: "media", name: "Multimedia", C: 1, T: 6, D: 6, color: "#34d399" },
 ];
 
 const STORY = [
-  { text: "Stelle nun die Hinderniserkennung selber ein ...", highlight: null },
-  { text: "Du musst hier lediglich die Dauer C und das Intervall T einstellen.", highlight: null },
+  { text: "Dann bist du wieder gefragt! ", highlight: null },
+  { text: "Diesmal darfst du sogar selber was einzeichnen! Rechts sind die Parameter der Aufgaben und welcher Algorithmus verwendet wird.", highlight: null },
+  { text: "Durch **klicken** oder auch per **Drag&Drop* auf Ausführungsblöcke im Scheduler, kannst du die Ausführung selber einzeichnen.", highlight: null },
+  { text: "Probiere es aus und überprüfe dein Ergebnis! Solltest du nach mehreren Versuchen immer noch Schwierigkeiten haben, kannst du dir Hinweise anzeigen lassen!", highlight: null },
+  { text: "Je öfter du es versuchst desto mehr Hinweise werden freigeschaltet. Diese kannst durch die Checkboxen einschalten und auch wieder ausschalten.", highlight: null }
 ];
 
 export default function TutorialInteractiveScheduler() {
@@ -36,7 +40,6 @@ export default function TutorialInteractiveScheduler() {
   const [failedCount, setFailedCount] = useState(0);
 
   const currentStep = STORY[step];
-
   // Hint Manager Hook
   const { hints, unlockHint, lockHint, setHintTask, getHintBlocks } = useHints(BASE_TASKS, correctSchedule, failedCount);
 
@@ -49,7 +52,7 @@ export default function TutorialInteractiveScheduler() {
     showDeadlineMarkers: false,
   });
 
-  // Prepare correctSchedule map for fast lookup
+  // Prepare correctSchedule map for lookup
   const correctScheduleMap = useMemo(() => {
     const map: Record<string, Set<number>> = {};
     BASE_TASKS.forEach(task => {
@@ -137,15 +140,16 @@ export default function TutorialInteractiveScheduler() {
   };
 
   return (
-    <div style={{ display: "flex", height: "100vh" }}>
+    <div style={{ display: "flex", height: "100%" }}>
       {/* Mr. Tau + Schedulercanvas*/}
       <div style={{ flex: "0 0 80%", display: "flex", flexDirection: "column", gap: 16 }}>
         <div
           style={{
             flex: "0 0 25%",
             display: "flex",
-            justifyContent: "flex-start",
+            justifyContent: "space-between",
             alignItems: "center",
+            WebkitJustifyContent: "flex-start",
             gap: 40,
             paddingLeft: 40,
             paddingTop: 20,
@@ -165,16 +169,16 @@ export default function TutorialInteractiveScheduler() {
           />
         </div>
 
-        {/* Scheduler Canvas */}
-        <div style={{ flex: 1, position: "relative", width: "100%", overflow: "hidden" }}>
+        {/* Schedulercanvas */}
+        <div style={{ flex: 1, paddingLeft: 24, paddingBottom: 20 }}>
           <InteractiveSchedulerCanvas
             tasks={activeTasks}
             hyperperiod={hyperperiod}
             schedule={correctSchedule}
             userScheduleRef={userScheduleRef}
             setUserScheduleRef={setUserScheduleRef}
-            pxPerStep={35}
-            heightPerTask={100}
+            pxPerStep={30}
+            heightPerTask={130}
             leftLabelWidth={140}
             hintBlocks={hintBlocks}
             visibility={visibility}
@@ -191,17 +195,10 @@ export default function TutorialInteractiveScheduler() {
           boxSizing: "border-box",
           padding: 8,
           height: "100%",
+          overflow: "hidden",
         }}
       >
-        <div
-          style={{
-            flex: "1 1 auto",
-            overflowY: "auto",
-            paddingBottom: 8,
-            border: "1px solid #eee",
-            borderRadius: 4,
-          }}
-        >
+        <div style={{ flex: 1, overflowY: "auto" }}>
           <FreeSchedulerSidebar
             tasks={BASE_TASKS}
             onTasksChange={() => {}}
@@ -221,12 +218,13 @@ export default function TutorialInteractiveScheduler() {
           />
         </div>
 
-        <Stack p={2} spacing={1}>
+        {/* Buttons */}
+        <Stack p={6} spacing={2}>
           <Button variant="outlined" onClick={handleCheck}>
             Überprüfen
           </Button>
           {allCorrect && (
-            <Button variant="outlined" sx={{ borderColor: "#2e7d32", color: "#2e7d32" }} onClick={() => navigate("/")}>
+            <Button variant="outlined" sx={{ borderColor: "#2e7d32", color: "#2e7d32" }} onClick={() => navigate("/chapter1_6")}>
               Geschafft!
             </Button>
           )}
