@@ -93,7 +93,7 @@ export default function Tutorial3() {
       {/* Right part of the Site (Sidebar + Buttons) */}
       <div style={{ flex: "0 0 20%", display: "flex", flexDirection: "column", boxSizing: "border-box" , overflow: "hidden", height: "100%"}}>
         {/* Sidebar */}
-        <div style={{ flex: 1, overflowY: "auto"}}>
+        <div style={{overflowY: "auto"}}>
           <FreeSchedulerSidebar
             tasks={inputTasks}
             onTasksChange={setInputTasks}
@@ -102,7 +102,7 @@ export default function Tutorial3() {
             visibility={{
               showExecutionTime: true,
               showPeriods: true,
-              showDeadlines: false,
+              showDeadlines: true,
               showOffsets: false,
               showSuspension: false,
               showTaskControls: false,

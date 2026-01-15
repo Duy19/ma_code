@@ -177,3 +177,62 @@ export function simulateDM(tasks: Task[], hyperperiod: number): ScheduleEntry[] 
 
   return schedule;
 }
+
+
+// Test all EDF Permutations
+export function simulateEDFAllMutations(tasks: Task[], hyperperiod: number): ScheduleEntry[][] {
+  const results: ScheduleEntry[][] = [];
+
+  interface ActiveInstance {
+    id: string;
+    release: number;
+    deadline: number;
+    remainingExecution: number;
+  }
+
+  // Backtracking function to find all valid scheduling permutations
+  function backtrack(t: number, active: ActiveInstance[], schedule: ScheduleEntry[]) {
+    if (t === hyperperiod) {
+      results.push([...schedule]);
+      return;
+    }
+
+    // Add newly released tasks
+    for (const task of tasks) {
+      const offset = task.O ?? 0;
+      if ((t - offset) >= 0 && (t - offset) % task.T === 0) {
+        active.push({
+          id: task.id,
+          release: t,
+          deadline: t + task.D,
+          remainingExecution: task.C,
+        });
+      }
+    }
+
+    // Remove finished tasks
+    active = active.filter(a => a.remainingExecution > 0);
+
+    if (active.length === 0) {
+      // Idle time
+      backtrack(t + 1, active, [...schedule, { time: t, taskId: null }]);
+      return;
+    }
+
+    // Find minimum deadline
+    const minDeadline = Math.min(...active.map(a => a.deadline));
+    const candidates = active.filter(a => a.deadline === minDeadline);
+
+    // Recursively try all candidates for this time step
+    for (const task of candidates) {
+      const newActive = active.map(a => ({ ...a }));
+      const executingTask = newActive.find(a => a.id === task.id)!;
+      executingTask.remainingExecution -= 1;
+
+      backtrack(t + 1, newActive, [...schedule, { time: t, taskId: task.id }]);
+    }
+  }
+
+  backtrack(0, [], []);
+  return results;
+}

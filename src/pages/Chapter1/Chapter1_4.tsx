@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useMemo, useState } from "react";
 import SchedulerCanvas from "../../components/SchedulerCanvas";
 import TutorialOverlay from "../../components/tutorial/TutorialOverlay";
@@ -25,7 +26,7 @@ const STORY = [
 export default function TutorialStep1() {
   const hyperperiod = 24;
   const [algorithm, setAlgorithm] = useState<"EDF" | "RM" | "DM">("RM");
-  
+
   const schedule: ScheduleEntry[] = useMemo(() => {
     if (algorithm === "EDF") {
       return simulateEDF(tutorialTasks, hyperperiod);
@@ -53,8 +54,8 @@ export default function TutorialStep1() {
   };
 
  return (
-    <div style={{ display: "flex", overflow: "hidden", flex: 1 , height: "100vh" }}>
-        <div style={{ flex: "0 0 80%", display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }}>
+    <div style={{ display: "flex",  height: "100%" }}>
+        <div style={{ flex: "0 0 80%", display: "flex", flexDirection: "column"}}>
             {/* Mr.Tau explaining stuff*/}
             <div
                 style={{
@@ -74,7 +75,7 @@ export default function TutorialStep1() {
             </div>
 
             {/* Schedulercanvas */}
-            <div style={{ flex: 1, padding: "0 24px 20px", overflow: "hidden" }}>
+            <div style={{ flex: 1, padding: "0 24px 20px" }}>
                 <SchedulerCanvas
                 tasks={tutorialTasks}
                 hyperperiod={hyperperiod}

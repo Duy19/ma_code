@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { useState, useEffect, useMemo } from "react";
-import { simulateEDF } from "../../logic/simulator";
+import { simulateEDF, simulateEDFAllMutations } from "../../logic/simulator";
 import InteractiveSchedulerCanvas from "../../components/InteractiveSchedulerCanvas";
 import TutorialOverlay from "../../components/tutorial/TutorialOverlay";
 import FreeSchedulerSidebar from "../../components/FreeSchedulerSidebar";
@@ -24,6 +24,26 @@ const STORY = [
   { text: "Probiere es aus und überprüfe dein Ergebnis! Solltest du nach mehreren Versuchen immer noch Schwierigkeiten haben, kannst du dir Hinweise anzeigen lassen!", highlight: null },
   { text: "Je öfter du es versuchst desto mehr Hinweise werden freigeschaltet. Diese kannst durch die Checkboxen einschalten und auch wieder ausschalten.", highlight: null }
 ];
+
+
+// Function to compare user schedule with valid schedule (For all EDF permutations)
+function doesUserMatchSchedule(
+  userScheduleRef: Record<string, Set<number>>,
+  validSchedule: ScheduleEntry[]
+): boolean {
+  for (const [taskId, userTimes] of Object.entries(userScheduleRef)) {
+    const schedTimes = new Set(
+      validSchedule.filter(e => e.taskId === taskId).map(e => e.time)
+    );
+
+    if (userTimes.size !== schedTimes.size) return false;
+
+    for (const t of userTimes) {
+      if (!schedTimes.has(t)) return false;
+    }
+  }
+  return true;
+}
 
 export default function TutorialInteractiveScheduler() {
   const navigate = useNavigate();
@@ -52,7 +72,7 @@ export default function TutorialInteractiveScheduler() {
     showDeadlineMarkers: false,
   });
 
-  // Prepare correctSchedule map for lookup
+  // Prepare correctSchedule map for lookup (EDF with tie-break by task order)
   const correctScheduleMap = useMemo(() => {
     const map: Record<string, Set<number>> = {};
     BASE_TASKS.forEach(task => {
@@ -61,14 +81,31 @@ export default function TutorialInteractiveScheduler() {
     return map;
   }, [correctSchedule]);
 
+  // Prepare all valid EDF schedules for comparison
+  const allValidSchedules = useMemo(() => {
+    return simulateEDFAllMutations(BASE_TASKS, hyperperiod);
+  }, [BASE_TASKS, hyperperiod]);
+
   // Set which Task you want to show for the hints --> in this case media
   useEffect(() => {
     const execHint = hints.find(h => h.type === "fullExecution");
-    if (execHint && !execHint.taskId) setHintTask(execHint.id, "media");
-  }, [hints]);
+      if (execHint && !execHint.taskId) setHintTask(execHint.id, "media");
+    }, [hints]);
 
-  // Check user schedule against correct schedule
+    // Check user schedule against correct schedule
   const handleCheck = () => {
+    //Check all EDF permutations
+  /* let allCorrectFlag = allValidSchedules.some(schedule =>
+      doesUserMatchSchedule(userScheduleRef, schedule)
+    );
+
+    setChecked(true);
+    setAllCorrect(allCorrectFlag);
+
+    if (!allCorrectFlag) setFailedCount(fc => fc + 1); */
+
+
+    // check edf with task-order tie-break
     let allCorrectFlag = true;
 
     for (const task of BASE_TASKS) {
@@ -193,12 +230,10 @@ export default function TutorialInteractiveScheduler() {
           display: "flex",
           flexDirection: "column",
           boxSizing: "border-box",
-          padding: 8,
           height: "100%",
-          overflow: "hidden",
         }}
       >
-        <div style={{ flex: 1, overflowY: "auto" }}>
+        <div style={{ overflowY: "auto" }}>
           <FreeSchedulerSidebar
             tasks={BASE_TASKS}
             onTasksChange={() => {}}
@@ -208,7 +243,7 @@ export default function TutorialInteractiveScheduler() {
               showExecutionTime: true,
               showPeriods: true,
               showDeadlines: true,
-              showOffsets: true,
+              showOffsets: false,
               showSuspension: false,
               showTaskControls: false,
               showTaskNames: true,
@@ -219,7 +254,7 @@ export default function TutorialInteractiveScheduler() {
         </div>
 
         {/* Buttons */}
-        <Stack p={6} spacing={2}>
+        <Stack p={2} spacing={1}>
           <Button variant="outlined" onClick={handleCheck}>
             Überprüfen
           </Button>

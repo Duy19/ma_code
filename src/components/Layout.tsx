@@ -4,7 +4,7 @@ import HomeButton from "../components/HomeButton";
 
 export default function Layout() {
   return (
-    <Box sx={{ height: "100vh", display: "flex", flexDirection: "column", overflow: "hidden" }}>
+    <Box sx={{ height: "100vh", display: "flex", flexDirection: "column"}}>
       <AppBar
         position="static"
         color="transparent"
@@ -29,7 +29,7 @@ export default function Layout() {
       </AppBar>
 
       {/* Main content area where routed components will be rendered */}
-      <Box sx={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+      <Box sx={{ flex: 1, display: "flex", flexDirection: "column", overflow: "auto" }}>
         <Outlet />
       </Box>
     </Box>

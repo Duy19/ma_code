@@ -18,7 +18,7 @@ const STORY = [
   { text: "Erstmal wieder die **Bremsen**. Diese brauchen wieder **2 Zeitschritte** um ausgeführt zu werden. **Aber** das Intervall für die Ausführung ist diesmal **geringer**.", highlight: "brake" },
   { text: "Die **Hindernisserkennung** ist hier gleich geblieben.", highlight: "sensor" },
   { text: "Aber bei **Multimedia** dachte man sich, dass es besser wäre, wenn diese Funktion mit **kürzeren Perioden** ausgeführt wird, für ein besseres Erlebnis.", highlight: "media" },
-  { text: "Doch man kann durch genaues Hinschauen schon erkennen, dass die Bremsen **nicht genug** Zeit haben! Die **roten Pfeile** zeigen diesmal an zu welchem Zeitpunkt die Aufgaben **rechtzeitig** ausgeführt werden müssen.", highlight: null },
+  { text: "Doch man kann durch genaues Hinschauen schon erkennen, dass die Bremsen **nicht genug** Zeit haben! Die **roten Pfeile** zeigen diesmal an zu welchem Zeitpunkt die Aufgaben **rechtzeitig** ausgeführt werden müssen.", highlight: null, highlightExecutions: [{ taskId: "brake", steps: [8, 9, 11, 12] }]},
   { text: "Und damit kommt es hier leider zu einem Crash! Man muss also sehr vorsichtig sein bei der Planung. Und auch kleine Änderungen können gravierende Auswirkungen haben.", highlight: null },
 ];
 
@@ -82,6 +82,7 @@ export default function TutorialStep1() {
             showDeadlineMarkers: true,
           }}
           highlight={currentStep.highlight}
+          highlightExecutions={currentStep.highlightExecutions}
         />
       </div>
     </div>

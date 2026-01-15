@@ -16,7 +16,7 @@ const STORY = [
     { text: "Wie du im Tutorial evtl. schon gemerkt hast, kann man Aufgaben unterschiedlich planen. Schauen wir uns das Beispiel nochmal an.", highlight: null },
     { text: "Diesmal sind auch Zeitschritte als auch Release und Deadline-Markierungen sichtbar.", highlight: null },
     { text: "Hier wird die **Earliest Deadline First (EDF)** Strategie verwendet. Diese führt zu jedem Zeitschritt die Aufgabe mit der frühesten Deadlines aus, welche noch nicht bearbeitet wurden.", highlight: null },
-    { text: "Schau mal beim **Zeitschritt 9**. Statt die **Bremsenaufgabe** zu priorisieren, wird stattdessen die **Sensoraufgabe** ausgeführt, da diese eine **frühere Deadline hat zu dem Zeitpunkt**.", highlight: "brake" },
+    { text: "Schau mal beim **Zeitschritt 9**. Statt die **Bremsenaufgabe** zu priorisieren, wird stattdessen die **Sensoraufgabe** ausgeführt, da diese eine **frühere Deadline hat zu dem Zeitpunkt**.", highlight: "brake", hightExecutions: [{ taskId: "brake", steps: [9,10] }] },
     { text: "Aufgaben werden also dynamisch nach ihrer Deadline priorisiert. Das bedeutet, dass die Priorität einer Aufgabe sich ändern kann, abhängig davon, wie nah ihre Deadline ist.", highlight: null },
     { text: "Es gibt aber auch Strategien, die Aufgaben immer eine feste Priorität zuweisen, welche auch **Fixed-Priority Scheduling** genannt werden.", highlight: null },
 ];
@@ -75,6 +75,7 @@ export default function TutorialStep1() {
             showDeadlineMarkers: true,
           }}
           highlight={currentStep.highlight}
+          highlightExecutions={currentStep.hightExecutions}
         />
       </div>
     </div>

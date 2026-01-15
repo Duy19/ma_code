@@ -205,7 +205,7 @@ export default function TutorialInteractiveScheduler() {
               showExecutionTime: true,
               showPeriods: true,
               showDeadlines: true,
-              showOffsets: true,
+              showOffsets: false,
               showSuspension: false,
               showTaskControls: false,
               showTaskNames: true,

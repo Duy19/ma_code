@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useState, useEffect, useMemo } from "react";
 import type { Task } from "../core/task";
 import type { ScheduleEntry } from "../logic/simulator";
