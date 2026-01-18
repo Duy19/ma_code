@@ -21,7 +21,7 @@ const STORY = [
     { text: "Doch es gibt auch Nachteile. Bei Fixed-Priority Scheduling kann es passieren, dass Aufgaben nicht immer optimal geplant werden, da die Prioritäten nicht dynamisch angepasst werden können.", highlight: null },
     { text: "Daher befassen sich viele Analysen auch oft mit der Frage, ob ein System mit Fixed-Priority Scheduling keine Deadlines verpasst. Die Tasks sollen also unter z.b. RM ein **feasible** Schedule ergeben.", highlight: null },
     { text: "Für FixedPriority Scheduling schaut man sich dafür vorallem die sog. Response Time eines Tasks an. Also die Zeit, die ein Task benötigt, um von seinem Release bis zur fertigen Ausführung zu gelangen.", highlight: null },
-    { text: "Im Beispiel unten siehst du ein Schedule mit RM. Wenn du dir nun die Multimedia-Aufgabe anschaust, wirst du sehen, dass die Response Time für den ersten Release Zeitpunkt bei **7** liegt.", highlight: null, highlightExecutions: [{taskId: "media", steps: [6] }]},
+    { text: "Im Beispiel unten siehst du ein Schedule mit RM. Wenn du dir nun die Multimedia-Aufgabe anschaust, wirst du sehen, dass die Response Time für den ersten Release Zeitpunkt bei **6** liegt.", highlight: null, highlightExecutions: [{taskId: "media", steps: [5] }]},
     { text: "Frage an dich! Ist das die höchste Response Time, welche die Multimedia-Aufgabe erreicht?", highlight: null },
     { text: "Aufgepasst. Nein ist sie nicht! Aber das hast du dir vielleicht schon gedacht. Was denkst du, wie die höchste Response Time, auch **Worst-Case Response Time (WCRT)**, sein kann?", highlight: null },
     { text: "Schauen wir uns hierfür mal die Task Parameter an. **(Klicken)**", highlight: null },
@@ -112,7 +112,6 @@ function computeCurrentResponseTime(mediaTask: Task, tasks: Task[]): number {
 export default function TutorialStep1() {
   const hyperperiod = 24;
   const [inputTasks, setInputTasks] = useState<Task[]>(structuredClone(tutorialTasks));
-  const schedule = simulateRM(inputTasks, hyperperiod)
   const [step, setStep] = useState(0);
   const currentStep = STORY[step];
   const navigate = useNavigate();
