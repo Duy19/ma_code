@@ -10,7 +10,8 @@ import Chapter1_3 from "./pages/Chapter1/Chapter1_3";
 import Chapter1_4 from "./pages/Chapter1/Chapter1_4";
 import Chapter1_5 from "./pages/Chapter1/Chapter1_5";
 import Chapter1_6 from "./pages/Chapter1/Chapter1_6";
-import Chapter2 from "./pages/Chapter2";
+import Chapter1_Fixed from "./pages/Chapter1/Chapter1_Fixed";
+import Chapter2_1 from "./pages/Chapter2/Chapter2_1";
 import Chapter3 from "./pages/Chapter3";
 import Tutorial from "./pages/Tutorial/Tutorial";
 import Tutorial2 from "./pages/Tutorial/Tutorial2";
@@ -31,7 +32,8 @@ function App() {
             <Route path="chapter1_4" element={<Chapter1_4 />} />
             <Route path="chapter1_5" element={<Chapter1_5 />} />
             <Route path="chapter1_6" element={<Chapter1_6 />} />
-            <Route path="chapter2" element={<Chapter2 />} />
+            <Route path="chapter1_fixed" element={<Chapter1_Fixed />} />
+            <Route path="chapter2_1" element={<Chapter2_1 />} />
             <Route path="chapter3" element={<Chapter3 />} />
             <Route path="tutorial" element={<Tutorial />} />
             <Route path="tutorial2" element={<Tutorial2 />} />

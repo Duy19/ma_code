@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import SchedulerCanvas from "../../components/SchedulerCanvas";
 import TutorialOverlay from "../../components/tutorial/TutorialOverlay";
 import type { Task } from "../../core/task";
@@ -16,8 +16,14 @@ const tutorialTasks: Task[] = [
 ];
 
 const STORY = [
+    { text: "So diesmal ein etwas anderes Beispiel. Hoffentlich hast du soweit alles verstanden. Aber das wird schon!", highlight: null },
+    { text: "Zunächst einmal die **EDF Variante** des Schedules.", highlight: null },
+    { text: "Mach dir schonmal Gedanken wie das RM Schedule gleich aussehen könnte und an Welchen Zeitpunkten das Verfahren anders entscheidet", highlight: null },
+    { text: "Ready? Dann schauen wir uns das RM Schedule an! **(Klicken)**", highlight: null },
     { text: "Ist dir der unterschied aufgefallen?", highlight: null, highlightExecutions: [] },
-    { text: "Falls es dir zu schnell ging, kannst du rechts in der Sidebar den Algorithmus umschalten. Teste dich gerne durch!", highlight: null, highlightExecutions: [] },
+
+    { text: "Huch... da ist gar ja gar nichts passiert! Das ist mein Fehler! Schau mal du kannst rechts in der Sidebar die Algorithmen für die Verfahren selber umschalten. Ich kümmere mich dann irgendwann später um diesen Bug", highlight: null, highlightExecutions: [] },
+    { text: "Probier es mal aus und schalte auf den Rate Monotonic Algorithmus.", highlight: null, highlightExecutions: [] },
     { text: "Beim **Zeitpunkt 8** hat das RM Verfahren die **Bremsenaufgabe** dem Multimedia vorgezogen, da das Multimedia eine größere Periode hat.", highlight: "brake", highlightExecutions: [{ taskId: "brake", steps: [8,9] }] },
     { text: "Dadurch konnte Multimedia ihre Deadline bei 12 nicht einhalten. Sollte nicht ganz so kritisch sein aber auch doof", highlight: "media", highlightExecutions: [{ taskId: "media", steps: [8, 9, 14] }] },
     { text: "Wie du siehst können sich Verfahren je nach Aufgabenparametern unterschiedlich verhalten.", highlight: null, highlightExecutions: [] },   
@@ -25,7 +31,8 @@ const STORY = [
 
 export default function TutorialStep1() {
   const hyperperiod = 24;
-  const [algorithm, setAlgorithm] = useState<"EDF" | "RM" | "DM">("RM");
+  const [algorithm, setAlgorithm] = useState<"EDF" | "RM" | "DM">("EDF");
+  const [proceed, setproceed] = useState(false);
 
   const schedule: ScheduleEntry[] = useMemo(() => {
     if (algorithm === "EDF") {
@@ -36,7 +43,7 @@ export default function TutorialStep1() {
       return simulateRM(tutorialTasks, hyperperiod);
     }
     else {
-      return simulateRM(tutorialTasks, hyperperiod);
+      return simulateEDF(tutorialTasks, hyperperiod);
     }
   }, [algorithm]);
 
@@ -46,6 +53,9 @@ export default function TutorialStep1() {
   const totalSteps = STORY.length;
 
   const handleNext = () => {
+    if (step === 6 && !proceed) {
+      return;
+    }
     if (step < totalSteps - 1) {
       setStep(s => s + 1);
     } else {
@@ -53,6 +63,12 @@ export default function TutorialStep1() {
     }
   };
 
+  useEffect(() => {
+    if (step === 6 && algorithm === "RM") {
+      setproceed(true);
+    }
+  }, [algorithm, step]);
+  
  return (
     <div style={{ display: "flex",  height: "100%" }}>
         <div style={{ flex: "0 0 80%", display: "flex", flexDirection: "column"}}>
@@ -117,7 +133,7 @@ export default function TutorialStep1() {
               showAlgorithmSelection: true,
               }}
               isFieldEditable={(task, field) => {
-                  if (field === "algorithm") return true;
+                  if (field === "algorithm" && step > 4) return true;
                   return false;
               }}
           />

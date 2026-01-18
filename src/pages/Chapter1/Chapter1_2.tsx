@@ -34,7 +34,7 @@ export default function TutorialStep1() {
     if (step < totalSteps - 1) {
       setStep(s => s + 1);
     } else {
-      navigate("/chapter1_3");
+      navigate("/chapter1_fixed");
     }
   };
 

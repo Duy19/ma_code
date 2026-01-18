@@ -10,10 +10,9 @@ https://github.com/Duy19/masterthesis-tex
 
 Todo: 
 - Migrate code because of url name later on
-- WIP Chapter 1 (InteractiveCanvas has most of its features now)
-- Chapter 1 now needs the level design and examples
-- Chapter 2 needs CIT Hardcoded Example 
-- Pages are still WIP for Chapter 1 + 2
+- Chapter 1 roughly finished
+- Chapter 2 first Example done 
+- Work on generating tasksets and Suspension (Chapter 3)
 
 Meeting 05.01
 
@@ -42,3 +41,8 @@ Generell
    - Hier und da Oberfläche etc. Anpassen für User
 
 
+
+Meeting 19.01
+
+   - Mehr zu Inhalt für CIT besprechen
+   - Wie sollte man mehrdeutige Schedules (EDF) behandeln?

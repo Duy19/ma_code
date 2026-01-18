@@ -32,10 +32,16 @@ interface FreeSchedulerSidebarProps {
   onAlgorithmChange?: (algorithm: string) => void;
   onClose: () => void;
   visibility?: SidebarVisibility;
+  maxExecution?: number;
+  maxPeriod?: number;
+  maxDeadline?: number;
+  maxSuspension?: number;
+  maxOffset?: number;
   isFieldEditable?: (task: Task, field: keyof Task | "algorithm") => boolean;
 }
 
-export default function FreeSchedulerSidebar({ tasks, algorithm, onTasksChange, onAlgorithmChange, onClose, visibility, isFieldEditable }: FreeSchedulerSidebarProps) {
+export default function FreeSchedulerSidebar({ tasks, algorithm, onTasksChange, onAlgorithmChange, onClose, visibility, isFieldEditable, 
+  maxExecution, maxDeadline, maxPeriod, maxSuspension, maxOffset }: FreeSchedulerSidebarProps) {
   const DEFAULT_VISIBILITY: SidebarVisibility = {
     showTaskNames: true,
     showExecutionTime: true,
@@ -231,7 +237,7 @@ export default function FreeSchedulerSidebar({ tasks, algorithm, onTasksChange, 
                 margin="dense"
                 value={task.O ?? 0}
                 onChange={(e) => handleTaskChange(index, "O", Number(e.target.value))}
-                slotProps={{ htmlInput: { min: 0, step: 1 } }}
+                slotProps={{ htmlInput: { min: 0, max: maxOffset, step: 1 } }}
                 disabled={isFieldEditable ? !isFieldEditable(task, "O") : false}
               />
             </>

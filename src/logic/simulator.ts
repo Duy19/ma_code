@@ -1,4 +1,4 @@
-// EDF-Simulator
+// Scheduling-Simulator
 import type { Task } from "../core/task";
 
 export interface ScheduleEntry {
@@ -235,4 +235,20 @@ export function simulateEDFAllMutations(tasks: Task[], hyperperiod: number): Sch
 
   backtrack(0, [], []);
   return results;
+}
+
+// TDA
+export function computeWCRT(task: Task, higherPriorityTasks: Task[]): number{
+  let R = task.C;
+  let prevR = -1;
+
+  while (R!== prevR) {
+    prevR = R;
+
+    const interference = higherPriorityTasks.reduce(
+      (sum, t) => sum + Math.ceil(R /t.T) * t.C, 0
+    );
+    R = task.C + interference;
+  }
+  return R
 }

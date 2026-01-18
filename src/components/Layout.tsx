@@ -22,7 +22,7 @@ export default function Layout() {
           <Box sx={{ display: "flex", gap: 2, position: "absolute" }}>
             <Button component={Link} to="/freeScheduler">FreeScheduler</Button>
             <Button component={Link} to="/chapter1_1">Chapter 1</Button>
-            <Button component={Link} to="/chapter2">Chapter 2</Button>
+            <Button component={Link} to="/chapter2_1">Chapter 2</Button>
             <Button component={Link} to="/chapter3">Chapter 3</Button>
           </Box>
         </Toolbar>
