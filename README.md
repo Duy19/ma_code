@@ -12,7 +12,17 @@ Todo:
 - Migrate code because of url name later on
 - Chapter 1 roughly finished
 - Chapter 2 first Example done 
+   - Show why sporadic works and not Periodic? Until now Periodic was the focus
 - Work on generating tasksets and Suspension (Chapter 3)
+
+
+
+Themen:
+- Task Model and Parameters (periodic, (sporadic) WCET)
+- CIT, TDA and other basic schedulability tests (utilization bounds)
+- Scheduling Strategies (EDF, RM, DM, ...)
+- Self-Suspension
+- End-to-end latency
 
 Meeting 05.01
 
@@ -44,5 +54,5 @@ Generell
 
 Meeting 19.01
 
-   - Mehr zu Inhalt für CIT besprechen
+   - Mehr zum Inhalt für CIT besprechen (Utilization Bounds und dann Bespiel?, TDA?) 
    - Wie sollte man mehrdeutige Schedules (EDF) behandeln?
