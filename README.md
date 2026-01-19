@@ -9,11 +9,33 @@ Link zum tex repo
 https://github.com/Duy19/masterthesis-tex
 
 Todo: 
+
+General:
 - Migrate code because of url name later on
-- Chapter 1 roughly finished
+- Add Definitions at the bottom for user (e.g. EDF definition, Period, etc.)
+- Chapter aufgliedern (Chapter 1 A and B und verlinkung im Reiter)
+- Inhaltsverzeichnis auf startseite
+- Feedback form chapter 1-2
+- Quizzes for more theoretical sstuff like TDA
+- Gescheitest framework damit Chapter in Zukunft leicht erweitert werden können
+- Hint: scheduler definition
+
+Chapter1: 
+- Chapter 1 thematically done. 
+- ende chapter 1 implementieren (wieder hinzufügen)
+- FIX: Chapter 2 offsets
+- FIX: WCRT max über alle jobs und vergleichen mit 10 (probelm wenn task 1 offset =4)
+
+
 - Chapter 2 first Example done 
-   - Show why sporadic works and not Periodic? Until now Periodic was the focus
+- Chapter 2 CIT, TDA, LL+harmonic bounds
+- TDA als Bilder und quiz 
+
+Chapter3:
 - Work on generating tasksets and Suspension (Chapter 3)
+- Permutation of parameters
+- Limit number of possible tasks (performance issues etc.)
+
 
 
 
@@ -55,4 +77,5 @@ Generell
 Meeting 19.01
 
    - Mehr zum Inhalt für CIT besprechen (Utilization Bounds und dann Bespiel?, TDA?) 
-   - Wie sollte man mehrdeutige Schedules (EDF) behandeln?
+   - Wie sollte man mehrdeutige Schedules (EDF) behandeln? -> Fixer Tie-Break und vorher sagen. Trotzdem für später alle optionen offen lassen, implementierung zu merhdeutigen drin lassen.
+   - 
