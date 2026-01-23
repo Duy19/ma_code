@@ -16,7 +16,7 @@ General:
 - Chapter aufgliedern (Chapter 1 A and B und verlinkung im Reiter)
 - Inhaltsverzeichnis auf startseite
 - Feedback form chapter 1-2
-- Quizzes for more theoretical sstuff like TDA
+- Quizzes for more theoretical stuff like TDA
 - Gescheitest framework damit Chapter in Zukunft leicht erweitert werden können
 - Hint: scheduler definition
 

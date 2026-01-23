@@ -7,6 +7,11 @@ export type HintType =
   | "releaseMarker"
   | "deadlineMarker";
 
+export interface HintConfig {
+  type: HintType;
+  unlockAt: number;
+}
+
 export interface Hint {
   id: string;
   description: string;
@@ -16,13 +21,39 @@ export interface Hint {
   unlockAt: number; 
 }
 
-export function useHints(
-  tasks: Task[],
-  schedule: ScheduleEntry[],
-  failedCount: number
-) {
+interface UseHintsParams {
+  baseTasks?: Task[];
+  correctSchedule?: ScheduleEntry[];
+  failedCount?: number;
+  hintConfig?: HintConfig[];
+}
 
-  const [hints, setHints] = useState<Hint[]>([
+export function useHints(
+  tasksOrParams: Task[] | UseHintsParams,
+  schedule?: ScheduleEntry[],
+  failedCount?: number
+) {
+  // Handle both old and new API
+  let tasks: Task[] = [];
+  let actualSchedule: ScheduleEntry[] = [];
+  let actualFailedCount: number = 0;
+  let customHintConfig: HintConfig[] | undefined;
+
+  if (Array.isArray(tasksOrParams)) {
+    // Old API: useHints(tasks, schedule, failedCount)
+    tasks = tasksOrParams;
+    actualSchedule = schedule || [];
+    actualFailedCount = failedCount || 0;
+  } else {
+    // New API: useHints({ baseTasks, correctSchedule, failedCount, hintConfig })
+    tasks = tasksOrParams.baseTasks || [];
+    actualSchedule = tasksOrParams.correctSchedule || [];
+    actualFailedCount = tasksOrParams.failedCount || 0;
+    customHintConfig = tasksOrParams.hintConfig;
+  }
+
+  // Create default hints
+  const defaultHints: Hint[] = [
     {
       id: "hint-release",
       description: "Release-Zeitpunkte anzeigen",
@@ -44,10 +75,22 @@ export function useHints(
       unlocked: false,
       unlockAt: 3,
     },
-  ]);
+  ];
+
+  // Apply custom hint config if provided
+  const initialHints = customHintConfig !== undefined
+    ? customHintConfig.length === 0
+      ? [] // Empty array means no hints at all
+      : defaultHints.map(hint => {
+          const customConfig = customHintConfig.find(c => c.type === hint.type);
+          return customConfig ? { ...hint, unlockAt: customConfig.unlockAt } : hint;
+        })
+    : defaultHints; // undefined means use defaults
+
+  const [hints, setHints] = useState<Hint[]>(initialHints);
 
   const isHintAvailable = (hint: Hint) =>
-    failedCount >= hint.unlockAt;
+    actualFailedCount >= hint.unlockAt;
 
 
   const unlockHint = (hintId: string) => {
@@ -89,7 +132,7 @@ export function useHints(
         return;
 
       const times = new Set<number>();
-      schedule
+      actualSchedule
         .filter(e => e.taskId === hint.taskId)
         .forEach(e => times.add(e.time));
 
@@ -97,7 +140,7 @@ export function useHints(
     });
 
     return blocks;
-  }, [hints, schedule]);
+  }, [hints, actualSchedule]);
 
   const releaseMarkers = useMemo(() => {
     const markers: Record<string, Set<number>> = {};

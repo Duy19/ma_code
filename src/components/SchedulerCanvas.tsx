@@ -62,8 +62,21 @@ export default function SchedulerCanvas({
   highlightExecutions = [],
 }: Props) {
 
-  const maxOffset = Math.max(...tasks.map(t => t.O ?? 0));
-  const svgWidth = leftLabelWidth + (hyperperiod + maxOffset) * pxPerStep + 40;
+  // Calculate the maximum deadline that appears within the hyperperiod
+  let maxDeadline = hyperperiod;
+  for (const task of tasks) {
+    const offset = task.O ?? 0;
+    const period = task.T;
+    const deadline = task.D;
+    // Check each release within the hyperperiod
+    for (let k = 0; k * period + offset < hyperperiod; k++) {
+      const releaseTime = offset + k * period;
+      const taskDeadline = releaseTime + deadline;
+      maxDeadline = Math.max(maxDeadline, taskDeadline);
+    }
+  }
+
+  const svgWidth = leftLabelWidth + maxDeadline * pxPerStep + 40;
   const svgHeight = tasks.length * heightPerTask + 80;
   const axisColor = "#0d2b6cff";
   const timeFontSize = 15;
@@ -150,7 +163,7 @@ export default function SchedulerCanvas({
               }}
             >
 
-              {/* task label area at the left*/}
+              {/* Task label area at the left */}
               {mergedVisibility.showTaskLabels && (
                 <>
                   <rect
@@ -183,7 +196,7 @@ export default function SchedulerCanvas({
                   <line
                     x1={leftLabelWidth}
                     y1={centerY - 10}
-                    x2={leftLabelWidth + (hyperperiod + maxOffset) * pxPerStep}
+                    x2={leftLabelWidth + maxDeadline * pxPerStep}
                     y2={centerY - 10}
                     stroke="#1442a5ff"
                     strokeWidth={2}
@@ -205,16 +218,16 @@ export default function SchedulerCanvas({
                 </>
               )}
 
-              {/* timesteps for x-axis */}
+              {/* Timesteps for x-axis */}
               {mergedVisibility.showTimeTicks && (
                 <>
                   <g transform={`translate(${leftLabelWidth}, ${yTop + heightPerTask - heightPerTask / 1.75})`}>
-                    {Array.from({ length: hyperperiod + maxOffset + 1 }).map((_, t) => {
+                    {Array.from({ length: maxDeadline + 1 }).map((_, t) => {
                       const x = t * pxPerStep;
                       const showLabel = 1;
                       return (
                         <g key={t}>
-                          {/* small tick */}
+                          {/* Small ticks */}
                           <line
                             x1={x}
                             y1={0}
@@ -223,7 +236,7 @@ export default function SchedulerCanvas({
                             stroke={axisColor}
                             strokeWidth={1}
                           />
-                          {/* optional label */}
+                          {/* Optional label */}
                           {showLabel && (
                             <text
                               x={x}
@@ -292,47 +305,53 @@ export default function SchedulerCanvas({
                   })}
                 </>
               )}
-              
+
               {/* Release and Deadline Markers */}
+              {(() => {
+                // Calculate release times and deadlines for this task
+                // Collect unique releases and map to deadlines
+                const releaseSet = new Set<number>();
+                for (let k = 0; k * task.T + (task.O ?? 0) < hyperperiod + (task.O ?? 0); k++) {
+                  releaseSet.add((task.O ?? 0) + k * task.T);
+                }
+                
+                const jobs = Array.from(releaseSet)
+                  .filter(release => release < hyperperiod + (task.O ?? 0))
+                  .map(release => ({
+                    release,
+                    deadline: release + task.D,
+                  }))
 
-              {Array.from({ length: Math.ceil(hyperperiod / task.T) }, (_, k) => {
-                const releaseTime = k === 0 ? (task.O ?? 0) : k * task.T;
-                const deadlineTime = releaseTime + task.D;
-
-                return (
-                  <g key={`markers-${k}`}>
-                    {/* Release marker (Up) */}
+                return jobs.map(job => (
+                  <g key={`job-${task.id}-${job.release}`}>
+                    {/* Release Marker (Up) */}
                     {mergedVisibility.showReleaseMarkers && (
-                      <>
-                        <line
-                          x1={leftLabelWidth + releaseTime * pxPerStep}
-                          y1={centerY - 11.5}
-                          x2={leftLabelWidth + releaseTime * pxPerStep}
-                          y2={centerY- 37.5}
-                          stroke="green"
-                          strokeWidth={2}
-                          markerEnd="url(#arrowUp)"
-                        />
-                      </>
+                      <line
+                        x1={leftLabelWidth + job.release * pxPerStep}
+                        y1={centerY - 11.5}
+                        x2={leftLabelWidth + job.release * pxPerStep}
+                        y2={centerY - 37.5}
+                        stroke="green"
+                        strokeWidth={2}
+                        markerEnd="url(#arrowUp)"
+                      />
                     )}
 
-                    {/* Deadline marker (Down) */}
+                    {/* Deadline Marker (Down) */}
                     {mergedVisibility.showDeadlineMarkers && (
-                      <>
-                        <line
-                          x1={leftLabelWidth + deadlineTime * pxPerStep}
-                          y1={centerY - 36.5}
-                          x2={leftLabelWidth + deadlineTime * pxPerStep}
-                          y2={centerY - 16.5}
-                          stroke="red"
-                          strokeWidth={2}
-                          markerEnd="url(#arrowDown)"
-                        />
-                      </>
+                      <line
+                        x1={leftLabelWidth + job.deadline * pxPerStep}
+                        y1={centerY - 36.5}
+                        x2={leftLabelWidth + job.deadline * pxPerStep}
+                        y2={centerY - 16.5}
+                        stroke="red"
+                        strokeWidth={2}
+                        markerEnd="url(#arrowDown)"
+                      />
                     )}
                   </g>
-                );
-              })}
+                ));
+              })()}
             </g>
           );
         })}

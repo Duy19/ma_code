@@ -12,7 +12,7 @@ import { useNavigate } from "react-router-dom";
 // Example Taskset
 const BASE_TASKS: Task[] = [
   { id: "brake", name: "Bremsen", C: 2, T: 4, D: 4, O: 1, color: "#f87171" },
-  { id: "sensor", name: "Sensor", C: 0, T: 0, D: 4, color: "#60a5fa" },
+  { id: "sensor", name: "Sensor", C: 0, T: 24, D: 3, color: "#60a5fa" },
   { id: "media", name: "Multimedia", C: 1, T: 6, D: 6, color: "#34d399" },
 ];
 

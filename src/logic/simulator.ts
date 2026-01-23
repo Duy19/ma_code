@@ -4,7 +4,29 @@ import type { Task } from "../core/task";
 export interface ScheduleEntry {
   time: number;
   taskId: string | null; // null = idle
+  jobRelease?: number;
+  jobDeadline?: number;
 }
+
+function releasePattern(
+  task: Task,
+  t: number,
+  lastRelease: Map<string, number>
+): boolean {
+  const offset = task.O ?? 0;
+
+  // To late
+  if (t < offset) return false;
+
+  // Sporadic
+  if (task.type === "sporadic") {
+    return t - (lastRelease.get(task.id) ?? -Infinity) >= task.T;
+  }
+
+  // Periodic (default)
+  return (t - offset) % task.T === 0;
+}
+
 
 export function simulateEDF(tasks: Task[], hyperperiod: number): ScheduleEntry[] {
   const schedule: ScheduleEntry[] = [];
@@ -15,6 +37,7 @@ export function simulateEDF(tasks: Task[], hyperperiod: number): ScheduleEntry[]
     release: number;
     deadline: number;
     remainingExecution: number;
+    period: number;
   }
 
   let active: ActiveInstance[] = [];
@@ -25,16 +48,19 @@ export function simulateEDF(tasks: Task[], hyperperiod: number): ScheduleEntry[]
       taskOrder.set(task.id, index);
     });
 
+  const lastRelease = new Map<string, number>();  
+
   for (let t = 0; t < hyperperiod; t++) {
     for (const task of tasks) {
-      const offset = task.O ?? 0;
-      if ((t-offset) >= 0 && (t-offset) % task.T === 0) {
+      if (releasePattern(task, t, lastRelease)) {
         active.push({
           id: task.id,
           release: t,
           deadline: t + task.D,
           remainingExecution: task.C,
+          period: task.T,
         });
+        lastRelease.set(task.id, t);
       }
     }
 
@@ -53,7 +79,7 @@ export function simulateEDF(tasks: Task[], hyperperiod: number): ScheduleEntry[]
 
     if (current) {
       current.remainingExecution -= 1;
-      schedule.push({ time: t, taskId: current.id });
+      schedule.push({ time: t, taskId: current.id, jobRelease: current.release, jobDeadline: current.deadline });
     } else {
       schedule.push({ time: t, taskId: null });
     }
@@ -84,10 +110,11 @@ export function simulateRM(tasks: Task[], hyperperiod: number): ScheduleEntry[] 
       taskOrder.set(task.id, index);
     });
 
+  const lastRelease = new Map<string, number>();
+
   for (let t = 0; t < hyperperiod; t++) {
     for (const task of tasks) {
-      const offset = task.O ?? 0;
-      if ((t-offset) >= 0 && (t-offset) % task.T === 0) {
+      if ((releasePattern(task, t, lastRelease))) {
         active.push({
           id: task.id,
           release: t,
@@ -95,6 +122,7 @@ export function simulateRM(tasks: Task[], hyperperiod: number): ScheduleEntry[] 
           remaining: task.C,
           period: task.T,
         });
+        lastRelease.set(task.id, t)
       }
     }
 
@@ -112,7 +140,7 @@ export function simulateRM(tasks: Task[], hyperperiod: number): ScheduleEntry[] 
     const current = active[0];
     if (current) {
       current.remaining -= 1;
-      schedule.push({ time: t, taskId: current.id });
+      schedule.push({ time: t, taskId: current.id, jobRelease: current.release, jobDeadline: current.deadline });
     } else {
       schedule.push({ time: t, taskId: null });
     }
@@ -141,10 +169,11 @@ export function simulateDM(tasks: Task[], hyperperiod: number): ScheduleEntry[] 
       taskOrder.set(task.id, index);
     });
 
+  const lastRelease = new Map<string, number>();
+
   for (let t = 0; t < hyperperiod; t++) {
     for (const task of tasks) {
-      const offset = task.O ?? 0;
-      if ((t-offset) >= 0 && (t-offset) % task.T === 0) {
+      if ((releasePattern(task, t, lastRelease))) {
         active.push({
           id: task.id,
           release: t,
@@ -152,11 +181,12 @@ export function simulateDM(tasks: Task[], hyperperiod: number): ScheduleEntry[] 
           remaining: task.C,
           period: task.T,
         });
+        lastRelease.set(task.id, t)
       }
     }
 
     active = active.filter((a) => a.remaining > 0);
-    // sort by Deadline (Deadline Monotonic)
+    // sort by period (Rate Monotonic)
     active.sort((a, b) => {
       if (a.deadline !== b.deadline) {
         return a.deadline - b.deadline;
@@ -169,7 +199,7 @@ export function simulateDM(tasks: Task[], hyperperiod: number): ScheduleEntry[] 
     const current = active[0];
     if (current) {
       current.remaining -= 1;
-      schedule.push({ time: t, taskId: current.id });
+      schedule.push({ time: t, taskId: current.id, jobRelease: current.release, jobDeadline: current.deadline });
     } else {
       schedule.push({ time: t, taskId: null });
     }
@@ -177,7 +207,6 @@ export function simulateDM(tasks: Task[], hyperperiod: number): ScheduleEntry[] 
 
   return schedule;
 }
-
 
 // Test all EDF Permutations
 export function simulateEDFAllMutations(tasks: Task[], hyperperiod: number): ScheduleEntry[][] {
@@ -229,7 +258,7 @@ export function simulateEDFAllMutations(tasks: Task[], hyperperiod: number): Sch
       const executingTask = newActive.find(a => a.id === task.id)!;
       executingTask.remainingExecution -= 1;
 
-      backtrack(t + 1, newActive, [...schedule, { time: t, taskId: task.id }]);
+      backtrack(t + 1, newActive, [...schedule, { time: t, taskId: task.id, jobRelease: executingTask.release, jobDeadline: executingTask.deadline }]);
     }
   }
 

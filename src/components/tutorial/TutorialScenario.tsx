@@ -19,6 +19,11 @@ export default function TutorialScenario({ step, totalSteps, stopBeforeObstacle,
   const [showCheck, setShowCheck] = useState(false);
 
   useEffect(() => {
+    // Reset scene whenever dependencies change
+    setCarX(0);
+    setShowWarning(false);
+    setShowCheck(false);
+
     if (step !== totalSteps - 1) return;
 
     const animation = setInterval(() => {
@@ -27,12 +32,14 @@ export default function TutorialScenario({ step, totalSteps, stopBeforeObstacle,
         if (crash) {
           if (prev + AUTO_WIDTH < ROCK_X + 20) return prev + AUTO_SPEED;
           setShowWarning(true);
+          clearInterval(animation);
           return prev;
         }
         // No Crash
         if (stopBeforeObstacle) {
           if (prev + AUTO_WIDTH >= ROCK_X - 10) {
             setShowCheck(true);
+            clearInterval(animation);
             return prev;
           }
           return prev + AUTO_SPEED;

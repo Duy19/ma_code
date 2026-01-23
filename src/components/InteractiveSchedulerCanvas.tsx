@@ -299,9 +299,10 @@ export default function InteractiveSchedulerCanvas({
                 })}
 
                 {/* Release and Deadline Markers */}
-                {Array.from({ length: Math.ceil(hyperperiod / task.T) }, (_, k) => {
-                  const releaseTime = k === 0 ? (task.O ?? 0) : k * task.T;
+                {Array.from({ length: Math.ceil((hyperperiod + (task.O ?? 0)) / task.T) }, (_, k) => {
+                  const releaseTime = (task.O ?? 0) + k * task.T;
                   const deadlineTime = releaseTime + task.D;
+                  if (releaseTime >= hyperperiod + (task.O ?? 0)) return null;
 
                   return (
                     <g key={k}>

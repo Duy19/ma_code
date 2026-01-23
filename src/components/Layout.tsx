@@ -21,9 +21,9 @@ export default function Layout() {
           {/* Navigation centered with links to the pages */}
           <Box sx={{ display: "flex", gap: 2, position: "absolute" }}>
             <Button component={Link} to="/freeScheduler">FreeScheduler</Button>
-            <Button component={Link} to="/chapter1_1">Chapter 1</Button>
-            <Button component={Link} to="/chapter2_1">Chapter 2</Button>
-            <Button component={Link} to="/chapter3">Chapter 3</Button>
+            <Button component={Link} to="/Chapter1_A">Chapter 1</Button>
+            <Button component={Link} to="/Chapter2_A">Chapter 2</Button>
+            <Button component={Link} to="/Chapter3">Chapter 3</Button>
           </Box>
         </Toolbar>
       </AppBar>

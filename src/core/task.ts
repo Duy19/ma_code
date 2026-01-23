@@ -1,5 +1,6 @@
 /* Data structures for tasks, jobs, and schedules */
 
+export type TaskType = "periodic" | "sporadic";
 export interface Job {
   id: string;
   release: number;
@@ -19,6 +20,7 @@ export interface Task {
   S?: number;         // Suspension
   color?: string;
   jobs?: Job[];
+  type?: TaskType;
 }
 
 export interface Schedule {
