@@ -10,6 +10,17 @@ const quizQuestions = [
             { id: "a3", text: "T₁ = 4, T₂ = 8, T₃ = 12, T₄ = 16", isCorrect: false}, 
             { id: "a4", text: "T₁ = 2, T₂ = 4, T₃ = 8, T₄ = 16", isCorrect: true},
         ],
+        visualContent: {
+            type: "canvas",
+            tasks: [  
+                { id: "brake", name: "Brakes", C: 2, T: 8, D: 8, color: "#f87171" },
+                { id: "sensor", name: "Sensor", C: 1, T: 3, D: 3, color: "#60a5fa" },
+                { id: "media", name: "Multimedia", C: 1, T: 12, D: 12, color: "#34d399" },
+            ],
+            algorithm: "RM",
+            canvasMode: "default",
+            hyperperiod: 12
+        },
         explanation: "A taskset is harmonic if for every pair of tasks (\\tau_i, \\tau_j) with T_i < T_j, T_j is an integer multiple of T_i. Only option A4 satisfies this condition."
     },
 

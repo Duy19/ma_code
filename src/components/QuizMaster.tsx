@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Box, Paper, Typography, Container, Button } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
-
+import type { Task } from "../core/task";
 
 // How an answer looks like (explanation not used yet)
 export interface QuizAnswer {
@@ -19,6 +19,21 @@ export interface QuizQuestion {
   answers: QuizAnswer[];
   difficulty?: "easy" | "medium" | "hard";
   explanation?: string;
+  visualContent?: QuizVisualContent;
+}
+
+// Visual content for a question - can be a canvas, image, or nothing
+export interface QuizVisualContent {
+  type: "canvas" | "image" | "none";
+  // For canvas
+  tasks?: Task[];
+  canvasMode?: "interactive" | "default";
+  algorithm?: string; // Which algorithm to use (e.g., "RM", "DM", "EDF")
+  hyperperiod?: number;
+  // For image
+  imageUrl?: string;
+  imageAlt?: string;
+  // Only one of the above can be used based on type and will be checked later
 }
 
 interface QuizMasterProps {
@@ -28,6 +43,7 @@ interface QuizMasterProps {
   onRetry?: () => void;
   showExplanation?: boolean;
   isLastQuestion?: boolean;
+  renderCanvas?: (tasks: Task[], canvasMode: "interactive" | "default", hyperperiod: number, algorithm?: string) => React.ReactNode;
 }
 
 type AnswerState = "idle" | "correct" | "incorrect";
@@ -40,19 +56,28 @@ export default function QuizMaster({
   onRetry,
   showExplanation = true,
   isLastQuestion = false,
+  renderCanvas,
 }: QuizMasterProps) {
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [answerState, setAnswerState] = useState<AnswerState>("idle");
   const [showResult, setShowResult] = useState(false);
+  // Start with question view, toggle to visual view on click
+  const [showVisual, setShowVisual] = useState(false);
 
   const selectedAnswerData = question.answers.find((a) => a.id === selectedAnswer);
   const isCorrect = selectedAnswerData?.isCorrect ?? false;
+
+  // Check if visual content exists
+  const hasVisualContent = question.visualContent && question.visualContent.type !== "none";
+  const isCanvasVisual = question.visualContent?.type === "canvas";
+  const isImageVisual = question.visualContent?.type === "image";
 
   // Reset state when question changes
   useEffect(() => {
     setSelectedAnswer(null);
     setAnswerState("idle");
     setShowResult(false);
+    setShowVisual(false); // Reset to question view on new question
   }, [question.id]);
 
   // Handle selecting an answer but not confirming it yet
@@ -97,47 +122,134 @@ export default function QuizMaster({
   return (
     <Container maxWidth="md" sx={{ py: 6 }}>
       <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
-        {/* Question */}
-        <Box>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
-            <Typography variant="h5" sx={{ fontWeight: 700 }}>
-              {question.question}
-            </Typography>
-            {/* Show difficulty badge if difficulty is set */}
-            {question.difficulty && (
-              <Box
-                sx={{
-                  px: 1.5,
-                  py: 0.5,
-                  borderRadius: 1,
-                  backgroundColor:
-                    question.difficulty === "easy"
-                      ? "#c8e6c9"
-                      : question.difficulty === "medium"
-                        ? "#ffe0b2"
-                        : "#ffccbc",
-                  color:
-                    question.difficulty === "easy"
-                      ? "#2e7d32"
-                      : question.difficulty === "medium"
-                        ? "#e65100"
-                        : "#d84315",
-                  fontSize: "0.75em",
-                  fontWeight: 600,
-                }}
+        {/* Question and visual content are rendered here (with toggle if both exist) */}
+        {hasVisualContent && (
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            {/* Toggle button if visual content exists (positioned on the right) */}
+            <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+              <Button
+                variant="outlined"
+                onClick={() => setShowVisual(!showVisual)}
+                sx={{ textTransform: "none", fontSize: "0.9rem" }}
               >
-                {question.difficulty === "easy"
-                  ? "Easy"
-                  : question.difficulty === "medium"
-                    ? "Medium"
-                    : "Hard"}
+                {showVisual ? "Show Question" : "Show Visual"}
+              </Button>
+            </Box>
+
+            {/* Rendering Canvas if visual content is of type canvas */}
+            {isCanvasVisual && showVisual && question.visualContent?.tasks && (
+              <Box>
+                {renderCanvas ? (
+                  renderCanvas(
+                    question.visualContent.tasks,
+                    question.visualContent.canvasMode || "default",
+                    question.visualContent.hyperperiod || 0,
+                    question.visualContent.algorithm
+                  )
+                ) : (
+                  <Typography color="textSecondary">Canvas content requires renderCanvas prop</Typography>
+                )}
+              </Box>
+            )}
+
+            {/* Rendering Image if visual content is of type image */}
+            {isImageVisual && showVisual && question.visualContent?.imageUrl && (
+              <Box sx={{ borderRadius: 1, overflow: "hidden", maxHeight: "400px" }}>
+                <img
+                  src={question.visualContent.imageUrl}
+                  alt={question.visualContent.imageAlt || "Question visual"}
+                  style={{ width: "100%", height: "auto", display: "block" }}
+                />
+              </Box>
+            )}
+
+            {/* Show question when not showing visual */}
+            {!showVisual && (
+              <Box>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
+                  <Typography variant="h5" sx={{ fontWeight: 700 }}>
+                    {question.question}
+                  </Typography>
+                  {/* Show difficulty badge if difficulty is set */}
+                  {question.difficulty && (
+                    <Box
+                      sx={{
+                        px: 1.5,
+                        py: 0.5,
+                        borderRadius: 1,
+                        backgroundColor:
+                          question.difficulty === "easy"
+                            ? "#c8e6c9"
+                            : question.difficulty === "medium"
+                              ? "#ffe0b2"
+                              : "#ffccbc",
+                        color:
+                          question.difficulty === "easy"
+                            ? "#2e7d32"
+                            : question.difficulty === "medium"
+                              ? "#e65100"
+                              : "#d84315",
+                        fontSize: "0.75em",
+                        fontWeight: 600,
+                      }}
+                    >
+                      {question.difficulty === "easy"
+                        ? "Easy"
+                        : question.difficulty === "medium"
+                          ? "Medium"
+                          : "Hard"}
+                    </Box>
+                  )}
+                </Box>
               </Box>
             )}
           </Box>
-        </Box>
+        )}
+
+        {/* Question - shown if no visual content is set or when visual is hidden */}
+        {!hasVisualContent && (
+          <Box>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
+              <Typography variant="h5" sx={{ fontWeight: 700 }}>
+                {question.question}
+              </Typography>
+              {/* Show difficulty badge if difficulty is set */}
+              {question.difficulty && (
+                <Box
+                  sx={{
+                    px: 1.5,
+                    py: 0.5,
+                    borderRadius: 1,
+                    backgroundColor:
+                      question.difficulty === "easy"
+                        ? "#c8e6c9"
+                        : question.difficulty === "medium"
+                          ? "#ffe0b2"
+                          : "#ffccbc",
+                    color:
+                      question.difficulty === "easy"
+                        ? "#2e7d32"
+                        : question.difficulty === "medium"
+                          ? "#e65100"
+                          : "#d84315",
+                    fontSize: "0.75em",
+                    fontWeight: 600,
+                  }}
+                >
+                  {question.difficulty === "easy"
+                    ? "Easy"
+                    : question.difficulty === "medium"
+                      ? "Medium"
+                      : "Hard"}
+                </Box>
+              )}
+            </Box>
+          </Box>
+        )}
 
         {/* Answers */}
-        <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 2 }}>
+        {(!hasVisualContent || !showVisual) && (
+          <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 2 }}>
           {/* Map through answers and display them in a grid (there is no minimum or limit required for answers)*/}
           {question.answers.map((answer) => {
             {/* Layout/Look of the boxes in the grid */}
@@ -221,9 +333,10 @@ export default function QuizMaster({
             );
           })}
         </Box>
+        )}
 
-        {/* Confirm Button */}
-        {selectedAnswer && !showResult && (
+        {/* Confirm Button - only show when not displaying visual content */}
+        {(!hasVisualContent || !showVisual) && selectedAnswer && !showResult && (
           <Box sx={{ display: "flex", justifyContent: "center" }}>
             <Button
               variant="contained"
@@ -234,8 +347,8 @@ export default function QuizMaster({
             </Button>
           </Box>
         )}
-        {/* Explanation */}
-        {showExplanation && showResult && question.explanation && (
+        {/* Explanation - only show when not displaying visual content */}
+        {(!hasVisualContent || !showVisual) && showExplanation && showResult && question.explanation && (
           <Paper
             sx={{
               p: 3,
@@ -250,30 +363,30 @@ export default function QuizMaster({
           </Paper>
         )}
 
-        {/* Next Button */}
-        {showResult && onNext && (
-          <Box sx={{ display: "flex", justifyContent: "center" }}>
-            <Button variant="contained" onClick={handleNext} sx={{ mt: 2 }}>
-              Next
-            </Button>
+        {/* Next and Retry Buttons - only show when not displaying visual content */}
+        {(!hasVisualContent || !showVisual) && showResult && (
+          <Box sx={{ display: "flex", justifyContent: "center", gap: 2, mt: 2 }}>
+            {isLastQuestion && onRetry ? (
+              <Button
+                variant="outlined"
+                sx={{ borderColor: "#622da8", color: "#78194a" }}
+                onClick={onRetry}
+              >
+                Retry Quiz
+              </Button>
+            ) : (
+              <Box />
+            )}
+            {onNext && (
+              <Button variant="contained" onClick={handleNext}>
+                Next
+              </Button>
+            )}
           </Box>
         )}
 
-        {/* Retry Button - only at the end */}
-        {showResult && isLastQuestion && onRetry && (
-          <Box sx={{ display: "flex", justifyContent: "center" }}>
-            <Button
-              variant="outlined"
-              sx={{ mt: 2, borderColor: "#f59e0b", color: "#f59e0b" }}
-              onClick={onRetry}
-            >
-              Retry Quiz
-            </Button>
-          </Box>
-        )}
-
-        {/* Status Text */}
-        {!showResult && selectedAnswer === null && (
+        {/* Status Text - only show when not displaying visual content */}
+        {(!hasVisualContent || !showVisual) && !showResult && selectedAnswer === null && (
           <Typography variant="body2" sx={{ color: "#999", textAlign: "center" }}>
             Chose an answer above and then confirm it.
           </Typography>
