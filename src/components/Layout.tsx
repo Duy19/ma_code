@@ -98,6 +98,7 @@ export default function Layout() {
             >
               <MenuItem onClick={handleClose2} component={Link} to="/Chapter2_A">Chapter2_A</MenuItem>
               <MenuItem onClick={handleClose2} component={Link} to="/Chapter2_B">Chapter2_B</MenuItem>
+              <MenuItem onClick={handleClose2} component={Link} to="/Chapter2_C">Chapter2_C</MenuItem>
             </Menu>
             
             <Button id="Chapter3" component={Link} to="/Chapter3">Chapter 3</Button>

@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { useState, useEffect, useMemo, ReactNode } from "react";
+import { useState, useEffect, useMemo, ReactNode, use } from "react";
 import { useNavigate } from "react-router-dom";
 import SchedulerCanvas from "../components/SchedulerCanvas";
 import InteractiveSchedulerCanvas from "../components/InteractiveSchedulerCanvas";
@@ -170,6 +170,7 @@ export interface StoryStep {
     scheduleCorrect: boolean;
     customCheckCorrect: boolean;
     quizCompleted: boolean;
+    dropGameCompleted: boolean;
   }) => boolean;
 }
 
@@ -319,6 +320,7 @@ export function ModularTutorialTemplate(props: ModularTutorialTemplateProps) {
   const [userInputTasks, setUserInputTasks] = useState<Task[] | undefined>(undefined);
   const [currentQuizQuestion, setCurrentQuizQuestion] = useState(0);
   const [quizCompleted, setQuizCompleted] = useState(false);
+  const [dropGameCompleted, setDropGameCompleted] = useState(false);
 
   // Create initial state from props
   const createInitialState = (): StoryState => ({
@@ -478,6 +480,10 @@ export function ModularTutorialTemplate(props: ModularTutorialTemplateProps) {
     setQuizCompleted(false);
   }, [step, cumulativeState.showQuiz]);
 
+  useEffect(() => {
+    setDropGameCompleted(false);
+  }, [step, cumulativeState.showDropGame]);
+
   const handleCheck = () => {
     // Check if this step requires WCRT validation
     if (currentStep?.wcrtTaskId) {
@@ -602,7 +608,7 @@ export function ModularTutorialTemplate(props: ModularTutorialTemplateProps) {
     }
   };
 
-  const handleNextStep = (overrideQuizCompleted?: boolean) => {
+  const handleNextStep = (overrideQuizCompleted?: boolean, overrideDropGameCompleted?: boolean) => {
     const currentStep = story[step];
     if (currentStep?.waitFor) {
       const ready = currentStep.waitFor({
@@ -612,8 +618,9 @@ export function ModularTutorialTemplate(props: ModularTutorialTemplateProps) {
         scheduleCorrect,
         customCheckCorrect,
         quizCompleted: overrideQuizCompleted ?? quizCompleted,
+        dropGameCompleted: overrideDropGameCompleted ?? dropGameCompleted,
       });
-      if (!ready) return; // Bedingung nicht erfüllt → Step bleibt
+      if (!ready) return;
     }
 
     if (currentStep?.navigateTo) {
@@ -746,8 +753,24 @@ export function ModularTutorialTemplate(props: ModularTutorialTemplateProps) {
     );
   };
 
+  // Default drop game render
+  const dropGameRender = () => {
+    if (!cumulativeState.showDropGame || cumulativeState.dropGameVaultIds.length === 0) {
+      return null;
+    }
+
+    return (
+      <DropMaster
+        vaultIds={cumulativeState.dropGameVaultIds}
+        onComplete={() => {
+          setDropGameCompleted(true);
+        }}
+      />
+    );
+  };
+
   // Default quiz render
-  const defaultQuizRender = () => {
+  const quizRender = () => {
     if (!cumulativeState.showQuiz || cumulativeState.quizQuestionIds.length === 0) {
       return null;
     }
@@ -979,14 +1002,14 @@ export function ModularTutorialTemplate(props: ModularTutorialTemplateProps) {
             {/* Quiz section - below canvas or at canvas position */}
             {cumulativeState.showQuiz && cumulativeState.quizQuestionIds.length > 0 && (
               <div style={{ flex: 1, paddingLeft: 150, paddingBottom: 20, paddingRight: 40, marginTop: -60 }}>
-                {defaultQuizRender()}
+                {quizRender()}
               </div>
             )}
 
             {/* DropMaster section */}
             {cumulativeState.showDropGame && cumulativeState.dropGameVaultIds.length > 0 && (
               <div style={{ flex: 1, paddingLeft: 24, paddingBottom: 20, paddingRight: 8 }}>
-                <DropMaster vaultIds={cumulativeState.dropGameVaultIds} />
+                {dropGameRender()}
               </div>
             )}
 

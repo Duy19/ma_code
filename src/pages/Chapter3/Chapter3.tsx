@@ -1,5 +1,4 @@
 import { Box, Container } from '@mui/material';
-import { SummaryContent } from "../../components/Summary/summary";
 
 export default function Chapter3() {
   return (

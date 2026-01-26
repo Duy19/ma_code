@@ -1,7 +1,6 @@
 import { ModularTutorialTemplate, type StoryStep } from "../ModularTutorialTemplate";
 import type { Task } from "../../core/task";
 import { simulateRM } from "../../logic/simulator";
-import taskUtilImg from "../../assets/taskutil.png";
 import tdaImg from "../../assets/tda.png";
 
 const tasks: Task[] = [  

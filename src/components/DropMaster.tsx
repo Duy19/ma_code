@@ -2,7 +2,7 @@ import { DndContext, type DragEndEvent, type DragStartEvent, DragOverlay, useDra
 import { CSS } from "@dnd-kit/utilities";
 import type { CSSProperties } from "react";
 import { useEffect, useMemo, useState } from "react";
-import { DropMasterVault, type Vault, type DraggableObject, type DropSlot } from "../assets/dropGame";
+import { DropMasterVault, type DraggableObject, type DropSlot } from "../assets/dropGame";
 import { InlineMath } from 'react-katex';
 import 'katex/dist/katex.min.css';
 
@@ -76,11 +76,12 @@ function DropZone({ slot, placed }: { slot: DropSlot; placed?: DraggableObject }
 
 interface DropMasterProps {
   vaultIds?: string[];
+  onComplete?: () => void;
 }
 
 
 // Main DropMaster Component which accepts optional vault IDs to choose specific options from dropGame.ts
-export default function DropMaster({ vaultIds = [] }: DropMasterProps) {
+export default function DropMaster({ vaultIds = [], onComplete }: DropMasterProps) {
   // Checking which vaults are available based on provided IDs
   const availableVaults = useMemo(() => {
     if (vaultIds.length === 0) {
@@ -92,26 +93,53 @@ export default function DropMaster({ vaultIds = [] }: DropMasterProps) {
   // State to track current scenario, active dragged item, and assignments
   const [scenarioId, setScenarioId] = useState<string>(availableVaults[0]?.id ?? DropMasterVault[0].id);
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [completedScenarios, setCompletedScenarios] = useState<Set<string>>(new Set());
 
   const scenario = useMemo(() => availableVaults.find(s => s.id === scenarioId) ?? availableVaults[0], [scenarioId, availableVaults]);
 
-  // State to track assignments of draggable items to drop slots
-  const [assignments, setAssignments] = useState<Record<string, string | null>>(() => {
+    // State to track assignments per scenario (scenarioId -> slotId -> itemId)
+    const [allAssignments, setAllAssignments] = useState<Record<string, Record<string, string | null>>>(() => {
     const initial: Record<string, string | null> = {};
     scenario.slots.forEach(slot => {
       initial[slot.id] = null;
     });
-    return initial;
+      return { [scenario.id]: initial };
   });
 
+    // Get assignments for current scenario
+    const assignments = useMemo(() => {
+      if (allAssignments[scenario.id]) {
+        return allAssignments[scenario.id];
+      }
+      // Initialize assignments for this scenario if not yet created
+      const initial: Record<string, string | null> = {};
+      scenario.slots.forEach(slot => {
+        initial[slot.id] = null;
+      });
+      return initial;
+    }, [allAssignments, scenario.id, scenario.slots]);
+
+    // Initialize assignments for new scenarios
   useEffect(() => {
-    const next: Record<string, string | null> = {};
-    scenario.slots.forEach(slot => {
-      next[slot.id] = null;
-    });
-    setAssignments(next);
+      if (!allAssignments[scenario.id]) {
+        const initial: Record<string, string | null> = {};
+        scenario.slots.forEach(slot => {
+          initial[slot.id] = null;
+        });
+        setAllAssignments(prev => ({
+          ...prev,
+          [scenario.id]: initial
+        }));
+      }
     setActiveId(null);
   }, [scenario]);
+
+  // Call onComplete when all scenarios are completed
+  useEffect(() => {
+    if (completedScenarios.size === availableVaults.length && onComplete) {
+      onComplete();
+    }
+  }, [completedScenarios, availableVaults.length, onComplete]);
 
   // Function to reset the board
   const resetBoard = () => {
@@ -119,7 +147,10 @@ export default function DropMaster({ vaultIds = [] }: DropMasterProps) {
     scenario.slots.forEach(slot => {
       next[slot.id] = null;
     });
-    setAssignments(next);
+    setAllAssignments(prev => ({
+      ...prev,
+      [scenario.id]: next
+    }));
     setActiveId(null);
   };
 
@@ -142,13 +173,17 @@ export default function DropMaster({ vaultIds = [] }: DropMasterProps) {
     if (!slot || !activeType || !slot.accepts.includes(activeType)) return;
 
     const draggedId = active.id as string;
-    setAssignments(prev => {
-      const next = { ...prev };
+    setAllAssignments(prevAll => {
+      const currentAssignments = prevAll[scenario.id] || {};
+      const next = { ...currentAssignments };
       Object.keys(next).forEach(key => {
         if (next[key] === draggedId) next[key] = null;
       });
       next[slot.id] = draggedId;
-      return next;
+      return {
+        ...prevAll,
+        [scenario.id]: next
+      };
     });
   };
 
@@ -161,6 +196,13 @@ export default function DropMaster({ vaultIds = [] }: DropMasterProps) {
 
   // Check if all slots are filled
   const isComplete = scenario.slots.every(slot => assignments[slot.id]);
+
+  // Mark current scenario as completed when isComplete is true
+  useEffect(() => {
+    if (isComplete) {
+      setCompletedScenarios(prev => new Set(prev).add(scenario.id));
+    }
+  }, [isComplete, scenario.id]);
 
   const activeItem = scenario.items.find(i => i.id === activeId);
 
@@ -193,13 +235,17 @@ export default function DropMaster({ vaultIds = [] }: DropMasterProps) {
               padding: "10px 14px",
               borderRadius: 10,
               border: s.id === scenario.id ? "2px solid #2563eb" : "1px solid #cbd5e1",
-              background: s.id === scenario.id ? "#eff6ff" : "#ffffff",
+              background: completedScenarios.has(s.id) ? "#16a34a" : s.id === scenario.id ? "#eff6ff" : "#ffffff",
               cursor: "pointer",
               fontWeight: 700,
-              color: "#0f172a",
+              color: completedScenarios.has(s.id) ? "#ffffff" : "#0f172a",
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
             }}
           >
             {s.title}
+            {completedScenarios.has(s.id) && <span>✓</span>}
           </button>
         ))}
         <button
@@ -221,7 +267,7 @@ export default function DropMaster({ vaultIds = [] }: DropMasterProps) {
       <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
         <div style={{ fontSize: 18, fontWeight: 800, color: "#0f172a" }}>{scenario.title}</div>
         <div style={{ color: "#475569" }}>{scenario.prompt}</div>
-        {isComplete && <div style={{ color: "#16a34a", fontWeight: 700 }}>All slots are filled. Great job!</div>}
+        {isComplete && <div style={{ color: "#16a34a", fontWeight: 700 }}>All slots are filled correctly. Good job!</div>}
       </div>
 
       {/* Drag and Drop Context */}
@@ -229,12 +275,12 @@ export default function DropMaster({ vaultIds = [] }: DropMasterProps) {
         {body}
 
         <div style={{ marginTop: 16 }}>
-          <div style={{ fontSize: 14, fontWeight: 700, color: "#0f172a", marginBottom: 8 }}>Available pieces</div>
+          <div style={{ fontSize: 14, fontWeight: 700, color: "#0f172a", marginBottom: 8 }}>Items</div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 12 }}>
             {scenario.items.map(item => (
               <DraggableCard key={item.id} item={item} isAssigned={assignedIds.has(item.id)} />
             ))}
-            {isComplete && <div style={{ color: "#16a34a", fontWeight: 600 }}>Every slot has a match.</div>}
+
           </div>
         </div>
 

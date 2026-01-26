@@ -28,7 +28,7 @@ export type Vault = {
 
 export const DropMasterVault: Vault[] = [
   {
-    id: "Task Utilization",
+    id: "taskutil",
     title: "Task Utilization",
     prompt: "Drag and drop the correct values for Task T_1 Utilization.",
     segments: [
@@ -52,7 +52,7 @@ export const DropMasterVault: Vault[] = [
   },
 
   {
-    id: "TDA",
+    id: "tda",
     title: "Time Demand Analysis",
     prompt: "Drag and drop the correct variables into the slots.",
         segments: [
@@ -83,7 +83,7 @@ export const DropMasterVault: Vault[] = [
   },
 
   {
-    id: "Hyperbolic Bound",
+    id: "hyperbound",
     title: "Hyperbolic Bound",
     prompt: "Drag and drop the correct variables into the slots.",
     segments: [
@@ -112,7 +112,7 @@ export const DropMasterVault: Vault[] = [
   },
 
     {
-    id: "Liu & Layland Bound",
+    id: "llub",
     title: "Liu & Layland Bound",
     prompt: "Drag and drop the correct variables into the slots.",
     segments: [

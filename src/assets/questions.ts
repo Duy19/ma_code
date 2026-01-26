@@ -126,7 +126,7 @@ const quizQuestions = [
             canvasMode: "default",
             hyperperiod: 12
         },
-        explanation: "Brakes and Sensor interfere with Multimedia's execution due to their higher priority under RM scheduling."
+        explanation: "For Multimedia, the interference time from higher priority tasks (Brakes and Sensor) in the interval [0-10] is 7."
     },
 ];
 
