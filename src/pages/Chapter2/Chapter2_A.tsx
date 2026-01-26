@@ -8,16 +8,6 @@ const tutorialTasks: Task[] = [
   { id: "media", name: "Multimedia", C: 3, T: 12, D: 12, O: 0, color: "#34d399" },
 ];
 
-/**
- * Example showing how to use the WCRT (Worst-Case Response Time) checking feature
- * in the ModularTutorialTemplate.
- * 
- * The user will be asked to adjust task offsets to find the worst-case response time
- * for the Multimedia task. The WCRT check will:
- * 1. Calculate the actual WCRT based on current task offsets
- * 2. Compare with the expected WCRT (computed from base tasks)
- * 3. Pass only when the user achieves the correct WCRT
- */
 const STORY: StoryStep[] = [
   {
     text: "We have already learned some scheduling strategies in the last chapter. Fixed-Priority Scheduling has the advantage that it is simpler to implement.",
@@ -64,7 +54,7 @@ const STORY: StoryStep[] = [
       offsets: 12,
     },
     wcrtTaskId: "media",
-    waitFor: ({ allCorrect }) => allCorrect,
+    waitFor: ({ wcrtCorrect }) => wcrtCorrect,
   },
   {
     text: "Perfect! You found the WCRT! This happens when all higher priority tasks start at the same time as Multimedia (the task to inspect).",

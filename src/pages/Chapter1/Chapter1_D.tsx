@@ -12,12 +12,12 @@ const BASE_TASKS: Task[] = [
 const STORY: StoryStep[] = [
   {
     text: "Now its your time to shine! Try to create the schedule yourself by drawing the tasks onto the canvas. Click each task and drag it to the correct time slots. If you have problems use the hints next to the canvas.",
-    waitFor: ({ allCorrect }) => allCorrect === true,
+    waitFor: ({ scheduleCorrect }) => scheduleCorrect === true,
   },
   {
     text: "Very good! Now try it again but this time with a different algorithm.",
     selectedAlgorithm: "EDF",
-    waitFor: ({ allCorrect }) => allCorrect === true,
+    waitFor: ({ scheduleCorrect }) => scheduleCorrect === true,
   },
   {
     text: "Excellent! You have successfully completed all scheduling tasks! You now understand how to apply both RM and EDF scheduling algorithms. See you in the next chapter! **Click**.",

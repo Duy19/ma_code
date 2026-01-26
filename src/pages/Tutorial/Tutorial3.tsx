@@ -117,9 +117,9 @@ export default function Tutorial3() {
 
         {/* Buttons */}
         <Stack p={2} spacing={1}>
-          {!checked && <Button variant="outlined" onClick={handleCheck}>Überprüfen</Button>}
+          {!checked && <Button variant="outlined" onClick={handleCheck}>Check</Button>}
           {checked &&  <Button variant="outlined" sx={{borderColor: "#d32f2f", color: "#d32f2f"}} onClick={handleRetry}>Nochmal</Button>}
-          {checked && !crash && <Button variant="outlined" sx={{borderColor: "#2e7d32", color: "#2e7d32"}} onClick={() => navigate("/")}>Geschafft!</Button>}
+          {checked && !crash && <Button variant="outlined" sx={{borderColor: "#2e7d32", color: "#2e7d32"}} onClick={() => navigate("/")}>Continue</Button>}
         </Stack>
       </div>
     </div>

@@ -12,12 +12,12 @@ Todo:
 
 General:
 - Migrate code because of url name later on
-- Add Definitions at the bottom for user (e.g. EDF definition, Period, etc.)
-- Chapter aufgliedern (Chapter 1 A and B und verlinkung im Reiter)
+- Add Definitions at the bottom for user (e.g. EDF definition, Period, etc.) => Done but ugly
+- Chapter aufgliedern (Chapter 1 A and B und verlinkung im Reiter) => Done
 - Inhaltsverzeichnis auf startseite
 - Feedback form chapter 1-2
-- Quizzes for more theoretical stuff like TDA
-- Gescheitest framework damit Chapter in Zukunft leicht erweitert werden können
+- Quizzes for more theoretical stuff like TDA => WIP
+- Gescheitest framework damit Chapter in Zukunft leicht erweitert werden können => Done (Gescheit?)
 - Hint: scheduler definition
 
 Chapter1: 

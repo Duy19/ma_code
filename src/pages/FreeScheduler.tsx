@@ -28,9 +28,9 @@ export default function FreeScheduler() {
   // Schedule based on selected algorithm
   
   let newSchedule: ScheduleEntry[] = [];
-  if (algorithm === "EDF") {
-    newSchedule = simulateEDF(tasks, hp);
-  }
+    if (algorithm === "EDF") {
+      newSchedule = simulateEDF(tasks, hp);
+    }
 
     else if (algorithm === "RM") {
       newSchedule = simulateRM(tasks, hp);

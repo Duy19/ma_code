@@ -1,7 +1,8 @@
-
 /* Utility functions for math etc. */
 
 import type { Task } from "../core/task";
+import { InlineMath } from 'react-katex';
+import 'katex/dist/katex.min.css';
 
 export function gcd(a: number, b: number): number {
   return b === 0 ? a : gcd(b, a % b);
@@ -62,4 +63,17 @@ export function isHarmonicTaskSet(tasks: Task[]) {
   }
 
   return true;
+}
+
+// Helper function to render inline math using KaTeX
+export function renderWithMath(text: string): React.ReactNode[] {
+  const parts = text.split(/(\$[^$]+\$)/g);
+  return parts.map((part, idx) => {
+    const isMath = part.startsWith('$') && part.endsWith('$');
+    if (isMath) {
+      const math = part.slice(1, -1);
+      return <InlineMath key={`m-${idx}`} math={math} />;
+    }
+    return <span key={`t-${idx}`}>{part}</span>;
+  });
 }

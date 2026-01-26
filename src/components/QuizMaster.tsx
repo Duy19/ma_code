@@ -3,6 +3,7 @@ import { Box, Paper, Typography, Container, Button } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
 import type { Task } from "../core/task";
+import { renderWithMath } from "../utils/formulas";
 
 // How an answer looks like (explanation not used yet)
 export interface QuizAnswer {
@@ -22,13 +23,14 @@ export interface QuizQuestion {
   visualContent?: QuizVisualContent;
 }
 
-// Visual content for a question - can be a canvas, image, or nothing
+// Visual content for a question, which can be a canvas, image, or nothing
 export interface QuizVisualContent {
   type: "canvas" | "image" | "none";
   // For canvas
   tasks?: Task[];
   canvasMode?: "interactive" | "default";
-  algorithm?: string; // Which algorithm to use (e.g., "RM", "DM", "EDF")
+  // Which algorithm to use (e.g., "RM", "DM", "EDF")
+  algorithm?: string; 
   hyperperiod?: number;
   // For image
   imageUrl?: string;
@@ -61,6 +63,7 @@ export default function QuizMaster({
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [answerState, setAnswerState] = useState<AnswerState>("idle");
   const [showResult, setShowResult] = useState(false);
+
   // Start with question view, toggle to visual view on click
   const [showVisual, setShowVisual] = useState(false);
 
@@ -77,7 +80,7 @@ export default function QuizMaster({
     setSelectedAnswer(null);
     setAnswerState("idle");
     setShowResult(false);
-    setShowVisual(false); // Reset to question view on new question
+    setShowVisual(false);
   }, [question.id]);
 
   // Handle selecting an answer but not confirming it yet
@@ -157,7 +160,7 @@ export default function QuizMaster({
               <Box sx={{ borderRadius: 1, overflow: "hidden", maxHeight: "400px" }}>
                 <img
                   src={question.visualContent.imageUrl}
-                  alt={question.visualContent.imageAlt || "Question visual"}
+                  alt={question.visualContent.imageAlt || "No Picture added"}
                   style={{ width: "100%", height: "auto", display: "block" }}
                 />
               </Box>
@@ -168,7 +171,7 @@ export default function QuizMaster({
               <Box>
                 <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
                   <Typography variant="h5" sx={{ fontWeight: 700 }}>
-                    {question.question}
+                  {renderWithMath(question.question)}
                   </Typography>
                   {/* Show difficulty badge if difficulty is set */}
                   {question.difficulty && (
@@ -206,12 +209,12 @@ export default function QuizMaster({
           </Box>
         )}
 
-        {/* Question - shown if no visual content is set or when visual is hidden */}
+        {/* Question, shown if no visual content is set or when visual is hidden */}
         {!hasVisualContent && (
           <Box>
             <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
               <Typography variant="h5" sx={{ fontWeight: 700 }}>
-                {question.question}
+                {renderWithMath(question.question)}
               </Typography>
               {/* Show difficulty badge if difficulty is set */}
               {question.difficulty && (
@@ -318,7 +321,7 @@ export default function QuizMaster({
                 }}
               >
                 <Box sx={{ display: "flex", alignItems: "center", gap: 2, width: "100%" }}>
-                  <Typography sx={{ flex: 1 }}>{answer.text}</Typography>
+                  <Typography sx={{ flex: 1 }}>{renderWithMath(answer.text)}</Typography>
                   {isSelected && showResult && (
                     <Box>
                       {isCorrect ? (
@@ -335,7 +338,7 @@ export default function QuizMaster({
         </Box>
         )}
 
-        {/* Confirm Button - only show when not displaying visual content */}
+        {/* Confirm Button, only show when not displaying visual content */}
         {(!hasVisualContent || !showVisual) && selectedAnswer && !showResult && (
           <Box sx={{ display: "flex", justifyContent: "center" }}>
             <Button
@@ -347,7 +350,7 @@ export default function QuizMaster({
             </Button>
           </Box>
         )}
-        {/* Explanation - only show when not displaying visual content */}
+        {/* Explanation, only show when not displaying visual content */}
         {(!hasVisualContent || !showVisual) && showExplanation && showResult && question.explanation && (
           <Paper
             sx={{
@@ -359,11 +362,11 @@ export default function QuizMaster({
             <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
               {isCorrect ? "✓ Correct!" : "✗ Wrong"}
             </Typography>
-            <Typography variant="body2">{question.explanation}</Typography>
+            <Typography variant="body2">{renderWithMath(question.explanation)}</Typography>
           </Paper>
         )}
 
-        {/* Next and Retry Buttons - only show when not displaying visual content */}
+        {/* Next and Retry Buttons, only show when not displaying visual content */}
         {(!hasVisualContent || !showVisual) && showResult && (
           <Box sx={{ display: "flex", justifyContent: "center", gap: 2, mt: 2 }}>
             {isLastQuestion && onRetry ? (
@@ -385,7 +388,7 @@ export default function QuizMaster({
           </Box>
         )}
 
-        {/* Status Text - only show when not displaying visual content */}
+        {/* Status Text, only show when not displaying visual content */}
         {(!hasVisualContent || !showVisual) && !showResult && selectedAnswer === null && (
           <Typography variant="body2" sx={{ color: "#999", textAlign: "center" }}>
             Chose an answer above and then confirm it.

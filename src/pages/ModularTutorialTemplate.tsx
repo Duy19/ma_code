@@ -7,8 +7,11 @@ import TutorialOverlay from "../components/tutorial/TutorialOverlay";
 import HintCheckboxes from "../components/HintCheckboxes";
 import FreeSchedulerSidebar from "../components/FreeSchedulerSidebar";
 import DefinitionsBox, { type Definition } from "../components/DefinitionsBox";
+import { SummaryContent } from "../components/Summary/summary";
 import QuizMaster, { type QuizQuestion } from "../components/QuizMaster";
 import quizQuestions from "../assets/questions";
+import DropMaster from "../components/DropMaster";
+import { DropMasterVault } from "../assets/dropGame";
 import { Button, Stack } from "@mui/material";
 import { useHints } from "../logic/HintManager";
 import type { Task } from "../core/task";
@@ -52,7 +55,10 @@ export interface StoryState {
   showCanvas: boolean; // Toggle canvas visibility
   showQuiz: boolean; // Toggle quiz visibility
   quizQuestionIds: string[]; // Array of question IDs to display in quiz
-  
+  showSummary: boolean; // Toggle summary visibility
+  summaryIds: string[]; // Array of summary IDs to display
+  showDropGame: boolean; // Toggle drop game visibility
+  dropGameVaultIds: string[]; // Array of vault IDs to use in drop game
   // Canvas configuration
   canvasMode: "interactive" | "default";
   layoutStyle: "standard" | "interactive";
@@ -113,7 +119,10 @@ export interface StoryStep {
   showCanvas?: boolean;
   showQuiz?: boolean; // Toggle quiz visibility
   quizQuestionIds?: string[]; // Question IDs to display in quiz
-  
+  showSummary?: boolean; // Toggle summary visibility
+  summaryIds?: string[]; // Summary IDs to display
+  dropGameVaultIds?: string[]; // Vault IDs to use in drop game
+  showDropGame?: boolean; // Toggle drop game visibility
   // Canvas patches
   canvasMode?: "interactive" | "default";
   layoutStyle?: "standard" | "interactive";
@@ -157,7 +166,10 @@ export interface StoryStep {
   waitFor?: (state: {
     selectedAlgorithm: string | undefined;
     failedCount: number;
-    allCorrect: boolean;
+    wcrtCorrect: boolean;
+    scheduleCorrect: boolean;
+    customCheckCorrect: boolean;
+    quizCompleted: boolean;
   }) => boolean;
 }
 
@@ -205,6 +217,13 @@ interface ModularTutorialTemplateProps {
   definitions?: Definition[];
   definitionsTitle?: string;
 
+  // Summary box
+  showSummary?: boolean;
+  showDropGame?: boolean;
+  dropGameVaultIds?: string[];
+  summaryDescriptionVariant?: 'body1' | 'body2' | 'h6' | 'h5' | 'h4';
+  summaryContentVariant?: 'body1' | 'body2' | 'h6' | 'h5' | 'h4';
+
   // Callbacks
   onSuccess?: () => void;
 }
@@ -244,7 +263,9 @@ export interface SidebarRenderProps {
 export interface ButtonsRenderProps {
   onCheck: () => void;
   onRetry: () => void;
-  allCorrect: boolean;
+  wcrtCorrect: boolean;
+  scheduleCorrect: boolean;
+  customCheckCorrect: boolean;
   onSuccess: () => void;
 }
 
@@ -278,6 +299,11 @@ export function ModularTutorialTemplate(props: ModularTutorialTemplateProps) {
     showDefinitions = false,
     definitions = [],
     definitionsTitle = "Definitions",
+    showSummary = false,
+    summaryDescriptionVariant = 'body1',
+    summaryContentVariant = 'body1',
+    showDropGame = false,
+    dropGameVaultIds = [],
     onSuccess,
   } = props;
 
@@ -285,11 +311,14 @@ export function ModularTutorialTemplate(props: ModularTutorialTemplateProps) {
   const [userScheduleRef, setUserScheduleRef] = useState<Record<string, Set<number>>>({});
   const [step, setStep] = useState(0);
   const [failedCount, setFailedCount] = useState(0);
-  const [allCorrect, setAllCorrect] = useState(false);
+  const [wcrtCorrect, setWcrtCorrect] = useState(false);
+  const [scheduleCorrect, setScheduleCorrect] = useState(false);
+  const [customCheckCorrect, setCustomCheckCorrect] = useState(false);
   const [userSelectedAlgorithm, setUserSelectedAlgorithm] = useState<string | undefined>(undefined);
   const [userManuallyChangedAlgorithm, setUserManuallyChangedAlgorithm] = useState(false);
   const [userInputTasks, setUserInputTasks] = useState<Task[] | undefined>(undefined);
   const [currentQuizQuestion, setCurrentQuizQuestion] = useState(0);
+  const [quizCompleted, setQuizCompleted] = useState(false);
 
   // Create initial state from props
   const createInitialState = (): StoryState => ({
@@ -304,7 +333,11 @@ export function ModularTutorialTemplate(props: ModularTutorialTemplateProps) {
     showDefinitions,
     showCanvas: true,
     showQuiz: false,
+    showDropGame: false,
+    dropGameVaultIds: [],
     quizQuestionIds: [],
+    showSummary,
+    summaryIds: [],
     canvasMode,
     layoutStyle,
     sidebarVisibleFields,
@@ -336,6 +369,10 @@ export function ModularTutorialTemplate(props: ModularTutorialTemplateProps) {
       if (stepPatch.showCanvas !== undefined) state.showCanvas = stepPatch.showCanvas;
       if (stepPatch.showQuiz !== undefined) state.showQuiz = stepPatch.showQuiz;
       if (stepPatch.quizQuestionIds !== undefined) state.quizQuestionIds = stepPatch.quizQuestionIds;
+      if (stepPatch.showSummary !== undefined) state.showSummary = stepPatch.showSummary;
+      if (stepPatch.summaryIds !== undefined) state.summaryIds = stepPatch.summaryIds;
+      if (stepPatch.showDropGame !== undefined) state.showDropGame = stepPatch.showDropGame;
+      if (stepPatch.dropGameVaultIds !== undefined) state.dropGameVaultIds = stepPatch.dropGameVaultIds;
       if (stepPatch.canvasMode !== undefined) state.canvasMode = stepPatch.canvasMode;
       if (stepPatch.layoutStyle !== undefined) state.layoutStyle = stepPatch.layoutStyle;
       if (stepPatch.sidebarVisibleFields !== undefined) state.sidebarVisibleFields = stepPatch.sidebarVisibleFields;
@@ -438,6 +475,7 @@ export function ModularTutorialTemplate(props: ModularTutorialTemplateProps) {
   // Reset quiz when step changes or showQuiz becomes false
   useEffect(() => {
     setCurrentQuizQuestion(0);
+    setQuizCompleted(false);
   }, [step, cumulativeState.showQuiz]);
 
   const handleCheck = () => {
@@ -485,7 +523,7 @@ export function ModularTutorialTemplate(props: ModularTutorialTemplateProps) {
       }
       
       const ok = maxActualRT === theoreticalWCRT;
-      setAllCorrect(ok);
+      setWcrtCorrect(ok);
       if (!ok) {
         alert(`❌ Nicht ganz. Finde die WCRT vom ${targetTask.name} Task!\nAktuelle WCRT: ${maxActualRT}\nKorrekte WCRT: ${theoreticalWCRT}`);
         setFailedCount((fc) => fc + 1);
@@ -507,6 +545,7 @@ export function ModularTutorialTemplate(props: ModularTutorialTemplateProps) {
         visibleTasks,
         canvasMode: effectiveCanvasMode,
       });
+      setCustomCheckCorrect(ok);
     } else {
       // Default check: compare user schedule with correct schedule for ALL tasks
       ok = currentTasks.every((task) => {
@@ -514,9 +553,9 @@ export function ModularTutorialTemplate(props: ModularTutorialTemplateProps) {
         const correct = correctScheduleMap[task.id] ?? new Set();
         return user.size === correct.size && [...user].every((t) => correct.has(t));
       });
+      setScheduleCorrect(ok);
     }
 
-    setAllCorrect(ok);
     if (ok) {
       alert("✅ Sehr gut! Deine Lösung ist richtig!");
     } else {
@@ -532,7 +571,9 @@ export function ModularTutorialTemplate(props: ModularTutorialTemplateProps) {
     setUserManuallyChangedAlgorithm(false);
     setStep(0);
     setFailedCount(0);
-    setAllCorrect(false);
+    setWcrtCorrect(false);
+    setScheduleCorrect(false);
+    setCustomCheckCorrect(false);
     hints.forEach((h) => lockHint(h.id));
   };
 
@@ -561,13 +602,16 @@ export function ModularTutorialTemplate(props: ModularTutorialTemplateProps) {
     }
   };
 
-  const handleNextStep = () => {
+  const handleNextStep = (overrideQuizCompleted?: boolean) => {
     const currentStep = story[step];
     if (currentStep?.waitFor) {
       const ready = currentStep.waitFor({
         selectedAlgorithm: userSelectedAlgorithm,
         failedCount,
-        allCorrect,
+        wcrtCorrect,
+        scheduleCorrect,
+        customCheckCorrect,
+        quizCompleted: overrideQuizCompleted ?? quizCompleted,
       });
       if (!ready) return; // Bedingung nicht erfüllt → Step bleibt
     }
@@ -769,8 +813,9 @@ export function ModularTutorialTemplate(props: ModularTutorialTemplateProps) {
           if (currentQuizQuestion < selectedQuestions.length - 1) {
             setCurrentQuizQuestion((cq) => cq + 1);
           } else {
-            // On the last question, advance to next story step
-            handleNextStep();
+            // On the last question, mark quiz as completed and advance to next story step
+            setQuizCompleted(true);
+            handleNextStep(true);
           }
         }}
         onRetry={() => {
@@ -786,19 +831,20 @@ export function ModularTutorialTemplate(props: ModularTutorialTemplateProps) {
 
   // Default buttons render
   const defaultButtonsRender = (buttonsRenderProps: ButtonsRenderProps) => {
-    const { onCheck, allCorrect, onSuccess } = buttonsRenderProps;
+    const { onCheck, wcrtCorrect, scheduleCorrect, customCheckCorrect, onSuccess } = buttonsRenderProps;
+    const anyCorrect = wcrtCorrect || scheduleCorrect || customCheckCorrect;
     return (
       <Stack p={2} spacing={2}>
         <Button variant="outlined" onClick={onCheck}>
-          Überprüfen
+          Check
         </Button>
-        {allCorrect && (
+        {anyCorrect && (
           <Button
             variant="outlined"
             sx={{ borderColor: "#2e7d32", color: "#2e7d32" }}
             onClick={onSuccess}
           >
-            Geschafft!
+            Continue
           </Button>
         )}
       </Stack>
@@ -835,14 +881,18 @@ export function ModularTutorialTemplate(props: ModularTutorialTemplateProps) {
     const buttonsRenderProps: ButtonsRenderProps = {
       onCheck: handleCheck,
       onRetry: handleRetry,
-      allCorrect,
+      wcrtCorrect,
+      scheduleCorrect,
+      customCheckCorrect,
       onSuccess: onSuccess || (() => {
         if (currentStep?.navigateTo) {
           navigate(currentStep.navigateTo);
         } else if (step < story.length - 1) {
           // Go to next step if available
           setStep((s) => s + 1);
-          setAllCorrect(false); // Reset for next task
+          setWcrtCorrect(false); // Reset for next task
+          setScheduleCorrect(false);
+          setCustomCheckCorrect(false);
           setUserScheduleRef({}); // Clear schedule for next task
         } else {
           // Last step - go to home
@@ -862,43 +912,59 @@ export function ModularTutorialTemplate(props: ModularTutorialTemplateProps) {
                 style={{
                   flex: "0 0 25%",
                   display: "flex",
-                  justifyContent: "flex-start",
-                  alignItems: "center",
+                  justifyContent: "space-between",
+                  alignItems: "flex-start",
                   paddingLeft: 40,
+                  paddingRight: 40,
                   paddingTop: 20,
                   gap: 40,
                 }}
               >
-                {renderOverlay ? (
-                  renderOverlay({
-                    text: currentStep?.text || "",
-                    onNext: handleNextStep,
-                    step,
-                    totalSteps: story.length,
-                  })
-                ) : (
-                  <>
-                    <TutorialOverlay
-                      visible
-                      text={currentStep?.text || ""}
-                      onNext={handleNextStep}
-                    />
-                    {cumulativeState.renderCompanion && cumulativeState.renderCompanion({
+                <div style={{ display: "flex", alignItems: "center", gap: 40 }}>
+                  {renderOverlay ? (
+                    renderOverlay({
                       text: currentStep?.text || "",
                       onNext: handleNextStep,
                       step,
                       totalSteps: story.length,
-                    })}
-                  </>
-                )}
+                    })
+                  ) : (
+                    <>
+                      <TutorialOverlay
+                        visible
+                        text={currentStep?.text || ""}
+                        onNext={handleNextStep}
+                      />
+                      {cumulativeState.renderCompanion && cumulativeState.renderCompanion({
+                        text: currentStep?.text || "",
+                        onNext: handleNextStep,
+                        step,
+                        totalSteps: story.length,
+                      })}
+                    </>
+                  )}
 
-                {/* Hint checkboxes */}
-                {effectiveShowHintCheckboxes && (
-                  <HintCheckboxes
-                    hints={hints}
-                    isHintAllowed={isHintAllowed}
-                    onToggle={handleToggleHint}
-                  />
+                  {/* Hint checkboxes */}
+                  {effectiveShowHintCheckboxes && (
+                    <HintCheckboxes
+                      hints={hints}
+                      isHintAllowed={isHintAllowed}
+                      onToggle={handleToggleHint}
+                    />
+                  )}
+                </div>
+
+                {/* Definitions box - positioned on the right */}
+                {effectiveShowDefinitions && (
+                  renderDefinitions ? (
+                    renderDefinitions({ definitions })
+                  ) : (
+                    <DefinitionsBox
+                      definitions={definitions}
+                      title={definitionsTitle}
+                      onCollapsedChange={setDefinitionsCollapsed}
+                    />
+                  )
                 )}
               </div>
             )}
@@ -912,26 +978,31 @@ export function ModularTutorialTemplate(props: ModularTutorialTemplateProps) {
 
             {/* Quiz section - below canvas or at canvas position */}
             {cumulativeState.showQuiz && cumulativeState.quizQuestionIds.length > 0 && (
-              <div style={{ flex: 1, paddingLeft: 200, paddingBottom: 20, paddingRight: 8, paddingTop: -40, marginTop: -40 }}>
+              <div style={{ flex: 1, paddingLeft: 150, paddingBottom: 20, paddingRight: 40, marginTop: -60 }}>
                 {defaultQuizRender()}
               </div>
             )}
 
-            {/* Definitions box at bottom (15% height, collapsible) */}
-            {effectiveShowDefinitions && (
-              renderDefinitions ? (
-                renderDefinitions({ definitions })
-              ) : (
-                <DefinitionsBox
-                  definitions={definitions}
-                  title={definitionsTitle}
-                  onCollapsedChange={setDefinitionsCollapsed}
+            {/* DropMaster section */}
+            {cumulativeState.showDropGame && cumulativeState.dropGameVaultIds.length > 0 && (
+              <div style={{ flex: 1, paddingLeft: 24, paddingBottom: 20, paddingRight: 8 }}>
+                <DropMaster vaultIds={cumulativeState.dropGameVaultIds} />
+              </div>
+            )}
+
+            {/* Summary box */}
+            {cumulativeState.showSummary && cumulativeState.summaryIds.length > 0 && (
+              <div style={{ flex: 1, paddingLeft: 24, paddingBottom: 20, paddingRight: 8, paddingTop: 20 }}>
+                <SummaryContent
+                  ids={cumulativeState.summaryIds}
+                  descriptionVariant={summaryDescriptionVariant}
+                  contentVariant={summaryContentVariant}
                 />
-              )
+              </div>
             )}
           </div>
 
-          {/* Right side: Sidebar + Buttons (20% width) */}
+          {/* Right side: Buttons (sticky) + Sidebar (20% width) */}
           <div
             style={{
               flex: "0 0 20%",
@@ -940,21 +1011,29 @@ export function ModularTutorialTemplate(props: ModularTutorialTemplateProps) {
               boxSizing: "border-box",
               padding: 8,
               height: "100%",
-              overflow: "hidden",
               borderLeft: "1px solid #e0e0e0",
             }}
           >
-            {/* Sidebar section - scrollable */}
-            {effectiveShowSidebar && (
-              <div style={{ flex: 1, overflowY: "auto", paddingRight: 4, marginBottom: 8 }}>
-                {renderSidebar ? renderSidebar(sidebarRenderProps) : defaultSidebarRender(sidebarRenderProps)}
+            {/* Buttons section - sticky at top to avoid scrolling */}
+            {effectiveShowButtons && (
+              <div
+                style={{
+                  position: "sticky",
+                  top: 0,
+                  zIndex: 2,
+                  borderBottom: "1px solid #e0e0e0",
+                  paddingBottom: 8,
+                  background: "#ffffff",
+                }}
+              >
+                {renderButtons ? renderButtons(buttonsRenderProps) : defaultButtonsRender(buttonsRenderProps)}
               </div>
             )}
 
-            {/* Buttons section - always at bottom */}
-            {effectiveShowButtons && (
-              <div style={{ flex: "0 0 auto", borderTop: "1px solid #e0e0e0", paddingTop: 8 }}>
-                {renderButtons ? renderButtons(buttonsRenderProps) : defaultButtonsRender(buttonsRenderProps)}
+            {/* Sidebar section - scrollable with smaller height budget */}
+            {effectiveShowSidebar && (
+              <div style={{ flex: 1, overflowY: "auto", paddingRight: 4, marginTop: 12 }}>
+                {renderSidebar ? renderSidebar(sidebarRenderProps) : defaultSidebarRender(sidebarRenderProps)}
               </div>
             )}
           </div>

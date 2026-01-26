@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from "react";
+import { Paper, Box, Typography, Button } from "@mui/material";
 
 export interface Definition {
   term: string;
@@ -18,77 +19,98 @@ export default function DefinitionsBox({
   title = "Definitions",
   onCollapsedChange,
 }: DefinitionsBoxProps) {
-  const [collapsed, setCollapsed] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   const handleToggle = () => {
-    const newState = !collapsed;
-    setCollapsed(newState);
+    const newState = !isOpen;
+    setIsOpen(newState);
     onCollapsedChange?.(newState);
   };
 
   return (
-    <div
-      style={{
-        flex: "0 0 20%",
-        borderTop: "1px solid #e0e0e0",
-        display: "flex",
-        flexDirection: "column-reverse",
-      }}
-    >
-      {/* Header */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          padding: "8px 12px",
-          backgroundColor: "#f5f5f5",
-          cursor: "pointer",
-          userSelect: "none",
-          fontWeight: 600,
-          fontSize: "14px",
-        }}
+    <Box sx={{ position: 'relative' }}>
+      {/* Question Mark Button */}
+      <Button
         onClick={handleToggle}
+        variant="contained"
+        sx={{
+          minWidth: 35,
+          width: 35,
+          height: 35,
+          borderRadius: '50%',
+          fontSize: '16px',
+          fontWeight: 'bold',
+          backgroundColor: '#3b82f6',
+          color: 'white',
+          '&:hover': {
+            backgroundColor: '#2563eb',
+          },
+        }}
       >
-        <span>{title}</span>
-        <span style={{ fontSize: "12px", color: "#666" }}>
-          {collapsed ? "▼" : "▲"}
-        </span>
-      </div>
+        ?
+      </Button>
 
-      {/* Content - expands from bottom when not collapsed */}
-      {!collapsed && (
-        <div
-          style={{
-            flex: 1,
-            overflowY: "auto",
-            padding: "12px",
-            fontSize: "13px",
-            lineHeight: "1.5",
+      {/* Dropdown Panel */}
+      {isOpen && (
+        <Paper
+          elevation={6}
+          sx={{
+            position: 'absolute',
+            top: '100%',
+            right: 0,
+            marginTop: 1,
+            padding: 2,
+            backgroundColor: '#f1f5f9',
+            minWidth: 280,
+            maxWidth: 350,
+            maxHeight: 400,
+            overflowY: 'auto',
+            animation: 'slideDown 0.3s ease-out',
+            '@keyframes slideDown': {
+              from: {
+                opacity: 0,
+                transform: 'translateY(-10px)',
+              },
+              to: {
+                opacity: 1,
+                transform: 'translateY(0)',
+              },
+            },
+            '&::before': {
+              content: '""',
+              position: 'absolute',
+              top: '-8px',
+              right: '16px',
+              width: 0,
+              height: 0,
+              borderLeft: '8px solid transparent',
+              borderRight: '8px solid transparent',
+              borderBottom: '8px solid #f1f5f9',
+            },
           }}
         >
+          <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 2 }}>
+            {title}
+          </Typography>
+          
           {customContent ? (
             customContent
           ) : (
-            <div>
+            <Box>
               {definitions.map((def, index) => (
-                <div key={index} style={{ marginBottom: "12px" }}>
-                  <strong>{def.term}:</strong>
-                  <div
-                    style={{
-                      fontSize: "12px",
-                      marginTop: "4px",
-                      color: "#555",
-                    }}
-                  >
+                <Box key={index} sx={{ marginBottom: 2 }}>
+                  <Typography variant="body1" sx={{ fontWeight: 'bold', color: '#1f2937' }}>
+                    {def.term}
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: '#475569', mt: 0.5 }}>
                     {def.definition}
-                  </div>
-                </div>
+                  </Typography>
+                </Box>
               ))}
-            </div>
+            </Box>
           )}
-        </div>
+        </Paper>
       )}
-    </div>
+    </Box>
   );
 }

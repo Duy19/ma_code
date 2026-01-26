@@ -81,7 +81,7 @@ export default function Chapter1_C() {
         showOverlay={true}
         showHintCheckboxes={true}
         showSidebar={true}
-        showButtons={true}
+        showButtons={false}
         showDefinitions={true}
         definitions={DEFINITIONS}
         hintConfig={[]}
