@@ -1,4 +1,4 @@
-import mrTau from "../../assets/mrtau.png";
+import mrTau from "../../assets/overlay/mrtau.png";
 
 export default function TutorialCharacter() {
   return (

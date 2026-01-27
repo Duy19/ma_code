@@ -33,14 +33,20 @@ const STORY: StoryStep[] = [
 const DEFINITIONS = [
   {
     term: "EDF",
-    definition:
-      "Earliest Deadline First - dynamic priority scheduling that always executes the task with the closest deadline.",
+    definition: "Earliest Deadline First - dynamic priority scheduling that always executes the task with the closest deadline.",
   },
   {
     term: "RM",
-    definition:
-      "Rate Monotonic - static priority scheduling where tasks with shorter periods get higher priority.",
+    definition: "Rate Monotonic - fixed priority based on task period. Shorter periods get higher priority.",
   },
+  {
+    term: "DM",
+    definition: "Deadline Monotonic - fixed priority based on task deadline. Shorter deadlines get higher priority.",
+  },
+  {
+    term: "Note",
+    definition: "Ties in priority are broken by task order e.g. Brakes over Sensor or Multimedia.",
+  }
 ];
 
 export default function TestChapter1_D() {

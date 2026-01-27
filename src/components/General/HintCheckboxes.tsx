@@ -1,5 +1,5 @@
 import { FormGroup, FormControlLabel, Checkbox, Typography } from "@mui/material";
-import type { Hint } from "../logic/HintManager";
+import type { Hint } from "../../logic/HintManager";
 
 interface HintCheckboxesProps {
   hints: Hint[];

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import SchedulerCanvas from "../../components/SchedulerCanvas";
+import SchedulerCanvas from "../../components/Scheduling/SchedulerCanvas";
 import TutorialOverlay from "../../components/tutorial/TutorialOverlay";
 import type { Task } from "../../core/task";
 import type { ScheduleEntry } from "../../logic/simulator";

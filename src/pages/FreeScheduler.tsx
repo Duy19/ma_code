@@ -1,6 +1,6 @@
-import SchedulerCanvas from "../components/SchedulerCanvas";
+import SchedulerCanvas from "../components/Scheduling/SchedulerCanvas";
 import type { Task } from "../core/task";
-import FreeSchedulerSidebar from "../components/FreeSchedulerSidebar";
+import FreeSchedulerSidebar from "../components/Scheduling/FreeSchedulerSidebar";
 import { Box, Drawer, IconButton } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import { useEffect, useState } from "react";

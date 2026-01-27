@@ -2,7 +2,7 @@ import { DndContext, type DragEndEvent, type DragStartEvent, DragOverlay, useDra
 import { CSS } from "@dnd-kit/utilities";
 import type { CSSProperties } from "react";
 import { useEffect, useMemo, useState } from "react";
-import { DropMasterVault, type DraggableObject, type DropSlot } from "../assets/dropGame";
+import { DropMasterVault, type DraggableObject, type DropSlot } from "./dropGame";
 import { InlineMath } from 'react-katex';
 import 'katex/dist/katex.min.css';
 
@@ -197,7 +197,7 @@ export default function DropMaster({ vaultIds = [], onComplete }: DropMasterProp
   // Check if all slots are filled
   const isComplete = scenario.slots.every(slot => assignments[slot.id]);
 
-  // Mark current scenario as completed when isComplete is true
+  // Mark current scenario as completed
   useEffect(() => {
     if (isComplete) {
       setCompletedScenarios(prev => new Set(prev).add(scenario.id));

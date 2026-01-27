@@ -25,6 +25,7 @@ const STORY: StoryStep[] = [
     },
     { 
     text: "With Deadline-Monotonic, on the other hand, tasks with shorter deadlines are given higher priority. Let’s now look at the schedule using DM. **(Click)**.", 
+    showDefinitions: true,  
     },
     { 
     text: "Did you notice the difference?", 
@@ -37,7 +38,7 @@ const STORY: StoryStep[] = [
     {
     text: "The priorities were also quite different this time. In **this case**, DM is better suited to avoid missing deadlines.", 
     },
-        {
+    {
     text: "In the next step, let’s take another look at an example using all the algorithms we have learned so far.", 
     navigateTo: "/Chapter1_C"
     },        
@@ -75,7 +76,7 @@ export default function Chapter1_B() {
         showHintCheckboxes={true}
         showSidebar={false}
         showButtons={false}
-        showDefinitions={true}
+        showDefinitions={false}
         definitions={DEFINITIONS}
         hintConfig={[]}
       />

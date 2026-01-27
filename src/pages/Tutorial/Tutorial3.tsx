@@ -1,8 +1,8 @@
 import { useState } from "react";
-import SchedulerCanvas from "../../components/SchedulerCanvas";
+import SchedulerCanvas from "../../components/Scheduling/SchedulerCanvas";
 import TutorialOverlay from "../../components/tutorial/TutorialOverlay";
 import TutorialScenario from "../../components/tutorial/TutorialScenario";
-import FreeSchedulerSidebar from "../../components/FreeSchedulerSidebar";
+import FreeSchedulerSidebar from "../../components/Scheduling/FreeSchedulerSidebar";
 import type { Task } from "../../core/task";
 import type { ScheduleEntry } from "../../logic/simulator";
 import { simulateEDF } from "../../logic/simulator";

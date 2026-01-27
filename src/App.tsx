@@ -1,7 +1,7 @@
 import { ThemeProvider, CssBaseline } from "@mui/material";
 import { HashRouter as Router, Routes, Route } from "react-router-dom";
 import theme from "./theme";
-import Layout from "./components/Layout";
+import Layout from "./components/General/Layout";
 import Home from "./pages/Home";
 import FreeScheduler from "./pages/FreeScheduler";
 import Chapter1_A from "./pages/Chapter1/Chapter1_A"

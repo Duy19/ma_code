@@ -1,6 +1,6 @@
 import { AppBar, Toolbar, Button, Box, Menu, MenuItem, Fade } from "@mui/material";
 import { Outlet, Link } from "react-router-dom";
-import HomeButton from "../components/HomeButton";
+import HomeButton from "./HomeButton";
 import React from "react";
 
 export default function Layout() {

@@ -1,7 +1,7 @@
 import { ModularTutorialTemplate, type StoryStep } from "../ModularTutorialTemplate";
 import type { Task } from "../../core/task";
 import { simulateRM } from "../../logic/simulator";
-import tdaImg from "../../assets/tda.png";
+import tdaImg from "../../assets/formulas/tda.png";
 
 const tasks: Task[] = [  
     { id: "brake", name: "Brakes", C: 2, T: 8, D: 8, color: "#f87171" },

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import carImg from "../../assets/car.png";
-import rockImg from "../../assets/rock.png";
+import carImg from "../../assets/overlay/car.png";
+import rockImg from "../../assets/overlay/rock.png";
 
 interface Props {
   step: number;

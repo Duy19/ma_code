@@ -1,17 +1,17 @@
 // @ts-nocheck
 import { useState, useEffect, useMemo, ReactNode, use } from "react";
 import { useNavigate } from "react-router-dom";
-import SchedulerCanvas from "../components/SchedulerCanvas";
-import InteractiveSchedulerCanvas from "../components/InteractiveSchedulerCanvas";
+import SchedulerCanvas from "../components/Scheduling/SchedulerCanvas";
+import InteractiveSchedulerCanvas from "../components/Scheduling/InteractiveSchedulerCanvas";
 import TutorialOverlay from "../components/tutorial/TutorialOverlay";
-import HintCheckboxes from "../components/HintCheckboxes";
-import FreeSchedulerSidebar from "../components/FreeSchedulerSidebar";
-import DefinitionsBox, { type Definition } from "../components/DefinitionsBox";
+import HintCheckboxes from "../components/General/HintCheckboxes";
+import FreeSchedulerSidebar from "../components/Scheduling/FreeSchedulerSidebar";
+import DefinitionsBox, { type Definition } from "../components/General/DefinitionsBox";
 import { SummaryContent } from "../components/Summary/summary";
-import QuizMaster, { type QuizQuestion } from "../components/QuizMaster";
-import quizQuestions from "../assets/questions";
-import DropMaster from "../components/DropMaster";
-import { DropMasterVault } from "../assets/dropGame";
+import QuizMaster, { type QuizQuestion } from "../components/Quiz/QuizMaster";
+import quizQuestions from "../components/Quiz/questions";
+import DropMaster from "../components/DragDrop/DropMaster";
+import { DropMasterVault } from "../components/DragDrop/dropGame";
 import { Button, Stack } from "@mui/material";
 import { useHints } from "../logic/HintManager";
 import type { Task } from "../core/task";

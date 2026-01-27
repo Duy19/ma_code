@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { Box, Paper, Typography, Container, Button } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
-import type { Task } from "../core/task";
-import { renderWithMath } from "../utils/formulas";
+import type { Task } from "../../core/task";
+import { renderWithMath } from "../../utils/formulas";
 
 // How an answer looks like (explanation not used yet)
 export interface QuizAnswer {

@@ -3,7 +3,7 @@ import { Box, Typography, TextField, IconButton, Divider,
     MenuItem, Select, FormControl, InputLabel, Button, FormGroup, FormControlLabel, Checkbox } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
-import type { Task } from "../core/task";
+import type { Task } from "../../core/task";
 import CloseIcon from '@mui/icons-material/Close';
 import { useRef } from "react";
 

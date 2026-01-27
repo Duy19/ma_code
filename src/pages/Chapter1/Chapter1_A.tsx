@@ -22,6 +22,7 @@ const STORY: StoryStep[] = [
     { 
     text: "Lets have a look at **timestep 9**. Instead of executing the brake task, the algorithm choses the sensor task, because it is still active and has the earlier deadline. ", 
     highlightExecutions: [{ taskId: "brake", steps: [9] }, {taskId: "sensor", steps: [9]}],
+    showDefinitions: true,
     },
     { 
     text: "Therefore, tasks change their priority dynamically based on the deadline of the active tasks. But there are algorithms, which assign fixed priorities to each task, called Fixed-Prioirity Scheduling.", 
@@ -60,7 +61,7 @@ export default function Chapter1_A() {
         showHintCheckboxes={true}
         showSidebar={false}
         showButtons={false}
-        showDefinitions={true}
+        showDefinitions={false}
         definitions={DEFINITIONS}
         hintConfig={[]}
       />

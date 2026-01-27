@@ -1,7 +1,7 @@
 // @ts-nocheck
 
-import type { Task } from "../core/task";
-import type { ScheduleEntry } from "../logic/simulator";
+import type { Task } from "../../core/task";
+import type { ScheduleEntry } from "../../logic/simulator";
 import { useMemo } from "react";
 
 /*

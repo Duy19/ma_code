@@ -1,4 +1,4 @@
-import rockImg from "../../assets/rock.png";
+import rockImg from "../../assets/overlay/rock.png";
 
 export default function TutorialObstacle() {
   return (
