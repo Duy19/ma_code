@@ -281,7 +281,7 @@ export default function Layout() {
               <MenuItem 
                 onClick={handleClose2} 
                 component={Link} 
-                to="/chapter2_Quiz"
+                to="/Chapter2_Quiz"
                 sx={{
                   borderRadius: 1,
                   mx: 0.5,
@@ -292,6 +292,21 @@ export default function Layout() {
                 }}
               >
                 Chapter 2 Quiz
+              </MenuItem>
+              <MenuItem 
+                onClick={handleClose2} 
+                component={Link} 
+                to="/Chapter2_DragDrop"
+                sx={{
+                  borderRadius: 1,
+                  mx: 0.5,
+                  "&:hover": {
+                    bgcolor: "#8b5cf620",
+                    color: "#8b5cf6",
+                  },
+                }}
+              >
+                Drag & Drop Game
               </MenuItem>
             </Menu>
             

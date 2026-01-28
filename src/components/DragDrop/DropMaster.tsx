@@ -141,19 +141,6 @@ export default function DropMaster({ vaultIds = [], onComplete }: DropMasterProp
     }
   }, [completedScenarios, availableVaults.length, onComplete]);
 
-  // Function to reset the board
-  const resetBoard = () => {
-    const next: Record<string, string | null> = {};
-    scenario.slots.forEach(slot => {
-      next[slot.id] = null;
-    });
-    setAllAssignments(prev => ({
-      ...prev,
-      [scenario.id]: next
-    }));
-    setActiveId(null);
-  };
-
   // Function to get the placed item for a specific slot
   const placedItemForSlot = (slotId: string) => scenario.items.find(item => assignments[slotId] === item.id);
 
@@ -248,20 +235,6 @@ export default function DropMaster({ vaultIds = [], onComplete }: DropMasterProp
             {completedScenarios.has(s.id) && <span>✓</span>}
           </button>
         ))}
-        <button
-          onClick={resetBoard}
-          style={{
-            padding: "10px 14px",
-            borderRadius: 10,
-            border: "1px solid #cbd5e1",
-            background: "#f8fafc",
-            cursor: "pointer",
-            fontWeight: 600,
-            color: "#0f172a",
-          }}
-        >
-          Reset
-        </button>
       </div>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>

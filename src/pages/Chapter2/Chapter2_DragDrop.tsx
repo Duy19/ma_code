@@ -10,27 +10,25 @@ const tasks: Task[] = [
 
 const STORY: StoryStep[] = [
   {
-    text: "Hey there! This is a small quiz to recap what you have learned so far about schedulability analysis in Chapter 2.",
+    text: "So ready for another game? Let's play a little drag and drop game!",
     showOverlay: true,
     showCanvas: false,
   },
   {
-    text: "Then without further ado, let's get started! Try to answer all questions at least once. If you answer them incorrectly, don't worry about it. This is just to help you learn! Try as many times as you want.",
+    text: "This time you have to complete all the complicated formulas you learned so far. For that you have to drag and drop the correct parts into the right spots.",
     showOverlay: true,
-    showQuiz: true,
-    quizQuestionIds: ["c2b_q1", "c2b_q2", "c2b_q3"],
-    waitFor: ({ quizCompleted }) => quizCompleted === true,
-    navigateTo: "/",
+    showDropGame: true,
+    dropGameVaultIds: ["taskutil", "tda", "llub", "hyperbound"],
+    waitFor: ({ dropGameCompleted }) => dropGameCompleted === true,
   },
   {
-    text: "Hopefully this helps you understand TDA better. In the next chapter we will learn some more interesting analysis techniques. See you there!",
-    showOverlay: false,
-    showQuiz: false,
-    navigateTo: "/chapter2_dragdrop",
+    text: "Very nice! You completed the drag and drop game. Hope you had fun and it helped you remember the concepts better!",
+    showOverlay: true,
+    navigateTo: "/",
   },
 ];
 
-export default function Chapter2_Quiz() {
+export default function Chapter2_DragDrop() {
   return (
     <ModularTutorialTemplate
       story={STORY}

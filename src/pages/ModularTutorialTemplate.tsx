@@ -8,6 +8,8 @@ import HintCheckboxes from "../components/General/HintCheckboxes";
 import FreeSchedulerSidebar from "../components/Scheduling/FreeSchedulerSidebar";
 import DefinitionsBox, { type Definition } from "../components/General/DefinitionsBox";
 import { SummaryContent } from "../components/Summary/summary";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import QuizMaster, { type QuizQuestion } from "../components/Quiz/QuizMaster";
 import quizQuestions from "../components/Quiz/questions";
 import DropMaster from "../components/DragDrop/DropMaster";
@@ -630,6 +632,10 @@ export function ModularTutorialTemplate(props: ModularTutorialTemplateProps) {
     }
   };
 
+  const handlePreviousStep = () => {
+    setStep((s) => Math.max(s - 1, 0));
+  };
+
 
   // Default canvas render
   const defaultCanvasRender = (canvasRenderProps: CanvasRenderProps) => {
@@ -926,7 +932,56 @@ export function ModularTutorialTemplate(props: ModularTutorialTemplateProps) {
 
     if (effectiveLayoutStyle === "standard") {
       return (
-        <div style={{ display: "flex", height: "100%", flexDirection: "row" }}>
+        <div style={{ display: "flex", height: "100%", flexDirection: "row", position: "relative" }}>
+          {/* Navigation buttons - hidden for now but functionality in place */}
+          <div style={{ position: "absolute", top: 20, left: 40, zIndex: 10, display: "none", gap: 6 }}>
+            <Button
+              onClick={handlePreviousStep}
+              disabled={step === 0}
+              sx={{
+                backgroundColor: "#622da8",
+                color: "#fff",
+                padding: "4px 6px",
+                minWidth: "24px",
+                minHeight: "24px",
+                fontSize: "14px",
+                textTransform: "none",
+                borderRadius: "4px",
+                transition: "all 0.2s ease",
+                "&:hover:not(:disabled)": {
+                  backgroundColor: "#78194a",
+                  boxShadow: "0 2px 8px rgba(98, 45, 168, 0.3)",
+                },
+                "&:disabled": {
+                  backgroundColor: "#ccc",
+                  color: "#999",
+                },
+              }}
+            >
+              &lt;
+            </Button>
+            <Button
+              onClick={() => handleNextStep()}
+              sx={{
+                backgroundColor: "#622da8",
+                color: "#fff",
+                padding: "4px 6px",
+                minWidth: "24px",
+                minHeight: "24px",
+                fontSize: "14px",
+                textTransform: "none",
+                borderRadius: "4px",
+                transition: "all 0.2s ease",
+                "&:hover": {
+                  backgroundColor: "#78194a",
+                  boxShadow: "0 2px 8px rgba(98, 45, 168, 0.3)",
+                },
+              }}
+            >
+              &gt;
+            </Button>
+          </div>
+
           {/* Left side: Canvas + Overlay + Definitions (80% width) */}
           <div style={{ flex: "0 0 80%", display: "flex", flexDirection: "column", gap: 0 }}>
             {/* Overlay section */}
