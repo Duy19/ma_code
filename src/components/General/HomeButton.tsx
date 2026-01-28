@@ -10,12 +10,11 @@ export default function HomeButton() {
       to="/"
       color="primary"
       sx={{
-        position: "fixed",
-        top: 16,
-        left: 16,
-        bgcolor: "background.paper",
-        boxShadow: 1,
-        "&:hover": { bgcolor: "background.paper" },
+        transition: "all 0.2s",
+        "&:hover": { 
+          transform: "translateY(-2px)",
+          color: "#6366f1",
+        },
       }}
     >
       <HomeIcon />
