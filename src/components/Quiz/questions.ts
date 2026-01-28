@@ -87,9 +87,9 @@ const quizQuestions = [
         id: "c2b_q2",
         question: "You are given a Taskset with the following tasks: Brakes, Sensor, and Multimedia (see visual). For Multimedia, which tasks are interfering with its execution?",
         answers: [
-            { id: "a1", text: "Only Brakes", isCorrect: true}, 
+            { id: "a1", text: "Only Brakes", isCorrect: false}, 
             { id: "a2", text: "Only Sensor", isCorrect: false}, 
-            { id: "a3", text: "Both Brakes and Sensor", isCorrect: false}, 
+            { id: "a3", text: "Both Brakes and Sensor", isCorrect: true}, 
             { id: "a4", text: "Neither Brakes nor Sensor", isCorrect: false},
         ],
         visualContent: {

@@ -10,7 +10,7 @@ const tutorialTasks: Task[] = [
 
 const STORY: StoryStep[] = [
   {
-    text: "We have already learned some scheduling strategies in the last chapter. Fixed-Priority Scheduling has the advantage that it is simpler to implement.",
+    text: "You are already familiar with some scheduling strategies from Chapter 1. Fixed-Priority Scheduling has the advantage that it is simpler to implement.",
     showOverlay: true,
     showSidebar: false,
     showButtons: false,
@@ -22,13 +22,13 @@ const STORY: StoryStep[] = [
     showButtons: false,
   },
   {
-    text: "For Fixed-Priority Scheduling, we mainly look at the so-called response time of a task.",
+    text: "For Fixed-Priority Scheduling, we especially look at the so-called **response time** of a task. The response time is the time from the release of a task until its completion.",
     showOverlay: true,
     showSidebar: false,
     showButtons: false,
   },
   {
-    text: "In the example below, you see a schedule with RM. If you look at the Multimedia task, you will see that the response time for the first release is 6.",
+    text: "In the example below, you can see a schedule with **RM**. If you look at the Multimedia task, you will see that the response time for the first release is 6.",
     showOverlay: true,
     showSidebar: false,
     showButtons: false,
@@ -36,13 +36,13 @@ const STORY: StoryStep[] = [
     highlightExecutions: [{ taskId: "media", steps: [5] }],
   },
   {
-    text: "But that is not the highest response time! What do you think the Worst-Case Response Time (WCRT) could be?",
+    text: "**But** that is not the highest response time the task can have! What do you think the Worst-Case Response Time (WCRT) could be?",
     showOverlay: true,
     showSidebar: false,
     showButtons: false,
   },
   {
-    text: "The release of a task can be shifted by an offset (O) by a certain amount of time. Try to find out what the WCRT for Multimedia could be! Edit the offsets of Brake and Sensor until the WCRT is reached.",
+    text: "The release of a task can be shifted with an offset (O) by a certain amount of time. Try to find out what the WCRT for Multimedia could be! Edit the offsets of Brake and Sensor until the WCRT is reached.",
     showOverlay: true,
     showSidebar: true,
     showButtons: true,
@@ -57,7 +57,7 @@ const STORY: StoryStep[] = [
     waitFor: ({ wcrtCorrect }) => wcrtCorrect,
   },
   {
-    text: "Perfect! You found the WCRT! This happens when all higher priority tasks start at the same time as Multimedia (the task to inspect).",
+    text: "Perfect! You found the WCRT! This happens when all higher priority tasks release their tasks at the same time as Multimedia (the task to inspect) releases its task",
     showOverlay: true,
     showSidebar: false,
     showButtons: false,

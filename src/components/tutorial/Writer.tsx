@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Typography } from "@mui/material";
 import { marked } from "marked";
+import { renderWithMath } from "../../utils/formulas";
 
 interface Props {
   text?: string;
@@ -39,13 +40,14 @@ export default function TypewriterText({
     };
   }, [text, speed]);
 
-  const html = marked.parseInline(displayed);
+  const renderedContent = renderWithMath(displayed);
+  
   return (
     <Typography
       variant="body1"
       sx={{ whiteSpace: "pre-line", minHeight: 24 }}
-      dangerouslySetInnerHTML={{ __html: html }}
     >
+      {renderedContent}
     </Typography>
   );
 }

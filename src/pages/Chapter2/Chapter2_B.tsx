@@ -11,12 +11,12 @@ const tasks: Task[] = [
 
 const STORY: StoryStep[] = [
   {
-    text: "After seeing the Critical Instant in the last chapter, how do we even calculate the Worst-Case Response Time (WCRT) of a task? Not everyone has the time to check all possible cases by drawing them. There has to be some kind of formula, right?",
+    text: "After seeing the Critical Instant in chapter 2, how do we even calculate the Worst-Case Response Time (WCRT) of a task? Not everyone has the time to check all possible cases by drawing them. There has to be some kind of formula, right?",
     showOverlay: true,
     showCanvas: false,
   },
   {
-    text: "Don't worry, there is a formula for that. The response time R_i of a task τ_i can be calculated using the so called Time Demand Analysis (TDA).",
+    text: "Don't worry, there is a formula for that. The response time $R_i$ of a task $\\tau_i$ can be calculated using the so called Time Demand Analysis (TDA).",
     showOverlay: true,
   },
   {

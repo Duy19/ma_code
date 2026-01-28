@@ -278,6 +278,21 @@ export default function Layout() {
               >
                 Utilization Bounds
               </MenuItem>
+              <MenuItem 
+                onClick={handleClose2} 
+                component={Link} 
+                to="/chapter2_Quiz"
+                sx={{
+                  borderRadius: 1,
+                  mx: 0.5,
+                  "&:hover": {
+                    bgcolor: "#8b5cf620",
+                    color: "#8b5cf6",
+                  },
+                }}
+              >
+                Chapter 2 Quiz
+              </MenuItem>
             </Menu>
             
             <Button 
