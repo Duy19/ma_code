@@ -11,6 +11,7 @@ import Chapter1_D from "./pages/Chapter1/Chapter1_D";
 import Chapter2_A from "./pages/Chapter2/Chapter2_A";
 import Chapter2_B from "./pages/Chapter2/Chapter2_B";
 import Chapter2_C from "./pages/Chapter2/Chapter2_C";
+import Chapter2_Quiz from "./pages/Chapter2/Chapter2_Quiz";
 import Chapter3 from "./pages/Chapter3/Chapter3";
 import Tutorial from "./pages/Tutorial/Tutorial";
 import Tutorial2 from "./pages/Tutorial/Tutorial2";
@@ -33,6 +34,7 @@ function App() {
             <Route path="chapter2_A" element={<Chapter2_A />} />
             <Route path="chapter2_B" element={<Chapter2_B />} />
             <Route path="chapter2_C" element={<Chapter2_C />} />
+            <Route path="chapter2_Quiz" element={<Chapter2_Quiz />} />
             <Route path="tutorial" element={<Tutorial />} />
             <Route path="tutorial2" element={<Tutorial2 />} />
             <Route path="tutorial3" element={<Tutorial3 />} />
