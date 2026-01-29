@@ -12,6 +12,7 @@ const BASE_TASKS2: Task[] = [
 const STORY: StoryStep[] = [
     { 
     text: "Now lets look at a new example, but this time with a **Fixed-Priority Scheduling**. ", 
+    showSidebar: true,
     },
 
     { 

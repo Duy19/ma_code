@@ -28,7 +28,7 @@ export default function DefinitionsBox({
   };
 
   return (
-    <Box sx={{ position: 'relative' }}>
+    <Box sx={{ position: 'relative', zIndex: 10 }}>
       {/* Question Mark Button */}
       <Button
         onClick={handleToggle}
@@ -65,6 +65,7 @@ export default function DefinitionsBox({
             maxWidth: 350,
             maxHeight: 400,
             overflowY: 'auto',
+            zIndex: 10,
             animation: 'slideDown 0.3s ease-out',
             '@keyframes slideDown': {
               from: {

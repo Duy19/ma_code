@@ -12,24 +12,16 @@ Todo:
 
 General:
 - Migrate code because of url name later on
-- Add Definitions at the bottom for user (e.g. EDF definition, Period, etc.) => Done but ugly
-- Chapter aufgliedern (Chapter 1 A and B und verlinkung im Reiter) => Done
-- Inhaltsverzeichnis auf startseite
 - Feedback form chapter 1-2
-- Quizzes for more theoretical stuff like TDA => WIP
-- Gescheitest framework damit Chapter in Zukunft leicht erweitert werden können => Done (Gescheit?)
-- Hint: scheduler definition
+- Gescheitest framework damit Chapter in Zukunft leicht erweitert werden können => Done 
+- Handbuch für framework (wie erweitern, wie es zu nutzen ist) folgt noch
+- Auf feedback warten
 
 Chapter1: 
 - Chapter 1 thematically done. 
-- ende chapter 1 implementieren (wieder hinzufügen)
-- FIX: Chapter 2 offsets
-- FIX: WCRT max über alle jobs und vergleichen mit 10 (probelm wenn task 1 offset =4)
 
-
-- Chapter 2 first Example done 
-- Chapter 2 CIT, TDA, LL+harmonic bounds
-- TDA als Bilder und quiz 
+Chapter 2:
+- Chapter 2 thematicall done.
 
 Chapter3:
 - Work on generating tasksets and Suspension (Chapter 3)

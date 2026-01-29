@@ -10,14 +10,29 @@ export type SummaryComponent = {
 export const Summary : SummaryComponent[] = [
     // Chapter Summaries
     {
+        id: "model",
+        title: "Real-Time System Model Summary",
+        description: "Here you have a quick overview of the Real-Time System Model: ",
+        content: [
+            "Imagine our autonomous car and its three tasks **brakes**, **sensor** and **multimedia** as a Real-Time System example.",
+            "For now our car has one processor, which tries to plan/schedule all our tasks (**uniprocessor system**).",
+            "Tasks can **preempt** each other, meaning a higher priority task can **interrupt** a lower priority one while its executing and run instead (e.g. brakes interrupting multimedia).",
+            "Each task has parameters like **execution time (C)**, **period (T)**, **deadline (D)** and **offset (O)**.",
+            "In our examples these are all **periodic** tasks. Meaning each task repeats intervals T (highlighted by the green upward arrows). E.g. the sensor task releases every 3 time steps.",
+            "Because missing a **deadline (D)** of a task (red downward arrows) can lead to catastrophic consequences (e.g. car crash), we call these **Hard Real-Time Systems**.",  
+            "There are also different types of deadlines for task sets: **implicit** (D=T), **constrained** (D<=T) and **arbitrary** (D any value). If not stated otherwise implicit deadlines are used for scheduling algorithms.",
+        ],
+    },
+
+    {
         id: "chapter1",
         title: "Chapter 1 Summary",
         description: "In this Chapter you learned the fundamentals of Scheduling Strategies. These included: ",
         content: [
             "Dynamic Priority Scheduling using the Earliest Deadline First (EDF) algorithm.",
             "Static Priority Scheduling using the Rate Monotonic Scheduling (RM) and Deadline Monotonic Scheduling (DM) algorithms.",
-            "Where the different scheduling strategies differ when applied to various real-time system tasksets.",
-            "How to visualize them using Gantt Charts.",  
+            "Where the scheduling strategies differ when applied to various real-time system tasksets.",
+            "Optimality of EDF for uniprocessor systems with preemption.",  
         ],
     },
 

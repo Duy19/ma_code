@@ -8,19 +8,19 @@ import TutorialScenario from "../../components/tutorial/TutorialScenario";
 import { useNavigate } from "react-router-dom";
 
 const tutorialTasks: Task[] = [
-  { id: "brake", name: "Bremsen", C: 2, T: 8, D: 8, color: "#f87171" },
+  { id: "brake", name: "Brakes", C: 2, T: 8, D: 8, color: "#f87171" },
   { id: "sensor", name: "Sensor", C: 1, T: 3, D: 3, color: "#60a5fa" },
   { id: "media", name: "Multimedia", C: 1, T: 12, D: 12, color: "#34d399" },
 ];
 
 const STORY = [
-  { text: "Moin! Ich bin **Mr. Tau** und erkläre dir, wie ein selbstfahrendes Auto Aufgaben plant. In diesem Fall hat das Auto **3 Funktionen** die an verschiedenen Zeitpunkten ausgeführt werden müssen. (**Sprechblase anklicken**)", highlight: null },
-  { text: "Zunächst einmal die **Bremsen**. Diese sind sehr wichtig und sollten immer funktionsbereit sein. Die Bremsen brauchen hier **2 Zeitschritte** um ausgeführt zu werden.", highlight: "brake" },
-  { text: "Die **grünen Pfeile** verraten dir den Zeitpunkt, ab wann die nächste Bremsaufgabe stattfinden kann.", highlight: "brake" },
-  { text: "Als nächstes haben wir den **Sensor** für die Hinderniserkennung. Diese Funktion benötigt **1 Zeitschritt** um ausgeführt zu werden. Diese Aufgabe läuft frequentierter ab um Hindernisse erfolgreicher zu erkennen.", highlight: "sensor" },
-  { text: "Zu guter Letzt haben wir hier noch die **Multimedia-Funktion**. Diese dürfen in einem hoch modernem Auto nicht fehlen. Alles von Navigation bis hin zu Musik wird hier behandelt. Solche Funktionen sind angenehm für den Nutzer, aber **nicht essentiell** für die Sicherheit.", highlight: "media" },
-  { text: "Wenn alle Aufgaben richtig geplant werden dann sollte alles einwandfrei laufen. Schauen wir uns das am Besten bei unserem Auto rechts an. (**Klicken**)", highlight: null },
-  { text: "Perfekt! Das Auto hat **rechtzeitig gebremst!** Und niemand ist zu schaden gekommen. So weit erstmal dazu. Dann sehen wir ins im nächsten Schritt ein **weiteres Beispiel** an.", highlight: null },
+  { text: "Hi there! I'm **Mr. Tau** and I'll explain how an autonomous car schedules tasks. In this case, the car has **3 functions** that need to be executed at different times. **(Click the speech bubble)**", highlight: null },
+  { text: "First of all, the **brakes**. These are very important and should always be ready to function. The brakes need **2 time steps** to be executed.", highlight: "brake" },
+  { text: "The **green arrows** show you when the next brake task can start.", highlight: "brake" },
+  { text: "Next, we have the **sensor** for obstacle detection. This function needs **1 time step** to execute. This task runs more frequently to detect obstacles more successfully.", highlight: "sensor" },
+  { text: "Last but not least, we have the **multimedia function**. These are a must in a highly modern car. Everything from navigation to music is handled here. Such functions are pleasant for the user, but **not essential** for safety.", highlight: "media" },
+  { text: "If all tasks are planned correctly, everything should run smoothly. Let's take a look at our car on the right. **(Click)**", highlight: null },
+  { text: "Perfect! The car **braked in time!** And nobody got hurt. That's it for now. Let's look at **another example** in the next step.", highlight: null },
 ];
 
 export default function TutorialStep1() {

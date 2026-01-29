@@ -8,18 +8,18 @@ import TutorialScenario from "../../components/tutorial/TutorialScenario";
 import { useNavigate } from "react-router-dom";
 
 const tutorialTasks: Task[] = [
-  { id: "brake", name: "Bremsen", C: 2, T: 3, D: 3, color: "#f87171" },
+  { id: "brake", name: "Brakes", C: 2, T: 3, D: 3, color: "#f87171" },
   { id: "sensor", name: "Sensor", C: 1, T: 3, D: 3, color: "#60a5fa" },
   { id: "media", name: "Multimedia", C: 1, T: 4, D: 4, color: "#34d399" },
 ];
 
 const STORY = [
-  { text: "Hier haben wir nun ein weiteres Beispiel wo nicht alles ordentlich geplant wurde. Es sieht alles sehr ähnlich aus nur diesmal geht etwas schief!", highlight: null },
-  { text: "Erstmal wieder die **Bremsen**. Diese brauchen wieder **2 Zeitschritte** um ausgeführt zu werden. **Aber** das Intervall für die Ausführung ist diesmal **geringer**.", highlight: "brake" },
-  { text: "Die **Hindernisserkennung** ist hier gleich geblieben.", highlight: "sensor" },
-  { text: "Aber bei **Multimedia** dachte man sich, dass es besser wäre, wenn diese Funktion mit **kürzeren Perioden** ausgeführt wird, für ein besseres Erlebnis.", highlight: "media" },
-  { text: "Doch man kann durch genaues Hinschauen schon erkennen, dass die Bremsen **nicht genug** Zeit haben! Die **roten Pfeile** zeigen diesmal an zu welchem Zeitpunkt die Aufgaben **rechtzeitig** ausgeführt werden müssen.", highlight: null, highlightExecutions: [{ taskId: "brake", steps: [8, 9, 11, 12] }]},
-  { text: "Und damit kommt es hier leider zu einem Crash! Man muss also sehr vorsichtig sein bei der Planung. Und auch kleine Änderungen können gravierende Auswirkungen haben.", highlight: null },
+  { text: "Here we have another example where not everything was properly planned. Everything looks very similar, but this time something goes wrong!", highlight: null },
+  { text: "First, the **brakes** again. These still need **2 time steps** to execute. **But** the interval for execution is now **shorter**.", highlight: "brake" },
+  { text: "The **sensor** has remained the same here.", highlight: "sensor" },
+  { text: "But for **multimedia**, the idea was that it would be better if this function runs with **shorter periods** for a better experience.", highlight: "media" },
+  { text: "However, if you look closely, you can already see that the brakes don't have **enough** time! The **red arrows** show when the tasks must be completed **on time**.", highlight: null, highlightExecutions: [{ taskId: "brake", steps: [8, 9, 11, 12] }]},
+  { text: "And unfortunately, this leads to a crash! You have to be very careful when planning. Even small changes can have severe consequences.", highlight: null },
 ];
 
 export default function TutorialStep1() {

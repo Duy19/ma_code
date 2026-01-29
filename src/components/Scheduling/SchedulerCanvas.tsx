@@ -34,6 +34,8 @@ type Props = {
   svgManualWidth?: number;
   svgManualHeight?: number;
   visibility?: Partial<typeof DEFAULT_VISIBILITY>;
+  hideReleaseMarkersFor?: string[];
+  hideDeadlineMarkersFor?: string[];
   highlight?: string | null;
   highlightExecutions?: HighlightBlocks[];
 };
@@ -58,6 +60,8 @@ export default function SchedulerCanvas({
   heightPerTask = 125,
   leftLabelWidth = 72,
   visibility,
+  hideReleaseMarkersFor = [],
+  hideDeadlineMarkersFor = [],
   highlight,
   highlightExecutions = [],
 }: Props) {
@@ -86,6 +90,9 @@ export default function SchedulerCanvas({
     ...DEFAULT_VISIBILITY,
     ...visibility,
   }
+
+  const hideReleaseSet = useMemo(() => new Set(hideReleaseMarkersFor), [hideReleaseMarkersFor]);
+  const hideDeadlineSet = useMemo(() => new Set(hideDeadlineMarkersFor), [hideDeadlineMarkersFor]);
 
   // Lookup Map for highlighted executions
   const highlightExecutionMap = useMemo(() => {
@@ -325,7 +332,7 @@ export default function SchedulerCanvas({
                 return jobs.map(job => (
                   <g key={`job-${task.id}-${job.release}`}>
                     {/* Release Marker (Up) */}
-                    {mergedVisibility.showReleaseMarkers && (
+                    {mergedVisibility.showReleaseMarkers && !hideReleaseSet.has(task.id) && (
                       <line
                         x1={leftLabelWidth + job.release * pxPerStep}
                         y1={centerY - 11.5}
@@ -338,7 +345,7 @@ export default function SchedulerCanvas({
                     )}
 
                     {/* Deadline Marker (Down) */}
-                    {mergedVisibility.showDeadlineMarkers && (
+                    {mergedVisibility.showDeadlineMarkers && !hideDeadlineSet.has(task.id) && (
                       <line
                         x1={leftLabelWidth + job.deadline * pxPerStep}
                         y1={centerY - 36.5}

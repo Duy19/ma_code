@@ -187,6 +187,21 @@ export default function Layout() {
               >
                 Draw Schedules
               </MenuItem>
+              <MenuItem 
+                onClick={handleClose} 
+                component={Link} 
+                to="/Chapter1_Quiz"
+                sx={{
+                  borderRadius: 1,
+                  mx: 0.5,
+                  "&:hover": {
+                    bgcolor: "#6366f120",
+                    color: "#6366f1",
+                  },
+                }}
+              >
+                Chapter 1 Quiz
+              </MenuItem>
             </Menu>
             <Button 
               id="Chapter2" 

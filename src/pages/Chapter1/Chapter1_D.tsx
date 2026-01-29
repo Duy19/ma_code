@@ -20,12 +20,19 @@ const STORY: StoryStep[] = [
     waitFor: ({ scheduleCorrect }) => scheduleCorrect === true,
   },
   {
-    text: "Excellent! You have successfully completed all scheduling tasks! You now understand how to apply both RM and EDF scheduling algorithms. See you in the next chapter! **Click**.",
+    text: "Excellent! You have successfully completed all scheduling tasks! Did you also notice that EDF was able to create a schedule with no deadline misses, while RM failed? That is what we call a feasible schedule.",
     showHintCheckboxes: false,
     showSidebar: false,
     showButtons: false,
     showCanvas: false,
-    showDefinitions: false,
+  },
+  {
+    text:"EDF is optimal for uniprocessor systems with preemption, meaning if a taskset can be scheduled without deadline misses, EDF will find a way to do so. RM and DM on the other hand are not optimal and can fail to schedule tasksets that are actually schedulable.",
+  },
+  {
+    text: "Of course here is a summary of what you learned in this chapter! See you in the next chapter! **Click**.",
+    showSummary: true,
+    summaryIds: ["chapter1"],
     navigateTo: "/",
   },
 ];

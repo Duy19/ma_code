@@ -11,18 +11,18 @@ import { useNavigate } from "react-router-dom";
 
 // Example Taskset
 const BASE_TASKS: Task[] = [
-  { id: "brake", name: "Bremsen", C: 2, T: 4, D: 4, O: 1, color: "#f87171" },
+  { id: "brake", name: "Brakes", C: 2, T: 4, D: 4, O: 1, color: "#f87171" },
   { id: "sensor", name: "Sensor", C: 0, T: 24, D: 3, color: "#60a5fa" },
   { id: "media", name: "Multimedia", C: 1, T: 6, D: 6, color: "#34d399" },
 ];
 
 const STORY = [
   {
-    text: "Stelle nun die Hinderniserkennung selber ein und überprüfe dein Ergebnis. Achte darauf dass **vor jeder Bremsaufgabe** mindestens **ein Sensorlauf** stattgefunden hat und **keine Aufgabe zu spät** fertig wird.",
+    text: "Now configure the obstacle detection yourself and check your result. Make sure that **before each brake task** at least **one sensor run** has taken place and **no task finishes late**.",
     highlight: null,
   },
   {
-    text: "Du musst hier lediglich die Dauer **C (Execution)** der Sensorfunktion und das Intervall **T (Period)** in der sie erscheint.",
+    text: "You only need to set the duration **C (Execution)** of the sensor function and the interval **T (Period)** at which it appears.",
     highlight: null,
   }
 ];
@@ -86,6 +86,8 @@ export default function Tutorial3() {
             schedule={schedule}
             pxPerStep={28}
             leftLabelWidth={140}
+            hideReleaseMarkersFor={["sensor"]}
+            hideDeadlineMarkersFor={["sensor"]}
           />
         </div>
       </div>
@@ -118,7 +120,7 @@ export default function Tutorial3() {
         {/* Buttons */}
         <Stack p={2} spacing={1}>
           {!checked && <Button variant="outlined" onClick={handleCheck}>Check</Button>}
-          {checked &&  <Button variant="outlined" sx={{borderColor: "#d32f2f", color: "#d32f2f"}} onClick={handleRetry}>Nochmal</Button>}
+          {checked &&  <Button variant="outlined" sx={{borderColor: "#d32f2f", color: "#d32f2f"}} onClick={handleRetry}>Retry</Button>}
           {checked && !crash && <Button variant="outlined" sx={{borderColor: "#2e7d32", color: "#2e7d32"}} onClick={() => navigate("/")}>Continue</Button>}
         </Stack>
       </div>

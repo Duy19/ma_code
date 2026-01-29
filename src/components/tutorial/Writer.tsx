@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { Typography } from "@mui/material";
-import { marked } from "marked";
 import { renderWithMath } from "../../utils/formulas";
 
 interface Props {

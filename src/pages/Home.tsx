@@ -18,7 +18,7 @@ const chapters = [
       { name: "Fixed-Priority Scheduling", path: "/chapter1_B" },
       { name: "Comparison of EDF, RM, DM", path: "/chapter1_C" },
       { name: "Draw Schedules", path: "/chapter1_D" },
-      { name: "Quiz", path: "/" },
+      { name: "Quiz", path: "/chapter1_Quiz" },
     ],
     color: "#6366f1",
   },

@@ -1,5 +1,4 @@
 /* Utility functions for math etc. */
-
 import type { Task } from "../core/task";
 import { InlineMath } from 'react-katex';
 import 'katex/dist/katex.min.css';
@@ -65,15 +64,27 @@ export function isHarmonicTaskSet(tasks: Task[]) {
   return true;
 }
 
-// Helper function to render inline math using KaTeX
+// Helper function to render inline math using KaTeX and bold text
 export function renderWithMath(text: string): React.ReactNode[] {
-  const parts = text.split(/(\$[^$]+\$)/g);
-  return parts.map((part, idx) => {
+  // First split by math delimiters
+  const mathParts = text.split(/(\$[^$]+\$)/g);
+  
+  return mathParts.flatMap((part, idx) => {
     const isMath = part.startsWith('$') && part.endsWith('$');
     if (isMath) {
       const math = part.slice(1, -1);
       return <InlineMath key={`m-${idx}`} math={math} />;
     }
-    return <span key={`t-${idx}`}>{part}</span>;
+    
+    // For non-math parts, also handle bold text with **...**
+    const boldParts = part.split(/(\*\*[^*]+\*\*)/g);
+    return boldParts.map((boldPart, boldIdx) => {
+      const isBold = boldPart.startsWith('**') && boldPart.endsWith('**');
+      if (isBold) {
+        const boldText = boldPart.slice(2, -2);
+        return <strong key={`${idx}-b-${boldIdx}`}>{boldText}</strong>;
+      }
+      return <span key={`${idx}-t-${boldIdx}`}>{boldPart}</span>;
+    });
   });
 }
