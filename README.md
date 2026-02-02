@@ -12,7 +12,6 @@ Todo:
 
 General:
 - Migrate code because of url name later on
-- Feedback form chapter 1-2
 - Gescheitest framework damit Chapter in Zukunft leicht erweitert werden können => Done 
 - Handbuch für framework (wie erweitern, wie es zu nutzen ist) folgt noch
 - Auf feedback warten
@@ -70,4 +69,18 @@ Meeting 19.01
 
    - Mehr zum Inhalt für CIT besprechen (Utilization Bounds und dann Bespiel?, TDA?) 
    - Wie sollte man mehrdeutige Schedules (EDF) behandeln? -> Fixer Tie-Break und vorher sagen. Trotzdem für später alle optionen offen lassen, implementierung zu merhdeutigen drin lassen.
-   - 
+
+
+Meeting 02.02
+
+   - Aus der Survey passen Logic-Puzzles am besten zum Matching Game (Parameter herausfinden)
+   - Spieler versucht anhand der Hinweise (Schedule) die Paramter (logisch) abzuleiten
+   - Anders herum eher Path-Building Puzzles aber auch nicht ganz?
+   - Aber Grundprintip ist die Taskgeneration unter gewissen constraints! (Taskparameter, feasability, Algorithm used)
+   - Keyword: constraint based procedural generation?
+   - Für Logic Puzzles werden GA, BFS (heuristic), ASP, GA + solver für fitness function
+
+
+   Quellen für logic-puzzles und die constrained base generation bzw. constrained satisfaction problems (CSP)
+   - Quellen mit Constraint-basierte Generierung  7, 9, 10, 32, 34
+   - Logic-Puzzle Quellen 48–54
