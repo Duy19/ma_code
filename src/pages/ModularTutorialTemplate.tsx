@@ -79,6 +79,8 @@ export function ModularTutorialTemplate(props: ModularTutorialTemplateProps) {
     canvasProps = {},
     sidebarVisibleFields = ["executionTime", "periods", "deadlines", "algorithmSelection"],
     sidebarEditableFields = [],
+    puzzleVisibleFields = ["executionTime", "periods", "deadlines", "algorithmSelection"],
+    puzzleEditableFields = [],
     onTasksChange,
     showDefinitions = false,
     definitions = [],
@@ -105,6 +107,7 @@ export function ModularTutorialTemplate(props: ModularTutorialTemplateProps) {
   const [currentQuizQuestion, setCurrentQuizQuestion] = useState(0);
   const [quizCompleted, setQuizCompleted] = useState(false);
   const [dropGameCompleted, setDropGameCompleted] = useState(false);
+  const [sidebarPuzzleCompleted, setSidebarPuzzleCompleted] = useState(false);
 
   const [visibility, setVisibility] = useState({
     showReleaseMarkers: false,
@@ -134,6 +137,8 @@ export function ModularTutorialTemplate(props: ModularTutorialTemplateProps) {
     layoutStyle,
     sidebarVisibleFields,
     sidebarEditableFields,
+    puzzleVisibleFields,
+    puzzleEditableFields,
     showSummary,
     userSelectedAlgorithm,
     userInputTasks,
@@ -169,6 +174,8 @@ export function ModularTutorialTemplate(props: ModularTutorialTemplateProps) {
   const effectiveShowCanvas = cumulativeState.showCanvas;
   const effectiveSidebarVisibleFields = cumulativeState.sidebarVisibleFields;
   const effectiveSidebarEditableFields = cumulativeState.sidebarEditableFields;
+  const effectivePuzzleVisibleFields = cumulativeState.puzzleVisibleFields;
+  const effectivePuzzleEditableFields = cumulativeState.puzzleEditableFields;
   const effectiveCanvasMode = cumulativeState.canvasMode;
   const effectiveLayoutStyle = cumulativeState.layoutStyle;
 
@@ -211,6 +218,10 @@ export function ModularTutorialTemplate(props: ModularTutorialTemplateProps) {
     setDropGameCompleted(false);
   }, [step, cumulativeState.showDropGame]);
 
+  useEffect(() => {
+    setSidebarPuzzleCompleted(false);
+  }, [step, cumulativeState.showSidebarPuzzle]);
+
   // Handlers
   const onCheck = () => {
     handleCheck({
@@ -246,7 +257,7 @@ export function ModularTutorialTemplate(props: ModularTutorialTemplateProps) {
     });
   };
 
-  const onNextStep = (overrideQuizCompleted?: boolean, overrideDropGameCompleted?: boolean) => {
+  const onNextStep = (overrideQuizCompleted?: boolean, overrideDropGameCompleted?: boolean, overrideSidebarPuzzleCompleted?: boolean) => {
     handleNextStep(
       {
         currentStep,
@@ -257,12 +268,14 @@ export function ModularTutorialTemplate(props: ModularTutorialTemplateProps) {
         customCheckCorrect,
         quizCompleted,
         dropGameCompleted,
+        sidebarPuzzleCompleted,
         navigate,
         setStep,
         storyLength: story.length,
       },
       overrideQuizCompleted,
-      overrideDropGameCompleted
+      overrideDropGameCompleted,
+      overrideSidebarPuzzleCompleted
     );
   };
 
@@ -386,6 +399,8 @@ export function ModularTutorialTemplate(props: ModularTutorialTemplateProps) {
       currentTasks={currentTasks}
       effectiveSidebarVisibleFields={effectiveSidebarVisibleFields}
       effectiveSidebarEditableFields={effectiveSidebarEditableFields}
+      effectivePuzzleVisibleFields={effectivePuzzleVisibleFields}
+      effectivePuzzleEditableFields={effectivePuzzleEditableFields}
       onTasksChange={onTasksChangeHandler}
       onAlgorithmChange={onAlgorithmChangeHandler}
       currentQuizQuestion={currentQuizQuestion}
@@ -393,6 +408,7 @@ export function ModularTutorialTemplate(props: ModularTutorialTemplateProps) {
       onQuizComplete={() => setQuizCompleted(true)}
       quizRendererProps={quizRendererProps}
       onDropGameComplete={() => setDropGameCompleted(true)}
+      onSidebarPuzzleComplete={() => setSidebarPuzzleCompleted(true)}
       visibilityDefaultCanvas={visibilityDefaultCanvas}
     />
   );

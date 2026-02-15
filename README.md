@@ -14,7 +14,9 @@ General:
 - Migrate code because of url name later on
 - Gescheitest framework damit Chapter in Zukunft leicht erweitert werden können => Done 
 - Handbuch für framework (wie erweitern, wie es zu nutzen ist) folgt noch
-- Auf feedback warten
+- Auf Feedback warten
+- Feedback auf English
+- 
 
 Chapter1: 
 - Chapter 1 thematically done. 
@@ -84,3 +86,12 @@ Meeting 02.02
    Quellen für logic-puzzles und die constrained base generation bzw. constrained satisfaction problems (CSP)
    - Quellen mit Constraint-basierte Generierung  7, 9, 10, 32, 34
    - Logic-Puzzle Quellen 48–54
+
+TODO:
+
+- Welche puzzle haben wir explizit (matching und reverse matching)
+- 1-2 Puzzle dafür schauen was interessant wird
+- Schauen was explored werden soll für mögliche puzzles
+- Theorie überlegen für schwierigkeit
+- Mal probieren
+- Kostenfunktion evtl. highscore (Zeit)?

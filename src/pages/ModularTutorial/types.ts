@@ -41,6 +41,8 @@ export interface StoryState {
   summaryIds: string[];
   showDropGame: boolean;
   dropGameVaultIds: string[];
+  showSidebarPuzzle: boolean;
+  currentTasks: Task[];
   
   // Canvas configuration
   canvasMode: "interactive" | "default";
@@ -49,6 +51,10 @@ export interface StoryState {
   // Sidebar configuration
   sidebarVisibleFields: ("executionTime" | "periods" | "deadlines" | "offsets" | "suspension" | "taskControls" | "algorithmSelection")[];
   sidebarEditableFields: ("executionTime" | "periods" | "deadlines" | "offsets" | "suspension" | "taskControls" | "algorithmSelection")[];
+  
+  // Puzzle configuration
+  puzzleVisibleFields: ("executionTime" | "periods" | "deadlines" | "offsets" | "suspension" | "taskControls" | "algorithmSelection")[];
+  puzzleEditableFields: ("executionTime" | "periods" | "deadlines" | "offsets" | "suspension" | "taskControls" | "algorithmSelection")[];
   editableTasks: string[];
   maxFieldValues: {
     executionTime?: number;
@@ -95,14 +101,16 @@ export interface StoryStep {
   summaryIds?: string[];
   dropGameVaultIds?: string[];
   showDropGame?: boolean;
+  sidebarVisibleFields?: ("executionTime" | "periods" | "deadlines" | "offsets" | "suspension" | "taskControls" | "algorithmSelection")[];
+  sidebarEditableFields?: ("executionTime" | "periods" | "deadlines" | "offsets" | "suspension" | "taskControls" | "algorithmSelection")[];
   
   // Canvas patches
   canvasMode?: "interactive" | "default";
   layoutStyle?: "standard" | "interactive";
   
-  // Sidebar patches
-  sidebarVisibleFields?: ("executionTime" | "periods" | "deadlines" | "offsets" | "suspension" | "taskControls" | "algorithmSelection")[];
-  sidebarEditableFields?: ("executionTime" | "periods" | "deadlines" | "offsets" | "suspension" | "taskControls" | "algorithmSelection")[];
+  // Puzzle patches
+  puzzleVisibleFields?: ("executionTime" | "periods" | "deadlines" | "offsets" | "suspension" | "taskControls" | "algorithmSelection")[];
+  puzzleEditableFields?: ("executionTime" | "periods" | "deadlines" | "offsets" | "suspension" | "taskControls" | "algorithmSelection")[];
   editableTasks?: string[];
   maxFieldValues?: {
     executionTime?: number;
@@ -124,6 +132,14 @@ export interface StoryStep {
   
   // WCRT (Worst-Case Response Time) check
   wcrtTaskId?: string;
+  
+  // Sidebar puzzle configuration
+  showSidebarPuzzle?: boolean;
+  sidebarPuzzleConfig?: {
+    puzzleTasks: Task[];
+    algorithm: (tasks: Task[], hyperperiod: number) => ScheduleEntry[];
+    algorithmName: string;
+  };
   
   // Navigation and conditions
   navigateTo?: string;
@@ -147,6 +163,7 @@ export interface WaitForState {
   customCheckCorrect: boolean;
   quizCompleted: boolean;
   dropGameCompleted: boolean;
+  sidebarPuzzleCompleted: boolean;
 }
 
 export interface OverlayRenderProps {
@@ -227,6 +244,10 @@ export interface ModularTutorialTemplateProps {
   // Sidebar control
   sidebarVisibleFields?: ("executionTime" | "periods" | "deadlines" | "offsets" | "suspension" | "taskControls" | "algorithmSelection")[];
   sidebarEditableFields?: ("executionTime" | "periods" | "deadlines" | "offsets" | "suspension" | "taskControls" | "algorithmSelection")[];
+
+  // Puzzle control
+  puzzleVisibleFields?: ("executionTime" | "periods" | "deadlines" | "offsets" | "suspension" | "taskControls" | "algorithmSelection")[];
+  puzzleEditableFields?: ("executionTime" | "periods" | "deadlines" | "offsets" | "suspension" | "taskControls" | "algorithmSelection")[];
   onTasksChange?: (tasks: Task[]) => void;
 
   // Definitions box

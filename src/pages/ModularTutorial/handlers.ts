@@ -186,6 +186,7 @@ export interface NextStepHandlerParams {
   customCheckCorrect: boolean;
   quizCompleted: boolean;
   dropGameCompleted: boolean;
+  sidebarPuzzleCompleted: boolean;
   navigate: (path: string) => void;
   setStep: (fn: (s: number) => number) => void;
   storyLength: number;
@@ -198,7 +199,8 @@ export interface NextStepHandlerParams {
 export function handleNextStep(
   params: NextStepHandlerParams,
   overrideQuizCompleted?: boolean,
-  overrideDropGameCompleted?: boolean
+  overrideDropGameCompleted?: boolean,
+  overrideSidebarPuzzleCompleted?: boolean
 ): void {
   const {
     currentStep,
@@ -209,6 +211,7 @@ export function handleNextStep(
     customCheckCorrect,
     quizCompleted,
     dropGameCompleted,
+    sidebarPuzzleCompleted,
     navigate,
     setStep,
     storyLength,
@@ -223,6 +226,7 @@ export function handleNextStep(
       customCheckCorrect,
       quizCompleted: overrideQuizCompleted ?? quizCompleted,
       dropGameCompleted: overrideDropGameCompleted ?? dropGameCompleted,
+      sidebarPuzzleCompleted: overrideSidebarPuzzleCompleted ?? sidebarPuzzleCompleted,
     });
     if (!ready) return;
   }

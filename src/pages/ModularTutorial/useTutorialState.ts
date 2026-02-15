@@ -23,6 +23,8 @@ interface UseTutorialStateProps {
   layoutStyle: "standard" | "interactive";
   sidebarVisibleFields: ("executionTime" | "periods" | "deadlines" | "offsets" | "suspension" | "taskControls" | "algorithmSelection")[];
   sidebarEditableFields: ("executionTime" | "periods" | "deadlines" | "offsets" | "suspension" | "taskControls" | "algorithmSelection")[];
+  puzzleVisibleFields: ("executionTime" | "periods" | "deadlines" | "offsets" | "suspension" | "taskControls" | "algorithmSelection")[];
+  puzzleEditableFields: ("executionTime" | "periods" | "deadlines" | "offsets" | "suspension" | "taskControls" | "algorithmSelection")[];
   showSummary: boolean;
   userSelectedAlgorithm?: string;
   userInputTasks?: Task[];
@@ -48,14 +50,18 @@ export function createInitialState(props: UseTutorialStateProps): StoryState {
     showCanvas: true,
     showQuiz: false,
     showDropGame: false,
+    showSidebarPuzzle: false,
     dropGameVaultIds: [],
     quizQuestionIds: [],
     showSummary: props.showSummary,
     summaryIds: [],
+    currentTasks: props.baseTasks,
     canvasMode: props.canvasMode,
     layoutStyle: props.layoutStyle,
     sidebarVisibleFields: props.sidebarVisibleFields,
     sidebarEditableFields: props.sidebarEditableFields,
+    puzzleVisibleFields: props.puzzleVisibleFields,
+    puzzleEditableFields: props.puzzleEditableFields,
     editableTasks: [],
     maxFieldValues: {},
     highlight: undefined,
@@ -87,16 +93,22 @@ export function applyStepPatch(state: StoryState, stepPatch: StoryStep): StorySt
   if (stepPatch.summaryIds !== undefined) newState.summaryIds = stepPatch.summaryIds;
   if (stepPatch.showDropGame !== undefined) newState.showDropGame = stepPatch.showDropGame;
   if (stepPatch.dropGameVaultIds !== undefined) newState.dropGameVaultIds = stepPatch.dropGameVaultIds;
+  if (stepPatch.showSidebarPuzzle !== undefined) newState.showSidebarPuzzle = stepPatch.showSidebarPuzzle;
   if (stepPatch.canvasMode !== undefined) newState.canvasMode = stepPatch.canvasMode;
   if (stepPatch.layoutStyle !== undefined) newState.layoutStyle = stepPatch.layoutStyle;
   if (stepPatch.sidebarVisibleFields !== undefined) newState.sidebarVisibleFields = stepPatch.sidebarVisibleFields;
   if (stepPatch.sidebarEditableFields !== undefined) newState.sidebarEditableFields = stepPatch.sidebarEditableFields;
+  if (stepPatch.puzzleVisibleFields !== undefined) newState.puzzleVisibleFields = stepPatch.puzzleVisibleFields;
+  if (stepPatch.puzzleEditableFields !== undefined) newState.puzzleEditableFields = stepPatch.puzzleEditableFields;
   if (stepPatch.editableTasks !== undefined) newState.editableTasks = stepPatch.editableTasks;
   if (stepPatch.maxFieldValues !== undefined) newState.maxFieldValues = stepPatch.maxFieldValues;
   if (stepPatch.highlight !== undefined) newState.highlight = stepPatch.highlight;
   if (stepPatch.highlightExecutions !== undefined) newState.highlightExecutions = stepPatch.highlightExecutions;
   if ("renderCompanion" in stepPatch) newState.renderCompanion = stepPatch.renderCompanion;
   if (stepPatch.checkFunction !== undefined) newState.checkFunction = stepPatch.checkFunction;
+  
+  // Update currentTasks for sidebar puzzle
+  if (stepPatch.tasks !== undefined) newState.currentTasks = stepPatch.tasks;
   
   return newState;
 }
@@ -142,6 +154,8 @@ export function useTutorialState(props: UseTutorialStateProps): StoryState {
     props.layoutStyle,
     props.sidebarVisibleFields,
     props.sidebarEditableFields,
+    props.puzzleVisibleFields,
+    props.puzzleEditableFields,
     props.userSelectedAlgorithm,
     props.userInputTasks,
     props.userManuallyChangedAlgorithm,

@@ -11,6 +11,7 @@ import { SidebarRenderer } from "./SidebarRenderer";
 import { ButtonsRenderer } from "./ButtonsRenderer";
 import { QuizRenderer } from "./QuizRenderer";
 import { DropGameRenderer } from "./DropGameRenderer";
+import { SidebarPuzzleRenderer } from "./SidebarPuzzleRenderer";
 
 /**
  * Layout manager for the tutorial template
@@ -26,7 +27,7 @@ interface LayoutManagerProps {
   
   // Handlers
   onPreviousStep: () => void;
-  onNextStep: (overrideQuizCompleted?: boolean, overrideDropGameCompleted?: boolean) => void;
+  onNextStep: (overrideQuizCompleted?: boolean, overrideDropGameCompleted?: boolean, overrideSidebarPuzzleCompleted?: boolean) => void;
   
   // Render props
   canvasRenderProps: CanvasRenderProps;
@@ -54,6 +55,8 @@ interface LayoutManagerProps {
   currentTasks: any[];
   effectiveSidebarVisibleFields: string[];
   effectiveSidebarEditableFields: string[];
+  effectivePuzzleVisibleFields: string[];
+  effectivePuzzleEditableFields: string[];
   onTasksChange: (tasks: any[]) => void;
   onAlgorithmChange: (algorithm: string) => void;
   
@@ -65,6 +68,10 @@ interface LayoutManagerProps {
   
   // Drop game specific
   onDropGameComplete: () => void;
+  
+  // Sidebar puzzle specific
+  onSidebarPuzzleComplete: () => void;
+  sidebarPuzzleRenderProps?: any;
   
   // Canvas visibility
   visibilityDefaultCanvas: {
@@ -99,6 +106,8 @@ export function LayoutManager({
   currentTasks,
   effectiveSidebarVisibleFields,
   effectiveSidebarEditableFields,
+  effectivePuzzleVisibleFields,
+  effectivePuzzleEditableFields,
   onTasksChange,
   onAlgorithmChange,
   currentQuizQuestion,
@@ -106,10 +115,77 @@ export function LayoutManager({
   onQuizComplete,
   quizRendererProps,
   onDropGameComplete,
+  onSidebarPuzzleComplete,
+  sidebarPuzzleRenderProps,
   visibilityDefaultCanvas,
 }: LayoutManagerProps) {
   
   if (cumulativeState.layoutStyle === "standard") {
+    // Layout for sidebar puzzle
+    if (cumulativeState.showSidebarPuzzle && currentStep?.sidebarPuzzleConfig) {
+      return (
+        <div style={{ display: "flex", height: "100%", flexDirection: "column", gap: 0 }}>
+          {/* Overlay section */}
+          {cumulativeState.showOverlay && (
+            <div
+              style={{
+                flex: "0 0 auto",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "flex-start",
+                paddingLeft: 40,
+                paddingRight: 40,
+                paddingTop: 20,
+                gap: 40,
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: 40 }}>
+                {renderOverlay ? (
+                  renderOverlay({
+                    text: currentStep?.text || "",
+                    onNext: onNextStep,
+                    step,
+                    totalSteps: storyLength,
+                  })
+                ) : (
+                  <TutorialOverlay
+                    visible
+                    text={currentStep?.text || ""}
+                    onNext={onNextStep}
+                  />
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Canvas and Sidebar for solving the Puzzle */}
+          <div style={{ flex: 1, display: "flex", gap: 12, padding: "12px 16px", minHeight: 0, width: "100%" }}>
+            <SidebarPuzzleRenderer
+              cumulativeState={cumulativeState}
+              onSidebarPuzzleComplete={onSidebarPuzzleComplete}
+              onNextStep={onNextStep}
+              puzzleTasks={currentStep.sidebarPuzzleConfig.puzzleTasks}
+              algorithm={currentStep.sidebarPuzzleConfig.algorithm}
+              algorithmName={currentStep.sidebarPuzzleConfig.algorithmName}
+              hyperperiod={cumulativeState.hyperperiod}
+              puzzleVisibleFields={effectivePuzzleVisibleFields}
+              puzzleEditableFields={effectivePuzzleEditableFields}
+              editableTasks={currentStep.editableTasks}
+              maxFieldValues={currentStep.maxFieldValues}
+              canvasProps={canvasRenderProps}
+              userScheduleRef={{}}
+              setUserScheduleRef={() => {}}
+              hintBlocks={{}}
+              visibility={{
+                showReleaseMarkers: visibilityDefaultCanvas.showReleaseMarkersDefault,
+                showDeadlineMarkers: visibilityDefaultCanvas.showDeadlineMarkersDefault,
+              }}
+            />
+          </div>
+        </div>
+      );
+    }
+    
     return (
       <div style={{ display: "flex", height: "100%", flexDirection: "row", position: "relative" }}>
         {/* Navigation buttons - hidden for now but functionality in place */}

@@ -38,10 +38,11 @@ interface FreeSchedulerSidebarProps {
   maxOffset?: number;
   hyperperiod?: number;
   isFieldEditable?: (task: Task, field: keyof Task | "algorithm") => boolean;
+  algorithmOptions?: string[];
 }
 
 export default function FreeSchedulerSidebar({ tasks, algorithm, onTasksChange, onAlgorithmChange, onClose, visibility, isFieldEditable, 
-  maxExecution, maxDeadline, maxPeriod, maxSuspension, maxOffset, hyperperiod }: FreeSchedulerSidebarProps) {
+  maxExecution, maxDeadline, maxPeriod, maxSuspension, maxOffset, hyperperiod, algorithmOptions }: FreeSchedulerSidebarProps) {
   const DEFAULT_VISIBILITY: SidebarVisibility = {
     showTaskNames: true,
     showExecutionTime: true,
@@ -72,8 +73,16 @@ export default function FreeSchedulerSidebar({ tasks, algorithm, onTasksChange, 
       return;
     }
 
-    // Apply max value constraints if they exist
+    // Apply min and max value constraints
     let finalValue = value;
+    
+    // Enforce minimum values
+    if (value === "" || Number(value) === 0) {
+      if (field === "T" || field === "D" || field === "C") {
+        return;
+      }
+    }
+
     if (field === "C" && maxExecution !== undefined) {
       finalValue = Math.min(finalValue, maxExecution);
     } else if (field === "T" && maxPeriod !== undefined) {
@@ -158,9 +167,9 @@ export default function FreeSchedulerSidebar({ tasks, algorithm, onTasksChange, 
               label="Algorithm"
               onChange={(e) => onAlgorithmChange?.(e.target.value as string)}
             >
-              <MenuItem value="DM">Deadline Monotonic (DM)</MenuItem>
-              <MenuItem value="EDF">Earliest Deadline First (EDF)</MenuItem>
-              <MenuItem value="RM">Rate Monotonic (RM)</MenuItem>
+              {(!algorithmOptions || algorithmOptions.includes("DM")) && <MenuItem value="DM">Deadline Monotonic (DM)</MenuItem>}
+              {(!algorithmOptions || algorithmOptions.includes("EDF")) && <MenuItem value="EDF">Earliest Deadline First (EDF)</MenuItem>}
+              {(!algorithmOptions || algorithmOptions.includes("RM")) && <MenuItem value="RM">Rate Monotonic (RM)</MenuItem>}
             </Select>
           </FormControl>
         </>

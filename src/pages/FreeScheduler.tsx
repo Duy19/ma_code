@@ -20,6 +20,11 @@ export default function FreeScheduler() {
   useEffect(() => {
   if (tasks.length === 0) return;
 
+  // Validate that all tasks have valid periods (> 0)
+  if (tasks.some(t => !t.T || t.T <= 0 || isNaN(t.T))) {
+    return;
+  }
+
   // Hyperperiod = LCM of all Task Periods
   const periods = tasks.map(t => t.T);
   const hp = lcmArray(periods);
