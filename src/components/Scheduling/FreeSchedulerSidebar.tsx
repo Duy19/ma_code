@@ -59,6 +59,13 @@ export default function FreeSchedulerSidebar({ tasks, algorithm, onTasksChange, 
     ...visibility,
   };
 
+  // Set max values with defaults and cap at 1000
+  const effectiveMaxExecution = Math.min(maxExecution ?? 1000, 1000);
+  const effectiveMaxDeadline = Math.min(maxDeadline ?? 1000, 1000);
+  const effectiveMaxPeriod = Math.min(maxPeriod ?? 1000, 1000);
+  const effectiveMaxSuspension = Math.min(maxSuspension ?? 1000, 1000);
+  const effectiveMaxOffset = Math.min(maxOffset ?? 1000, 1000);
+
   const nextTaskNumber = useRef(1);
   const taskColors = [
     "#f94e8aff", 
@@ -83,16 +90,16 @@ export default function FreeSchedulerSidebar({ tasks, algorithm, onTasksChange, 
       }
     }
 
-    if (field === "C" && maxExecution !== undefined) {
-      finalValue = Math.min(finalValue, maxExecution);
-    } else if (field === "T" && maxPeriod !== undefined) {
-      finalValue = Math.min(finalValue, maxPeriod);
-    } else if (field === "D" && maxDeadline !== undefined) {
-      finalValue = Math.min(finalValue, maxDeadline);
-    } else if (field === "O" && maxOffset !== undefined) {
-      finalValue = Math.min(finalValue, maxOffset);
-    } else if (field === "S" && maxSuspension !== undefined) {
-      finalValue = Math.min(finalValue, maxSuspension);
+    if (field === "C") {
+      finalValue = Math.min(finalValue, effectiveMaxExecution);
+    } else if (field === "T") {
+      finalValue = Math.min(finalValue, effectiveMaxPeriod);
+    } else if (field === "D") {
+      finalValue = Math.min(finalValue, effectiveMaxDeadline);
+    } else if (field === "O") {
+      finalValue = Math.min(finalValue, effectiveMaxOffset);
+    } else if (field === "S") {
+      finalValue = Math.min(finalValue, effectiveMaxSuspension);
     }
 
     const newTasks = [...tasks];
@@ -221,7 +228,7 @@ export default function FreeSchedulerSidebar({ tasks, algorithm, onTasksChange, 
                 margin="dense"
                 value={task.C}
                 onChange={(e) => handleTaskChange(index, "C", Number(e.target.value))}
-                slotProps={{ htmlInput: { min: 0, step: 1 } }}
+                slotProps={{ htmlInput: { min: 0, max: effectiveMaxExecution, step: 1 } }}
                 disabled={isFieldEditable ? !isFieldEditable(task, "C") : false}
               />
             </>
@@ -237,7 +244,7 @@ export default function FreeSchedulerSidebar({ tasks, algorithm, onTasksChange, 
                 margin="dense"
                 value={task.T}
                 onChange={(e) => handleTaskChange(index, "T", Number(e.target.value))}
-                slotProps={{ htmlInput: { min: 1, step: 1 } }}
+                slotProps={{ htmlInput: { min: 1, max: effectiveMaxPeriod, step: 1 } }}
                 disabled={isFieldEditable ? !isFieldEditable(task, "T") : false}
               />
           </>
@@ -253,7 +260,7 @@ export default function FreeSchedulerSidebar({ tasks, algorithm, onTasksChange, 
                 margin="dense"
                 value={task.D}
                 onChange={(e) => handleTaskChange(index, "D", Number(e.target.value))}
-                slotProps={{ htmlInput: { min: 1, step: 1 } }}
+                slotProps={{ htmlInput: { min: 1, max: effectiveMaxDeadline, step: 1 } }}
                 disabled={isFieldEditable ? !isFieldEditable(task, "D") : false}
               />
             </>
@@ -269,7 +276,7 @@ export default function FreeSchedulerSidebar({ tasks, algorithm, onTasksChange, 
                 margin="dense"
                 value={task.O ?? 0}
                 onChange={(e) => handleTaskChange(index, "O", Number(e.target.value))}
-                slotProps={{ htmlInput: { min: 0, max: maxOffset, step: 1 } }}
+                slotProps={{ htmlInput: { min: 0, max: effectiveMaxOffset, step: 1 } }}
                 disabled={isFieldEditable ? !isFieldEditable(task, "O") : false}
               />
             </>
@@ -285,7 +292,7 @@ export default function FreeSchedulerSidebar({ tasks, algorithm, onTasksChange, 
                 margin="dense"
                 value={task.S ?? 0}
                 onChange={(e) => handleTaskChange(index, "S", Number(e.target.value))}
-                slotProps={{ htmlInput: { min: 0, step: 1 } }}
+                slotProps={{ htmlInput: { min: 0, max: effectiveMaxSuspension, step: 1 } }}
                 disabled={isFieldEditable ? !isFieldEditable(task, "S") : false}
               />
             </>
