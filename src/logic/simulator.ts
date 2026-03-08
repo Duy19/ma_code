@@ -303,6 +303,8 @@ export function simulateEDFWithSuspension(tasks: Task[], hyperperiod: number): S
   // Sort critical time points
   const sortedCriticalTimePoints = Array.from(criticalTimePoints).sort((a, b) => a - b);
   
+  console.log(`[EDFWithSuspension] DEBUG: hyperperiod=${hyperperiod}, critical points=${sortedCriticalTimePoints.length}, tasks=${tasks.map(t => t.id).join(',')}`, sortedCriticalTimePoints);
+  
   // Handle time between critical time points
   for (let i = 0; i < sortedCriticalTimePoints.length - 1; i++) {
     const start = sortedCriticalTimePoints[i];
@@ -333,6 +335,10 @@ export function simulateEDFWithSuspension(tasks: Task[], hyperperiod: number): S
       const suspensions = taskSuspensions.get(a.id)!;
       return !suspensions.some((s) => start < s.end && end > s.start);
     });
+
+    if (duration > 0 && active.length > 0) {
+      console.log(`[EDFWithSuspension] Gap [${start}, ${end}] duration=${duration}: active=${active.map(a => a.id).join(',')} executable=${executableTasks.map(e => e.id).join(',')}`);
+    }
 
     executableTasks.sort((a, b) => {
       // sort by deadline (EDF)
@@ -369,6 +375,7 @@ export function simulateEDFWithSuspension(tasks: Task[], hyperperiod: number): S
     }
   }
 
+  console.log(`[EDFWithSuspension] FINAL SCHEDULE:`, schedule.length, `entries`);
   return schedule;
 }
 
