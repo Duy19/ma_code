@@ -1,7 +1,7 @@
 import { ModularTutorialTemplate } from "../ModularTutorialTemplate";
 import type { StoryStep } from "../ModularTutorial/types";
 import type { Task } from "../../core/task";
-import { simulateRM, simulateEDFWithSuspension } from "../../logic/simulator";
+import { simulateEDFWithSuspension } from "../../logic/simulator";
 
 const tutorialTasks: Task[] = [
   { id: "brake", name: "Brakes", C: 1, T: 4, D: 4, O: 3, color: "#f87171" },

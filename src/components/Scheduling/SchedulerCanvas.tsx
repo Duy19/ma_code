@@ -1,6 +1,6 @@
 // @ts-nocheck
 
-import type { Task, SuspensionWindow, SuspensionPattern } from "../../core/task";
+import type { Task, SuspensionInterval, SuspensionPattern } from "../../core/task";
 import type { ScheduleEntry } from "../../logic/simulator";
 import { useMemo } from "react";
 
@@ -343,17 +343,17 @@ export default function SchedulerCanvas({
               {suspensionIntervalsMap.get(task.id)!.length > 0 && (
                 <g>
                   {suspensionIntervalsMap.get(task.id)!
-                    .filter((interval) => {
+                    .filter((suspensionInterval) => {
                       // If scheduler interval is given, only show suspension within the interval
                       if (interval) {
-                        return interval.start < interval[1] && interval.end > interval[0];
+                        return suspensionInterval.start < interval[1] && suspensionInterval.end > interval[0];
                       }
                       return true;
                     })
-                    .map((window, idx) => {
+                    .map((suspensionInterval, idx) => {
                       // Adjust the suspension block to fit within the interval if provided
-                      const startTime = interval ? Math.max(window.start, interval[0]) : window.start;
-                      const endTime = interval ? Math.min(window.end, interval[1]) : window.end;
+                      const startTime = interval ? Math.max(suspensionInterval.start, interval[0]) : suspensionInterval.start;
+                      const endTime = interval ? Math.min(suspensionInterval.end, interval[1]) : suspensionInterval.end;
                       const adjustedStart = interval ? startTime - interval[0] : startTime;
                       
                       const xStart = leftLabelWidth + adjustedStart * pxPerStep;

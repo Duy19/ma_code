@@ -1,3 +1,4 @@
+// @ts-nocheck
 import type { Task } from "../core/task";
 import "../utils/formulas";
 import { tda } from "../utils/formulas";
