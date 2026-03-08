@@ -151,10 +151,23 @@ export function ModularTutorialTemplate(props: ModularTutorialTemplateProps) {
   const currentTasks = cumulativeState.tasks;
   
   // Setup algorithms for selection
-  const algorithmMap = algorithms || (algorithm ? { [algorithm.name.replace(/^simulate/, "") || "Default"]: algorithm } : {});
+  let algorithmMap: Record<string, (tasks: Task[], hyperperiod: number) => ScheduleEntry[]>;
+  
+  if (algorithms) {
+    algorithmMap = algorithms;
+  } else if (algorithm && algorithmName) {
+    algorithmMap = { [algorithmName]: algorithm };
+  } else if (algorithm) {
+    algorithmMap = { [algorithm.name.replace(/^simulate/, "") || "Default"]: algorithm };
+  } else {
+    algorithmMap = {};
+  }
 
   const effectiveAlgorithmName = cumulativeState.selectedAlgorithm ?? defaultAlgorithm;
   const currentAlgorithmFunc = algorithmMap[effectiveAlgorithmName];
+  
+  // Debug logging
+  console.log(`[ModularTutorialTemplate] algorithmName=${algorithmName}, defaultAlgorithm=${defaultAlgorithm}, effectiveAlgorithmName=${effectiveAlgorithmName}, algorithmMap keys=${Object.keys(algorithmMap).join(',')}, found function=${!!currentAlgorithmFunc}`);
   
   // Get visible tasks (for canvas display only) 
   const visibleTasks = useMemo(() => {

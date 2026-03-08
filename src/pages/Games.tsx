@@ -27,7 +27,7 @@ export default function Chapter3() {
       hyperperiod={config.hyperperiod}
       algorithm={config.algorithm === "RM" ? simulateRM : config.algorithm === "DM" ? simulateDM : simulateEDF}
       algorithmName={config.algorithm}
-      defaultAlgorithm="EDF"
+      defaultAlgorithm={config.algorithm}
       showSidebar={false}
       showButtons={false}
       canvasMode="default"

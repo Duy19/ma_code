@@ -67,7 +67,7 @@ export default function Chapter3() {
       story={STORY}
       baseTasks={tutorialTasks}
       hyperperiod={20}
-      interval = {[0, 10]}
+      interval={[0, 10]}
       algorithm={simulateEDFWithSuspension}
       algorithmName="EDFWithSuspension"
       defaultAlgorithm="EDFWithSuspension"
