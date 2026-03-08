@@ -89,4 +89,17 @@ export const Summary : SummaryComponent[] = [
             "Since $1.72 \\leq 2$, the taskset is guaranteed to be schedulable under RM.",
         ],
     },
+
+    // Cgapter 3 Summaries
+    {
+        id: "suspension",
+        title: "Reasons for Task Suspension",
+        description: "Here are some common reasons for task suspension in real-time systems: ",
+        content: [
+            "Computation offloading to a more powerful processor or cloud service. Those are timing unreliable, so the task has to wait until the result is back.",
+            "Waiting for a shared resource to become available e.g. a lock or semaphore.",
+            "Multiple processors which are trying to access the same resource like a memory bus.",
+            "Parallel task execution on other processsors, where one task has to wait for the other to finish for results.",  
+        ],
+    }
 ]

@@ -64,6 +64,28 @@ export function isHarmonicTaskSet(tasks: Task[]) {
   return true;
 }
 
+export function computeTaskInterference(index: number, tasks: Task[]) {
+  const task = tasks[index];
+  let interference = 0;
+  for (let i = 0; i < tasks.length; i++) {
+    if (i !== index) {
+      interference += Math.floor(task.T / tasks[i].T) * tasks[i].C;
+    }
+  }
+  return interference;
+}
+
+
+export function tda(tasks: Task[]): boolean {
+  for (let i = 0; i < tasks.length; i++) {
+    const interference = computeTaskInterference(i, tasks);
+    if (tasks[i].C + interference > tasks[i].T) {
+      return false;
+    }
+  }
+  return true;
+}
+
 // Helper function to render inline math using KaTeX and bold text
 export function renderWithMath(text: string): React.ReactNode[] {
   // First split by math delimiters

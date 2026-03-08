@@ -1,6 +1,6 @@
 // @ts-nocheck
 
-import type { Task } from "../../core/task";
+import type { Task, SuspensionWindow, SuspensionPattern } from "../../core/task";
 import type { ScheduleEntry } from "../../logic/simulator";
 import { useMemo } from "react";
 
@@ -17,6 +17,30 @@ Props:
 - leftLabelWidth: Width of the left label area for task names.
 */
 
+// Helper function to get all the Suspension Intervals or the pattern for a task in the hyperperiod
+function getSuspension(task: Task, hyperperiod: number) : SuspensionInterval[] {
+  
+  // If no Suspension return empty
+  if (!task.suspension) {
+    return [];
+  }
+
+  // If set array is given return it for given hyperperiod
+  if (Array.isArray(task.suspension)) {
+    return task.suspension.filter(w => w.start < hyperperiod);
+  }
+
+  // If pattern is given, generate all the Intervals for hyperperiod
+  const {offset, duration, period} = task.suspension as SuspensionPattern;
+  const intervals: SuspensionInterval[] = [];
+
+  for (let i = 0; offset + i * period < hyperperiod; i++) {
+    const start = offset+ i * period;
+    intervals.push({start, end: start + duration});
+  }
+  return intervals;
+}
+
 // Type for highlighted execution blocks
 type HighlightBlocks = {
   taskId: string;
@@ -26,6 +50,7 @@ type HighlightBlocks = {
 type Props = {
   tasks: Task[];
   hyperperiod: number;
+  interval?: [number, number];
   schedule?: ScheduleEntry[];
   pxPerStep?: number;
   timeStepLabelEvery?: number;
@@ -54,6 +79,7 @@ const DEFAULT_VISIBILITY = {
 export default function SchedulerCanvas({
   tasks,
   hyperperiod,
+  interval,
   schedule = [],
   pxPerStep = 28,
   //timeStepLabelEvery = 1,
@@ -67,16 +93,24 @@ export default function SchedulerCanvas({
 }: Props) {
 
   // Calculate the maximum deadline that appears within the hyperperiod
-  let maxDeadline = hyperperiod;
-  for (const task of tasks) {
-    const offset = task.O ?? 0;
-    const period = task.T;
-    const deadline = task.D;
-    // Check each release within the hyperperiod
-    for (let k = 0; k * period + offset < hyperperiod; k++) {
-      const releaseTime = offset + k * period;
-      const taskDeadline = releaseTime + deadline;
-      maxDeadline = Math.max(maxDeadline, taskDeadline);
+  // If interval is provided, use it isntead of only from 0 - hyperperiod
+  let maxDeadline = 0;
+  if(interval && interval[1] <= hyperperiod && interval[1] >= 0) {
+    maxDeadline = interval[1] - interval[0];
+  }
+  else{
+    maxDeadline = hyperperiod;
+
+    for (const task of tasks) {
+      const offset = task.O ?? 0;
+      const period = task.T;
+      const deadline = task.D;
+      // Check each release within the hyperperiod
+      for (let k = 0; k * period + offset < hyperperiod; k++) {
+        const releaseTime = offset + k * period;
+        const taskDeadline = releaseTime + deadline;
+        maxDeadline = Math.max(maxDeadline, Math.min(taskDeadline, hyperperiod));
+      }
     }
   }
 
@@ -93,6 +127,15 @@ export default function SchedulerCanvas({
 
   const hideReleaseSet = useMemo(() => new Set(hideReleaseMarkersFor), [hideReleaseMarkersFor]);
   const hideDeadlineSet = useMemo(() => new Set(hideDeadlineMarkersFor), [hideDeadlineMarkersFor]);
+
+  // Compute all suspension intervals for each task beforehand
+  const suspensionIntervalsMap = useMemo(() => {
+    const map = new Map<string, SuspensionInterval[]>();
+    tasks.forEach(task => {
+      map.set(task.id, getSuspension(task, hyperperiod));
+    });
+    return map;
+  }, [tasks, hyperperiod]);
 
   // Lookup Map for highlighted executions
   const highlightExecutionMap = useMemo(() => {
@@ -229,7 +272,7 @@ export default function SchedulerCanvas({
               {mergedVisibility.showTimeTicks && (
                 <>
                   <g transform={`translate(${leftLabelWidth}, ${yTop + heightPerTask - heightPerTask / 1.75})`}>
-                    {Array.from({ length: maxDeadline + 1 }).map((_, t) => {
+                    {Array.from({ length: maxDeadline + 1}).map((_, t) => {
                       const x = t * pxPerStep;
                       const showLabel = 1;
                       return (
@@ -265,51 +308,133 @@ export default function SchedulerCanvas({
               {/* Highlighting for Execution Blocks */}
               {highlightExecutionMap.has(task.id) && (
                 <g>
-                  {[...highlightExecutionMap.get(task.id)!].map(t => {
-                    const x = leftLabelWidth + t * pxPerStep;
-                    const y = centerY - heightPerTask / 2 - 5;
-                    const blockHeight = heightPerTask / 2 + 10
+                  {[...highlightExecutionMap.get(task.id)!]
+                    .filter((t) => {
+                      // If interval is provided, only highlight entries within the interval
+                      if (interval) {
+                        return t >= interval[0] && t < interval[1];
+                      }
+                      return true;
+                    })
+                    .map(t => {
+                      const adjustedTime = interval ? t - interval[0] : t;
+                      const x = leftLabelWidth + adjustedTime * pxPerStep;
+                      const y = centerY - heightPerTask / 2 - 5;
+                      const blockHeight = heightPerTask / 2 + 10
 
-                    return (
-                      <rect
-                        key={`exec-highlight-${task.id}-${t}`}
-                        x={x}
-                        y={y}
-                        width={pxPerStep}
-                        height={blockHeight}
-                        rx={3}
-                        fill="#fde68a"
-                        opacity={0.45}
-                        pointerEvents="none"
-                      />
-                    );
-                  })}
+                      return (
+                        <rect
+                          key={`exec-highlight-${task.id}-${t}`}
+                          x={x}
+                          y={y}
+                          width={pxPerStep}
+                          height={blockHeight}
+                          rx={3}
+                          fill="#fde68a"
+                          opacity={0.45}
+                          pointerEvents="none"
+                        />
+                      );
+                    })}
                 </g>
               )}
 
+              {/* Suspension Blocks */}
+              {suspensionIntervalsMap.get(task.id)!.length > 0 && (
+                <g>
+                  {suspensionIntervalsMap.get(task.id)!
+                    .filter((interval) => {
+                      // If scheduler interval is given, only show suspension within the interval
+                      if (interval) {
+                        return interval.start < interval[1] && interval.end > interval[0];
+                      }
+                      return true;
+                    })
+                    .map((window, idx) => {
+                      // Adjust the suspension block to fit within the interval if provided
+                      const startTime = interval ? Math.max(window.start, interval[0]) : window.start;
+                      const endTime = interval ? Math.min(window.end, interval[1]) : window.end;
+                      const adjustedStart = interval ? startTime - interval[0] : startTime;
+                      
+                      const xStart = leftLabelWidth + adjustedStart * pxPerStep;
+                      const width = (endTime - startTime) * pxPerStep;
+                      // Suspension block are smaller red blocks with patterns
+                      const y = centerY - heightPerTask / 2 + 20;
+                      const blockHeight = heightPerTask / 2 - 30;
+
+                      return (
+                        <g key={`susp-${task.id}-${idx}`}>
+                          {/* Background */}
+                          <rect
+                            x={xStart}
+                            y={y}
+                            width={width}
+                            height={blockHeight}
+                            rx={2}
+                            fill="#dc2626"
+                            opacity={0.15}
+                            stroke="#991b1b"
+                            strokeWidth={1.5}
+                            pointerEvents="none"
+                          />
+                          {/* Diagonal hatching pattern */}
+                          <defs>
+                            <pattern id={`hatch-${task.id}-${idx}`} patternUnits="userSpaceOnUse" width="4" height="4" patternTransform="rotate(45)">
+                              <line x1="0" y1="0" x2="0" y2="4" stroke="#991b1b" strokeWidth="1" opacity="0.4" />
+                            </pattern>
+                          </defs>
+                          <rect
+                            x={xStart}
+                            y={y}
+                            width={width}
+                            height={blockHeight}
+                            rx={2}
+                            fill={`url(#hatch-${task.id}-${idx})`}
+                            pointerEvents="none"
+                          />
+                        </g>
+                      );
+                    })}
+                </g>
+              )}
 
               {/* Execution Blocks */}
               {mergedVisibility.showExecutionBlocks && (
                 <>
-                  {schedule.filter((s) => s.taskId === task.id).map((s) => {
-                    const x = leftLabelWidth + s.time * pxPerStep;
-                    const y = centerY - heightPerTask / 2 + 10; 
-                    const blockHeight = heightPerTask / 2 - 20;
-                    return (
-                      <rect
-                        key={`${task.id}-${s.time}`}
-                        x={x}
-                        y={y}
-                        width={pxPerStep}
-                        height={blockHeight}
-                        fill={task.color}
-                        opacity={0.85}
-                        stroke="#1e293b"
-                        strokeWidth={0.5}
-                        rx={3}
-                      />
-                    );
-                  })}
+                  {schedule
+                    .filter((s) => s.taskId === task.id)
+                    .filter((s) => {
+                      // If schedule interval is provided, only show executions that are within the interval
+                      if (interval) {
+                        return s.time < interval[1] && (s.time + s.duration) > interval[0];
+                      }
+                      return true;
+                    })
+                    .map((s) => {
+                      const blockStart = interval ? Math.max(s.time, interval[0]) : s.time;
+                      const blockEnd = interval ? Math.min(s.time + s.duration, interval[1]) : s.time + s.duration;
+                      const adjustedTime = interval ? blockStart - interval[0] : blockStart;
+                      const clippedDuration = blockEnd - blockStart;
+                      
+                      const x = leftLabelWidth + adjustedTime * pxPerStep;
+                      const y = centerY - heightPerTask / 2 + 10; 
+                      const blockHeight = heightPerTask / 2 - 20;
+                      const blockWidth = clippedDuration * pxPerStep;
+                      return (
+                        <rect
+                          key={`${task.id}-${s.time}`}
+                          x={x}
+                          y={y}
+                          width={blockWidth}
+                          height={blockHeight}
+                          fill={task.color}
+                          opacity={0.85}
+                          stroke="#1e293b"
+                          strokeWidth={0.5}
+                          rx={3}
+                        />
+                      );
+                    })}
                 </>
               )}
 
@@ -322,42 +447,56 @@ export default function SchedulerCanvas({
                   releaseSet.add((task.O ?? 0) + k * task.T);
                 }
                 
-                const jobs = Array.from(releaseSet)
+                let jobs = Array.from(releaseSet)
                   .filter(release => release < hyperperiod + (task.O ?? 0))
                   .map(release => ({
                     release,
                     deadline: release + task.D,
-                  }))
+                  }));
+                
+                // Filter jobs based on schedule interval if interval is provided
+                if (interval) {
+                  jobs = jobs.filter(job => 
+                    (job.release <= interval[1] && job.release >= interval[0]) ||
+                    (job.deadline <= interval[1] && job.deadline >= interval[0])
+                  );
+                }
 
-                return jobs.map(job => (
-                  <g key={`job-${task.id}-${job.release}`}>
-                    {/* Release Marker (Up) */}
-                    {mergedVisibility.showReleaseMarkers && !hideReleaseSet.has(task.id) && (
-                      <line
-                        x1={leftLabelWidth + job.release * pxPerStep}
-                        y1={centerY - 11.5}
-                        x2={leftLabelWidth + job.release * pxPerStep}
-                        y2={centerY - 37.5}
-                        stroke="green"
-                        strokeWidth={2}
-                        markerEnd="url(#arrowUp)"
-                      />
-                    )}
+                return jobs.map(job => {
+                  // Adjust positions if interval is provided
+                  const adjustedRelease = interval ? job.release - interval[0] : job.release;
+                  const adjustedDeadline = interval ? job.deadline - interval[0] : job.deadline;
+                  
+                  return (
+                    <g key={`job-${task.id}-${job.release}`}>
+                      {/* Release Marker (Up) */}
+                      {mergedVisibility.showReleaseMarkers && !hideReleaseSet.has(task.id) && job.release >= (interval?.[0] ?? 0) && job.release <= (interval?.[1] ?? hyperperiod) && (
+                        <line
+                          x1={leftLabelWidth + adjustedRelease * pxPerStep}
+                          y1={centerY - 11.5}
+                          x2={leftLabelWidth + adjustedRelease * pxPerStep}
+                          y2={centerY - 37.5}
+                          stroke="green"
+                          strokeWidth={2}
+                          markerEnd="url(#arrowUp)"
+                        />
+                      )}
 
-                    {/* Deadline Marker (Down) */}
-                    {mergedVisibility.showDeadlineMarkers && !hideDeadlineSet.has(task.id) && (
-                      <line
-                        x1={leftLabelWidth + job.deadline * pxPerStep}
-                        y1={centerY - 36.5}
-                        x2={leftLabelWidth + job.deadline * pxPerStep}
-                        y2={centerY - 16.5}
-                        stroke="red"
-                        strokeWidth={2}
-                        markerEnd="url(#arrowDown)"
-                      />
-                    )}
-                  </g>
-                ));
+                      {/* Deadline Marker (Down) */}
+                      {mergedVisibility.showDeadlineMarkers && !hideDeadlineSet.has(task.id) && job.deadline >= (interval?.[0] ?? 0) && job.deadline <= (interval?.[1] ?? hyperperiod) && (
+                        <line
+                          x1={leftLabelWidth + adjustedDeadline * pxPerStep}
+                          y1={centerY - 36.5}
+                          x2={leftLabelWidth + adjustedDeadline * pxPerStep}
+                          y2={centerY - 16.5}
+                          stroke="red"
+                          strokeWidth={2}
+                          markerEnd="url(#arrowDown)"
+                        />
+                      )}
+                    </g>
+                  );
+                });
               })()}
             </g>
           );

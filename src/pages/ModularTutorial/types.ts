@@ -177,6 +177,7 @@ export interface CanvasRenderProps {
   tasks: Task[];
   hyperperiod: number;
   schedule: ScheduleEntry[];
+  interval?: [number, number];
   userScheduleRef: Record<string, Set<number>>;
   setUserScheduleRef: (ref: Record<string, Set<number>>) => void;
   hintBlocks: Record<string, Set<number>>;
@@ -211,6 +212,7 @@ export interface ModularTutorialTemplateProps {
   story: StoryStep[];
   baseTasks: Task[];
   hyperperiod: number;
+  interval?: [number, number];
   algorithm?: (tasks: Task[], hyperperiod: number) => ScheduleEntry[];
   algorithms?: Record<string, (tasks: Task[], hyperperiod: number) => ScheduleEntry[]>;
   defaultAlgorithm?: string;
@@ -239,6 +241,7 @@ export interface ModularTutorialTemplateProps {
     pxPerStep: number;
     heightPerTask: number;
     leftLabelWidth: number;
+    interval?: [number, number];
   }>;
 
   // Sidebar control

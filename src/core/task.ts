@@ -1,6 +1,7 @@
 /* Data structures for tasks, jobs, and schedules */
 
 export type TaskType = "periodic" | "sporadic";
+
 export interface Job {
   id: string;
   release: number;
@@ -10,6 +11,17 @@ export interface Job {
   deadline: number;
 }
 
+export interface SuspensionInterval {
+  start: number;  
+  end: number;
+}
+
+export interface SuspensionPattern {
+  offset: number;
+  duration: number;
+  period: number;
+}
+
 export interface Task {
   id: string;
   name: string;
@@ -17,7 +29,7 @@ export interface Task {
   T: number;          // Period
   D: number;          // Deadline
   O?: number;         // Offset
-  S?: number;         // Suspension
+  suspension?: SuspensionInterval[] | SuspensionPattern;  // Suspension in intervals or a repeating pattern
   color?: string;
   jobs?: Job[];
   type?: TaskType;

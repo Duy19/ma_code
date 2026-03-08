@@ -69,7 +69,7 @@ export default function Chapter1_C() {
       <ModularTutorialTemplate
         story={STORY}
         baseTasks={BASE_TASKS}
-        hyperperiod={24}
+        hyperperiod={26}
         algorithms={{
           RM: simulateRM,
           EDF: simulateEDF,

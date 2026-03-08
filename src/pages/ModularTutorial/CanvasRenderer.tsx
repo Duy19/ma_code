@@ -20,6 +20,7 @@ export function CanvasRenderer({ canvasRenderProps, visibilityDefaultCanvas }: C
   const {
     tasks,
     hyperperiod,
+    interval,
     schedule,
     userScheduleRef,
     setUserScheduleRef,
@@ -39,6 +40,7 @@ export function CanvasRenderer({ canvasRenderProps, visibilityDefaultCanvas }: C
         <InteractiveSchedulerCanvas
           tasks={tasks}
           hyperperiod={hyperperiod}
+          interval={interval}
           schedule={schedule}
           userScheduleRef={userScheduleRef}
           setUserScheduleRef={setUserScheduleRef}
@@ -55,6 +57,7 @@ export function CanvasRenderer({ canvasRenderProps, visibilityDefaultCanvas }: C
           tasks={tasks}
           hyperperiod={hyperperiod}
           schedule={schedule}
+          interval={interval}
           pxPerStep={pxPerStep}
           leftLabelWidth={leftLabelWidth}
           visibility={{

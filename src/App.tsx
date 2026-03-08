@@ -18,7 +18,8 @@ import Chapter3 from "./pages/Chapter3/Chapter3";
 import Tutorial from "./pages/Tutorial/Tutorial";
 import Tutorial2 from "./pages/Tutorial/Tutorial2";
 import Tutorial3 from "./pages/Tutorial/Tutorial3";
-
+import Games from "./pages/Games";
+import GameSelection from "./pages/GameSelection";
 
 function App() {
   return ( 
@@ -43,6 +44,8 @@ function App() {
             <Route path="tutorial2" element={<Tutorial2 />} />
             <Route path="tutorial3" element={<Tutorial3 />} />
             <Route path="chapter3" element={<Chapter3 />} />
+            <Route path="games" element={<Games />} />
+            <Route path="gameSelection" element={<GameSelection />} />
           </Route>
         </Routes>
       </Router>
