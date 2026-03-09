@@ -168,6 +168,7 @@ export function LayoutManager({
               algorithm={currentStep.sidebarPuzzleConfig.algorithm}
               algorithmName={currentStep.sidebarPuzzleConfig.algorithmName}
               hyperperiod={cumulativeState.hyperperiod}
+              interval={cumulativeState.interval || currentStep.sidebarPuzzleConfig.interval}
               puzzleVisibleFields={effectivePuzzleVisibleFields}
               puzzleEditableFields={effectivePuzzleEditableFields}
               editableTasks={currentStep.editableTasks}

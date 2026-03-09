@@ -27,6 +27,7 @@ export interface StoryState {
   selectedAlgorithm: string | undefined;
   hiddenTasks: string[]; // Array of task IDs to hide from canvas
   hyperperiod: number;
+  interval?: [number, number];
   
   // Visibility
   showOverlay: boolean;
@@ -137,6 +138,7 @@ export interface StoryStep {
   showSidebarPuzzle?: boolean;
   sidebarPuzzleConfig?: {
     puzzleTasks: Task[];
+    interval?: [number, number];
     algorithm: (tasks: Task[], hyperperiod: number) => ScheduleEntry[];
     algorithmName: string;
   };

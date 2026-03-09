@@ -344,7 +344,7 @@ export default function Layout() {
             </Button>
             <Button 
               component={Link} 
-              to="/drag-drop"
+              to="/gameSelection"
               sx={{
                 textTransform: "none",
                 fontWeight: 500,

@@ -2,6 +2,7 @@
 import type { Task } from "../core/task";
 import "../utils/formulas";
 import { tda } from "../utils/formulas";
+import type { ScheduleEntry } from "./simulator";
 
 
 // Taskset generation configuration for Puzzle Type A (Given: Schedule, Solution: Correct Taskset Parameters)
@@ -19,7 +20,8 @@ export interface TasksetConfigTypeA {
   minUtilization: number;
   maxUtilization: number;
   hyperperiod: number;
-  algorithm?: "RM" | "DM" | "EDF";
+  interval: [number, number];
+  algorithm: "RM" | "DM" | "EDF";
   deadlinetype: "implicit" | "constrained" | "arbitrary";
   difficulty: "easy" | "medium" | "hard";
 }
@@ -34,6 +36,13 @@ function thresholdExec(tasks: Task[], threshold = 0.25) {
   return tasksetExecValue >= Math.ceil(tasks.length * threshold) && shortPeriodTasks >= 1 && shortPeriodTasks < 3;
 }
 
+
+function findInterval(tasks: Task[]) : number[]{
+  let longestPeriod = Math.max(...tasks.map(t => t.T));
+  let start = longestPeriod-2;
+  let end = 2*longestPeriod+2;
+  return [start, end];
+}
 // OTHER APPROACH: GENERATE T and C independently, then calculate U and iteratively adjust C to meet U_total.
 // Verteilung der restlichen execution/util nach bias: w_i = T^alpha _ i, alpha = 1.2-1.5
 function generateTaskPeriods(n: number, Pmin: number, Pmax: number) : number[] {
@@ -135,6 +144,49 @@ export function taskGeneration_reverse(n: number, utarget: number, algo: string,
   return [];
 }
 
+
+export function taskGeneration_reverse_TypeB(n: number, utarget: number, algo: string, Pmax: number, Pmin: number): Task[] {
+  let attempts = 1000;
+  let periods: number[] = [];
+  let exec: number[] = [];
+  while (true && attempts-- > 0) {
+    console.log(`Attempt ${1000 - attempts} to generate taskset with threshold...`);
+    let taskset: Task[] = [];
+    periods = generateTaskPeriods(n, Pmin, Pmax);
+    exec = generateTaskExecution(n, utarget, periods);
+    const tasksetExecValue = exec.filter(c => c > 1).length;
+    if (tasksetExecValue < Math.ceil(exec.length * 0.4)) {
+      for (let i = 0; i < n; i++) {
+      let task: Task = {
+        id: `T${i}`,
+        name: `Task ${i}`,
+        C: exec[i],
+        T: periods[i],
+        D: periods[i],
+        color: `hsl(${Math.random() * 360}, ${Math.random() * 50 + 50}%, 70%)`,
+      }
+      taskset.push(task);
+    }
+    let testTaskset = [...taskset];
+    if (algo === "RM") {
+      testTaskset.sort((a, b) => a.T - b.T);
+    }
+    else if (algo === "DM") {
+      testTaskset.sort((a, b) => a.D - b.D);
+    }
+    else{
+      return taskset;
+    }
+    // Not necessary for this puzzle type
+    if (tda(testTaskset)) {
+      console.log('Schedulable by tda');
+      return taskset;
+    }
+  }
+    }
+
+  return [];
+}
 // Different approaches to taskset generation can be implemented here
 // Should there be different functions for different Puzzles or a single function with parameters to control the generation process?
 // Using UUniFast algorithm for by Bini and Buttazzo (2005) for generating task utilizations, and then assigning periods and computation times accordingly.
@@ -315,7 +367,8 @@ export function taskGeneration_p(){
     UUniFast(TasksetConfig.numTasks, TasksetConfig.maxUtilization);
     CSet_generate(TasksetConfig.minPeriod, TasksetConfig.maxPeriod, 0.9);
   }
-  TasksetConfig.hyperperiod = 1.5* Pset.reduce((max, task) => Math.max(max, task.T), 1);
+  TasksetConfig.hyperperiod = 2* Pset.reduce((max, task) => Math.max(max, task.T), 1);
+  TasksetConfig.interval = findInterval(Pset);
   return [TasksetConfig, Pset];
 }
 

@@ -25,7 +25,7 @@ const games: GameCard[] = [
     title: "Draw Schedules",
     description:
       "Practice drawing real-time task schedules using different scheduling algorithms. Learn how tasks are scheduled over time.",
-    path: "/chapter1_D",
+    path: "/DrawGame",
     color: "#259bf0",
     imgPath: new URL("../assets/overlay/drawgame.png", import.meta.url).href,
   },
@@ -34,7 +34,7 @@ const games: GameCard[] = [
     title: "Deduct Parameters",
     description:
       "Analyze and deduce scheduling parameters from given scenarios. Strengthen your understanding of task characteristics.",
-    path: "/chapter2_C",
+    path: "/DetectiveGame",
     color: "#7b43fe",
     imgPath: new URL("../assets/overlay/deductgame.png", import.meta.url).href,
   },
@@ -43,7 +43,7 @@ const games: GameCard[] = [
     title: "Quiz",
     description:
       "Test your knowledge with comprehensive quizzes covering scheduling algorithms and real-time systems concepts.",
-    path: "/chapter1_Quiz",
+    path: "/Quizzes",
     color: "#f31081",
     imgPath: new URL("../assets/overlay/drawgame.png", import.meta.url).href,
   },
@@ -52,7 +52,7 @@ const games: GameCard[] = [
     title: "Drag & Drop",
     description:
       "Interactive game where you arrange and organize scheduling elements. Learn by doing with intuitive drag-and-drop mechanics.",
-    path: "/Chapter2_DragDrop",
+    path: "/DragDropGames",
     color: "#0b26f5",
     imgPath: new URL("../assets/overlay/deductgame.png", import.meta.url).href,
   },

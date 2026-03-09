@@ -23,6 +23,7 @@ interface SidebarPuzzleRendererProps {
   algorithm: (tasks: Task[], hyperperiod: number) => ScheduleEntry[];
   algorithmName: string;
   hyperperiod: number;
+  interval?: [number, number];
   
   // Visibility and editability
   puzzleVisibleFields: string[];
@@ -46,6 +47,7 @@ export function SidebarPuzzleRenderer({
   algorithm,
   algorithmName,
   hyperperiod,
+  interval,
   puzzleVisibleFields,
   puzzleEditableFields,
   editableTasks,
@@ -194,6 +196,7 @@ export function SidebarPuzzleRenderer({
         puzzleTasks={puzzleTasks}
         algorithm={algorithm}
         hyperperiod={hyperperiod}
+        interval={interval}
         canvasProps={canvasProps}
         userScheduleRef={userScheduleRef}
         setUserScheduleRef={setUserScheduleRef}
@@ -230,6 +233,7 @@ export function SidebarPuzzleCanvasRenderer({
   puzzleTasks,
   algorithm,
   hyperperiod,
+  interval,
   canvasProps,
   userScheduleRef,
   setUserScheduleRef,
@@ -257,6 +261,7 @@ export function SidebarPuzzleCanvasRenderer({
       <SchedulerCanvas
         tasks={puzzleTasks}
         hyperperiod={hyperperiod}
+        interval={interval}
         schedule={correctSchedule}
         userScheduleRef={userScheduleRef}
         setUserScheduleRef={setUserScheduleRef}

@@ -50,7 +50,6 @@ const chapters = [
     description: "Additional tools and games",
     sections: [
       { name: "Free Scheduler", path: "/freeScheduler" },
-      { name: "Games", path: "/games" },
       { name: "Game Selection", path: "/gameSelection" },
     ],
     color: "#10b981",

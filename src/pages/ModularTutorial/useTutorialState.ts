@@ -13,6 +13,7 @@ interface UseTutorialStateProps {
   story: StoryStep[];
   step: number;
   hyperperiod: number;
+  interval?: [number, number];
   defaultAlgorithm?: string;
   showOverlay: boolean;
   showHintCheckboxes: boolean;
@@ -42,6 +43,7 @@ export function createInitialState(props: UseTutorialStateProps): StoryState {
     selectedAlgorithm: props.defaultAlgorithm,
     hiddenTasks: [],
     hyperperiod: props.hyperperiod,
+    interval: props.interval,
     showOverlay: props.showOverlay,
     showHintCheckboxes: props.showHintCheckboxes,
     showSidebar: props.showSidebar,
@@ -81,6 +83,7 @@ export function applyStepPatch(state: StoryState, stepPatch: StoryStep): StorySt
   if (stepPatch.selectedAlgorithm !== undefined) newState.selectedAlgorithm = stepPatch.selectedAlgorithm;
   if (stepPatch.hiddenTasks !== undefined) newState.hiddenTasks = stepPatch.hiddenTasks;
   if (stepPatch.hyperperiod !== undefined) newState.hyperperiod = stepPatch.hyperperiod;
+  if (stepPatch.interval !== undefined) newState.interval = stepPatch.interval;
   if (stepPatch.showOverlay !== undefined) newState.showOverlay = stepPatch.showOverlay;
   if (stepPatch.showHintCheckboxes !== undefined) newState.showHintCheckboxes = stepPatch.showHintCheckboxes;
   if (stepPatch.showSidebar !== undefined) newState.showSidebar = stepPatch.showSidebar;
@@ -144,6 +147,8 @@ export function useTutorialState(props: UseTutorialStateProps): StoryState {
     props.step,
     props.story,
     props.baseTasks,
+    props.hyperperiod,
+    props.interval,
     props.defaultAlgorithm,
     props.showOverlay,
     props.showHintCheckboxes,
