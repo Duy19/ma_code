@@ -7,6 +7,7 @@ export interface ScheduleEntry {
   taskId: string | null; // null = idle
   jobRelease?: number;
   jobDeadline?: number;
+  remainingExecution?: number; // Remaining execution after this entry
 }
 
 // Helper function to get all the Suspension Intervals or the pattern for a task in the hyperperiod
@@ -105,7 +106,7 @@ export function simulateEDF(tasks: Task[], hyperperiod: number): ScheduleEntry[]
 
     if (current) {
       current.remainingExecution -= 1;
-      schedule.push({ time: t, duration: 1, taskId: current.id, jobRelease: current.release, jobDeadline: current.deadline });
+      schedule.push({ time: t, duration: 1, taskId: current.id, jobRelease: current.release, jobDeadline: current.deadline, remainingExecution: current.remainingExecution });
     } else {
       schedule.push({ time: t, duration: 1, taskId: null });
     }
@@ -168,7 +169,7 @@ export function simulateRM(tasks: Task[], hyperperiod: number): ScheduleEntry[] 
     const current = active[0];
     if (current) {
       current.remaining -= 1;
-      schedule.push({ time: t, duration: 1, taskId: current.id, jobRelease: current.release, jobDeadline: current.deadline });
+      schedule.push({ time: t, duration: 1, taskId: current.id, jobRelease: current.release, jobDeadline: current.deadline, remainingExecution: current.remaining });
     } else {
       schedule.push({ time: t, duration: 1, taskId: null });
     }
@@ -229,7 +230,7 @@ export function simulateDM(tasks: Task[], hyperperiod: number): ScheduleEntry[] 
     const current = active[0];
     if (current) {
       current.remaining -= 1;
-      schedule.push({ time: t, duration: 1, taskId: current.id, jobRelease: current.release, jobDeadline: current.deadline });
+      schedule.push({ time: t, duration: 1, taskId: current.id, jobRelease: current.release, jobDeadline: current.deadline, remainingExecution: current.remaining });
     } else {
       schedule.push({ time: t, duration: 1, taskId: null });
     }
@@ -360,6 +361,7 @@ export function simulateEDFWithSuspension(tasks: Task[], hyperperiod: number): S
         taskId: task.id,
         jobRelease: task.release,
         jobDeadline: task.deadline,
+        remainingExecution: task.remainingExecution - timeToExecute,
       });
       task.remainingExecution -= timeToExecute;
       timeUsed += timeToExecute;
@@ -490,6 +492,7 @@ export function simulateRMWithSuspension(tasks: Task[], hyperperiod: number): Sc
         taskId: task.id,
         jobRelease: task.release,
         jobDeadline: task.deadline,
+        remainingExecution: task.remainingExecution - timeToExecute,
       });
       task.remainingExecution -= timeToExecute;
       timeUsed += timeToExecute;
@@ -619,6 +622,7 @@ export function simulateDMWithSuspension(tasks: Task[], hyperperiod: number): Sc
         taskId: task.id,
         jobRelease: task.release,
         jobDeadline: task.deadline,
+        remainingExecution: task.remainingExecution - timeToExecute,
       });
       task.remainingExecution -= timeToExecute;
       timeUsed += timeToExecute;

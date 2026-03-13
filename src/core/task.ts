@@ -29,6 +29,7 @@ export interface Task {
   T: number;          // Period
   D: number;          // Deadline
   O?: number;         // Offset
+  S?: number;         // Max Suspension time
   suspension?: SuspensionInterval[] | SuspensionPattern;  // Suspension in intervals or a repeating pattern
   color?: string;
   jobs?: Job[];

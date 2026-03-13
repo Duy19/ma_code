@@ -1,8 +1,10 @@
 // @ts-nocheck
+import { Task } from "@mui/icons-material";
 import type { Task } from "../core/task";
 import "../utils/formulas";
 import { tda } from "../utils/formulas";
 import type { ScheduleEntry } from "./simulator";
+import { simulateEDF, simulateRM, simulateDM } from "./simulator";
 
 
 // Taskset generation configuration for Puzzle Type A (Given: Schedule, Solution: Correct Taskset Parameters)
@@ -42,6 +44,28 @@ function findInterval(tasks: Task[]) : number[]{
   let start = longestPeriod-2;
   let end = 2*longestPeriod+2;
   return [start, end];
+}
+
+function countPreemptions(tasks: Task[], algo: string, end: number): number {
+  let schedule: ScheduleEntry[] = [];
+  let longTask = tasks.reduce((prev, current) => (prev.C > current.C) ? prev : current).id;
+  if (algo === "EDF") {
+    schedule = simulateEDF(tasks, end);
+  }
+  else if (algo === "RM") {
+    schedule = simulateRM(tasks, end);
+  }
+  else if (algo === "DM") {
+    schedule = simulateDM(tasks, end);
+  }
+
+  let preemptions = 0;
+  for (let i = 1; i < schedule.length; i++) {
+    if (schedule[i-1].taskId === longTask && schedule[i].taskId !== longTask && schedule[i-1].remainingExecution !== undefined && schedule[i-1].remainingExecution > 0) {
+      preemptions++;
+    }
+  }
+  return preemptions;
 }
 // OTHER APPROACH: GENERATE T and C independently, then calculate U and iteratively adjust C to meet U_total.
 // Verteilung der restlichen execution/util nach bias: w_i = T^alpha _ i, alpha = 1.2-1.5
@@ -105,7 +129,8 @@ function generateTaskExecution(n: number, utarget: number, periods: number[])  {
 export function taskGeneration_reverse(n: number, utarget: number, algo: string, Pmax: number, Pmin: number): Task[] {
   let attempts = 1000;
   let periods: number[] = [];
-  let exec: number[] = [];
+  let exec: number[] = []
+  let preemptionCount = 0;
   while (true && attempts-- > 0) {
     console.log(`Attempt ${1000 - attempts} to generate taskset with threshold...`);
     let taskset: Task[] = [];
@@ -114,33 +139,36 @@ export function taskGeneration_reverse(n: number, utarget: number, algo: string,
     const tasksetExecValue = exec.filter(c => c > 1).length;
     if (tasksetExecValue < Math.ceil(exec.length * 0.4)) {
       for (let i = 0; i < n; i++) {
-      let task: Task = {
-        id: `T${i}`,
-        name: `Task ${i}`,
-        C: exec[i],
-        T: periods[i],
-        D: periods[i],
-        color: `hsl(${Math.random() * 360}, ${Math.random() * 50 + 50}%, 70%)`,
-      }
+        let task: Task = {
+          id: `T${i}`,
+          name: `Task ${i}`,
+          C: exec[i],
+          T: periods[i],
+          D: periods[i],
+          color: `hsl(${Math.random() * 360}, ${Math.random() * 50 + 50}%, 70%)`,
+        }
       taskset.push(task);
-    }
-    let testTaskset = [...taskset];
-    if (algo === "RM") {
-      testTaskset.sort((a, b) => a.T - b.T);
-    }
-    else if (algo === "DM") {
-      testTaskset.sort((a, b) => a.D - b.D);
-    }
-    else{
-      return taskset;
-    }
-    if (tda(testTaskset)) {
-      console.log('Schedulable by tda');
-      return taskset;
+      }
+
+      let testTaskset = [...taskset];
+      if (algo === "RM") {
+        testTaskset.sort((a, b) => a.T - b.T);
+      }
+      else if (algo === "DM") {
+        testTaskset.sort((a, b) => a.D - b.D);
+      }
+      else{
+        return taskset;
+      }
+      if (tda(testTaskset)) {
+        console.log('Schedulable by tda');
+        preemptionCount = countPreemptions(testTaskset, algo, findInterval(testTaskset)[1]);
+        console.log(`Preemptions in generated taskset: ${preemptionCount}`);
+        return taskset;
+
+      }
     }
   }
-    }
-
   return [];
 }
 
@@ -252,7 +280,9 @@ function UUnifast_Guided(n: number, U_total: number, U_max: number) {
 function CSet_generate(Pmin: number, Pmax: number, numlog: number) {
   let j = 0;
   for (let i = 0; i < Uset.length; i++) {
-    let p = Math.random() * (Pmax - Pmin) + Pmin;
+    //let p = Math.random() * (Pmax - Pmin) + Pmin;
+    let thN = i%numlog;
+    let p = Math.random() * (Pmin * Math.pow(10, thN + 1) - Pmin * Math.pow(10, thN)) + Pmin * Math.pow(10, thN);
     let task: Task = {
       id: `T${i}`,
       name: `Task ${i}`,
@@ -331,8 +361,8 @@ export function taskGeneration_p(){
   console.log(`Chosen Algorithm: ${chosenAlgorithm}`);
   TasksetConfig.algorithm = chosenAlgorithm;
   TasksetConfig.hyperperiod = 100;
-  //TasksetConfig.difficulty = ["easy", "medium", "hard"][Math.floor(Math.random()*2)] as TasksetConfigTypeA["difficulty"];
-  TasksetConfig.difficulty = "hard";
+  TasksetConfig.difficulty = ["easy", "medium", "hard"][Math.floor(Math.random()*2)] as TasksetConfigTypeA["difficulty"];
+  //TasksetConfig.difficulty = "hard";
   if (TasksetConfig.difficulty === "easy") {
     TasksetConfig.minUtilization = utilizationIntervals[0][0];
     TasksetConfig.maxUtilization = utilizationIntervals[0][1];
@@ -367,8 +397,11 @@ export function taskGeneration_p(){
     UUniFast(TasksetConfig.numTasks, TasksetConfig.maxUtilization);
     CSet_generate(TasksetConfig.minPeriod, TasksetConfig.maxPeriod, 0.9);
   }
+  // UUniFast(TasksetConfig.numTasks, TasksetConfig.maxUtilization);
+  // CSet_generate(TasksetConfig.minPeriod, TasksetConfig.maxPeriod, 0.9);
   TasksetConfig.hyperperiod = 2* Pset.reduce((max, task) => Math.max(max, task.T), 1);
-  TasksetConfig.interval = findInterval(Pset);
+  TasksetConfig.interval = [0, TasksetConfig.hyperperiod];
+  //TasksetConfig.interval = findInterval(Pset);
   return [TasksetConfig, Pset];
 }
 

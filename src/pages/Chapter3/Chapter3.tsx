@@ -17,6 +17,7 @@ const suspensionTaskset: Task[] = [
     T: 10, 
     D: 10, 
     O: 0,
+    S: 8,
     suspension: [
       { start: 3, end: 11}
     ],
@@ -41,7 +42,7 @@ const STORY: StoryStep[] = [
     showCanvas: false,
   },
   {
-    text: "However, real-world systems often have more complex constraints. One that is very common is if tasks suspend themselves during execution. Suspension basically means a task is is active, but not executing for some reason. This can have a lot of reasons as to why.",
+    text: "**However**, real-world systems often have more complex constraints. One that is very common is if tasks suspend themselves during execution. **Suspension** basically means a task is is active, but not executing for some reason. This can have a lot of reasons as to why.",
   },
   {
     text: "Here are some reasons listed below for suspension: ",
@@ -53,6 +54,8 @@ const STORY: StoryStep[] = [
     tasks: suspensionTaskset,
     showOverlay: true,
     showSummary: false,
+    showSidebar: true,
+    sidebarVisibleFields: ["executionTime", "periods", "suspension", "deadlines"],
     showCanvas: true,
     showSidebarPuzzle: false,
   },
