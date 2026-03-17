@@ -109,6 +109,7 @@ export function ModularTutorialTemplate(props: ModularTutorialTemplateProps) {
   const [quizCompleted, setQuizCompleted] = useState(false);
   const [dropGameCompleted, setDropGameCompleted] = useState(false);
   const [sidebarPuzzleCompleted, setSidebarPuzzleCompleted] = useState(false);
+  const [suspensionPuzzleCompleted, setSuspensionPuzzleCompleted] = useState(false);
 
   const [visibility, setVisibility] = useState({
     showReleaseMarkers: false,
@@ -237,6 +238,10 @@ export function ModularTutorialTemplate(props: ModularTutorialTemplateProps) {
     setSidebarPuzzleCompleted(false);
   }, [step, cumulativeState.showSidebarPuzzle]);
 
+  useEffect(() => {
+    setSuspensionPuzzleCompleted(false);
+  }, [step, cumulativeState.showSuspensionPuzzle]);
+
   // Handlers
   const onCheck = () => {
     handleCheck({
@@ -272,7 +277,7 @@ export function ModularTutorialTemplate(props: ModularTutorialTemplateProps) {
     });
   };
 
-  const onNextStep = (overrideQuizCompleted?: boolean, overrideDropGameCompleted?: boolean, overrideSidebarPuzzleCompleted?: boolean) => {
+  const onNextStep = (overrideQuizCompleted?: boolean, overrideDropGameCompleted?: boolean, overrideSidebarPuzzleCompleted?: boolean, overrideSuspensionPuzzleCompleted?: boolean) => {
     handleNextStep(
       {
         currentStep,
@@ -284,13 +289,15 @@ export function ModularTutorialTemplate(props: ModularTutorialTemplateProps) {
         quizCompleted,
         dropGameCompleted,
         sidebarPuzzleCompleted,
+        suspensionPuzzleCompleted,
         navigate,
         setStep,
         storyLength: story.length,
       },
       overrideQuizCompleted,
       overrideDropGameCompleted,
-      overrideSidebarPuzzleCompleted
+      overrideSidebarPuzzleCompleted,
+      overrideSuspensionPuzzleCompleted
     );
   };
 
@@ -425,6 +432,7 @@ export function ModularTutorialTemplate(props: ModularTutorialTemplateProps) {
       quizRendererProps={quizRendererProps}
       onDropGameComplete={() => setDropGameCompleted(true)}
       onSidebarPuzzleComplete={() => setSidebarPuzzleCompleted(true)}
+      onSuspensionPuzzleComplete={() => setSuspensionPuzzleCompleted(true)}
       visibilityDefaultCanvas={visibilityDefaultCanvas}
     />
   );

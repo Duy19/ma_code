@@ -53,6 +53,7 @@ export function createInitialState(props: UseTutorialStateProps): StoryState {
     showQuiz: false,
     showDropGame: false,
     showSidebarPuzzle: false,
+    showSuspensionPuzzle: false,
     dropGameVaultIds: [],
     quizQuestionIds: [],
     showSummary: props.showSummary,
@@ -66,6 +67,8 @@ export function createInitialState(props: UseTutorialStateProps): StoryState {
     puzzleEditableFields: props.puzzleEditableFields,
     editableTasks: [],
     maxFieldValues: {},
+    suspensionPuzzleConfig: undefined,
+    suspensionPuzzleCompleted: false,
     highlight: undefined,
     highlightExecutions: undefined,
     checkFunction: undefined,
@@ -97,6 +100,8 @@ export function applyStepPatch(state: StoryState, stepPatch: StoryStep): StorySt
   if (stepPatch.showDropGame !== undefined) newState.showDropGame = stepPatch.showDropGame;
   if (stepPatch.dropGameVaultIds !== undefined) newState.dropGameVaultIds = stepPatch.dropGameVaultIds;
   if (stepPatch.showSidebarPuzzle !== undefined) newState.showSidebarPuzzle = stepPatch.showSidebarPuzzle;
+  if (stepPatch.showSuspensionPuzzle !== undefined) newState.showSuspensionPuzzle = stepPatch.showSuspensionPuzzle;
+  if (stepPatch.suspensionPuzzleConfig !== undefined) newState.suspensionPuzzleConfig = stepPatch.suspensionPuzzleConfig;
   if (stepPatch.canvasMode !== undefined) newState.canvasMode = stepPatch.canvasMode;
   if (stepPatch.layoutStyle !== undefined) newState.layoutStyle = stepPatch.layoutStyle;
   if (stepPatch.sidebarVisibleFields !== undefined) newState.sidebarVisibleFields = stepPatch.sidebarVisibleFields;

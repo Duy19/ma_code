@@ -10,6 +10,25 @@ export interface ScheduleEntry {
   remainingExecution?: number; // Remaining execution after this entry
 }
 
+export interface JobInstances{
+  taskid: string;
+  jobNumber: number;
+  jobFinished: boolean;
+  release: number;
+  start: number;
+  deadline: number;
+  executionTime: number;
+  missedDeadline?: boolean | null;
+  preemptionCount?: number;
+  responseTime: number | null;
+  laxity?: number | null;
+}
+
+export interface ScheduleResult {
+  schedule: ScheduleEntry[];
+  jobInstancesPerTask: Map<string, JobInstances[]>;
+}
+
 // Helper function to get all the Suspension Intervals or the pattern for a task in the hyperperiod
 function getSuspension(task: Task, hyperperiod: number) : SuspensionInterval[] {
   
@@ -74,7 +93,14 @@ export function simulateEDF(tasks: Task[], hyperperiod: number): ScheduleEntry[]
       taskOrder.set(task.id, index);
     });
 
-  const lastRelease = new Map<string, number>();  
+  const lastRelease = new Map<string, number>();
+  
+  // Track job instances
+  const jobInstancesPerTask = new Map<string, JobInstances[]>();
+  const jobTracking = new Map<string, JobInstances>();
+  const jobStartTimes = new Map<string, number>();
+  let jobCounter = new Map<string, number>(); 
+  let previousJob: ActiveInstance | null = null; 
 
   for (let t = 0; t < hyperperiod; t++) {
     for (const task of tasks) {
@@ -90,7 +116,19 @@ export function simulateEDF(tasks: Task[], hyperperiod: number): ScheduleEntry[]
       }
     }
 
-    // Remove finished tasks
+    // Remove finished jobs and save the information
+    const finishedJobs = active.filter((a) => a.remainingExecution <= 0);
+    for (const job of finishedJobs) {
+      const jobKey = `${job.id}-${job.release}`;
+      const jobInstance = jobTracking.get(jobKey);
+      if (jobInstance) {
+        jobInstance.jobFinished = true;
+        jobInstance.missedDeadline = t > job.deadline;
+        jobInstance.responseTime = t - job.release;
+        jobInstance.laxity = job.deadline - t;
+      }
+    }
+    
     active = active.filter((a) => a.remainingExecution > 0);
 
     active.sort((a, b) => {
@@ -103,13 +141,72 @@ export function simulateEDF(tasks: Task[], hyperperiod: number): ScheduleEntry[]
     });
 
     const current = active[0];
+    
+    // Count preemptions (context switch even though remaining execution is not 0)
+    if (previousJob !== null && previousJob.remainingExecution > 0 && current?.id !== previousJob.id) {
+      const preemptedJobKey = `${previousJob.id}-${previousJob.release}`;
+      const preemptedJob = jobTracking.get(preemptedJobKey);
+      if (preemptedJob && preemptedJob.preemptionCount !== undefined) {
+        preemptedJob.preemptionCount++;
+      }
+    }
+    previousJob = current ?? null;
 
     if (current) {
+      const jobKey = `${current.id}-${current.release}`;
+      
+      // Initialize job instance if it's the first execution of the job
+      if (!jobTracking.has(jobKey)) {
+        if (!jobCounter.has(current.id)) {
+          jobCounter.set(current.id, 0);
+        }
+        jobCounter.set(current.id, jobCounter.get(current.id)! + 1);
+        
+        const jobInstance: JobInstances = {
+          taskid: current.id,
+          jobNumber: jobCounter.get(current.id)!,
+          jobFinished: false,
+          release: current.release,
+          start: t,
+          deadline: current.deadline,
+          executionTime: 0,
+          missedDeadline: null,
+          preemptionCount: 0,
+          responseTime: null,
+          laxity: null,
+        };
+        jobTracking.set(jobKey, jobInstance);
+        jobStartTimes.set(jobKey, t);
+      }
+
+      const jobInstance = jobTracking.get(jobKey)!;
+      jobInstance.executionTime += 1;
+
       current.remainingExecution -= 1;
       schedule.push({ time: t, duration: 1, taskId: current.id, jobRelease: current.release, jobDeadline: current.deadline, remainingExecution: current.remainingExecution });
     } else {
       schedule.push({ time: t, duration: 1, taskId: null });
     }
+  }
+
+  // Finalize any remaining jobs, jobs that didn't finish stay as incomplete
+  for (const [jobKey, jobInstance] of jobTracking.entries()) {
+    if (jobInstance.responseTime === null) {
+      // Job didn't finish during hyperperiod, leave as null
+      jobInstance.jobFinished = false;      
+      jobInstance.missedDeadline = null;
+      jobInstance.responseTime = null;
+      jobInstance.laxity = null;
+    }
+  }
+
+  // Sort job instances per task
+  for (const [jobKey, jobInstance] of jobTracking.entries()) {
+    const taskId = jobInstance.taskid;
+    if (!jobInstancesPerTask.has(taskId)) {
+      jobInstancesPerTask.set(taskId, []);
+    }
+    jobInstancesPerTask.get(taskId)!.push(jobInstance);
   }
 
   return schedule;
@@ -138,6 +235,13 @@ export function simulateRM(tasks: Task[], hyperperiod: number): ScheduleEntry[] 
     });
 
   const lastRelease = new Map<string, number>();
+  
+  // Track job instances
+  const jobInstancesPerTask = new Map<string, JobInstances[]>();
+  const jobTracking = new Map<string, JobInstances>();
+  const jobStartTimes = new Map<string, number>();
+  let jobCounter = new Map<string, number>(); 
+  let previousJob: ActiveInstance | null = null; 
 
   for (let t = 0; t < hyperperiod; t++) {
     for (const task of tasks) {
@@ -149,11 +253,23 @@ export function simulateRM(tasks: Task[], hyperperiod: number): ScheduleEntry[] 
           remaining: task.C,
           period: task.T,
         });
-        lastRelease.set(task.id, t)
+        lastRelease.set(task.id, t);
       }
     }
 
-    // Remove finished tasks
+    // Remove finished jobs and save the information
+    const finishedJobs = active.filter((a) => a.remaining <= 0);
+    for (const job of finishedJobs) {
+      const jobKey = `${job.id}-${job.release}`;
+      const jobInstance = jobTracking.get(jobKey);
+      if (jobInstance) {
+        jobInstance.jobFinished = true;
+        jobInstance.missedDeadline = t > job.deadline;
+        jobInstance.responseTime = t - job.release;
+        jobInstance.laxity = job.deadline - t;
+      }
+    }
+    
     active = active.filter((a) => a.remaining > 0);
     
     // sort by period (Rate Monotonic)
@@ -163,16 +279,76 @@ export function simulateRM(tasks: Task[], hyperperiod: number): ScheduleEntry[] 
       }
 
       // tie-break via task order
-      return taskOrder.get(a.id)! - taskOrder.get(b.id)!; 
+      return taskOrder.get(a.id)! - taskOrder.get(b.id)!;
     });
 
     const current = active[0];
+    
+    // Count preemptions (context switch even though remaining execution is not 0)
+    if (previousJob !== null && previousJob.remaining > 0 && current?.id !== previousJob.id) {
+      const preemptedJobKey = `${previousJob.id}-${previousJob.release}`;
+      const preemptedJob = jobTracking.get(preemptedJobKey);
+      if (preemptedJob && preemptedJob.preemptionCount !== undefined) {
+        preemptedJob.preemptionCount++;
+      }
+    }
+    previousJob = current ?? null;
+
     if (current) {
+      const jobKey = `${current.id}-${current.release}`;
+      
+      // Initialize job instance if it's the first execution of the job
+      if (!jobTracking.has(jobKey)) {
+        if (!jobCounter.has(current.id)) {
+          jobCounter.set(current.id, 0);
+        }
+        jobCounter.set(current.id, jobCounter.get(current.id)! + 1);
+        
+        const jobInstance: JobInstances = {
+          taskid: current.id,
+          jobNumber: jobCounter.get(current.id)!,
+          jobFinished: false,
+          release: current.release,
+          start: t,
+          deadline: current.deadline,
+          executionTime: 0,
+          missedDeadline: null,
+          preemptionCount: 0,
+          responseTime: null,
+          laxity: null,
+        };
+        jobTracking.set(jobKey, jobInstance);
+        jobStartTimes.set(jobKey, t);
+      }
+
+      const jobInstance = jobTracking.get(jobKey)!;
+      jobInstance.executionTime += 1;
+
       current.remaining -= 1;
       schedule.push({ time: t, duration: 1, taskId: current.id, jobRelease: current.release, jobDeadline: current.deadline, remainingExecution: current.remaining });
     } else {
       schedule.push({ time: t, duration: 1, taskId: null });
     }
+  }
+
+  // Finalize any remaining jobs, jobs that didn't finish stay as incomplete
+  for (const [jobKey, jobInstance] of jobTracking.entries()) {
+    if (jobInstance.responseTime === null) {
+      // Job didn't finish during hyperperiod, leave as null
+      jobInstance.jobFinished = false;      
+      jobInstance.missedDeadline = null;
+      jobInstance.responseTime = null;
+      jobInstance.laxity = null;
+    }
+  }
+
+  // Sort job instances per task
+  for (const [jobKey, jobInstance] of jobTracking.entries()) {
+    const taskId = jobInstance.taskid;
+    if (!jobInstancesPerTask.has(taskId)) {
+      jobInstancesPerTask.set(taskId, []);
+    }
+    jobInstancesPerTask.get(taskId)!.push(jobInstance);
   }
 
   return schedule;
@@ -199,6 +375,13 @@ export function simulateDM(tasks: Task[], hyperperiod: number): ScheduleEntry[] 
     });
 
   const lastRelease = new Map<string, number>();
+  
+  // Track job instances
+  const jobInstancesPerTask = new Map<string, JobInstances[]>();
+  const jobTracking = new Map<string, JobInstances>();
+  const jobStartTimes = new Map<string, number>();
+  let jobCounter = new Map<string, number>(); 
+  let previousJob: ActiveInstance | null = null; 
 
   for (let t = 0; t < hyperperiod; t++) {
     for (const task of tasks) {
@@ -210,11 +393,23 @@ export function simulateDM(tasks: Task[], hyperperiod: number): ScheduleEntry[] 
           remaining: task.C,
           period: task.T,
         });
-        lastRelease.set(task.id, t)
+        lastRelease.set(task.id, t);
       }
     }
 
-    // Remove finished tasks
+    // Remove finished jobs and save the information
+    const finishedJobs = active.filter((a) => a.remaining <= 0);
+    for (const job of finishedJobs) {
+      const jobKey = `${job.id}-${job.release}`;
+      const jobInstance = jobTracking.get(jobKey);
+      if (jobInstance) {
+        jobInstance.jobFinished = true;
+        jobInstance.missedDeadline = t > job.deadline;
+        jobInstance.responseTime = t - job.release;
+        jobInstance.laxity = job.deadline - t;
+      }
+    }
+    
     active = active.filter((a) => a.remaining > 0);
     
     // sort by deadline
@@ -224,16 +419,76 @@ export function simulateDM(tasks: Task[], hyperperiod: number): ScheduleEntry[] 
       }
 
       // tie-break via task order
-      return taskOrder.get(a.id)! - taskOrder.get(b.id)!; 
+      return taskOrder.get(a.id)! - taskOrder.get(b.id)!;
     });
 
     const current = active[0];
+    
+    // Count preemptions (context switch even though remaining execution is not 0)
+    if (previousJob !== null && previousJob.remaining > 0 && current?.id !== previousJob.id) {
+      const preemptedJobKey = `${previousJob.id}-${previousJob.release}`;
+      const preemptedJob = jobTracking.get(preemptedJobKey);
+      if (preemptedJob && preemptedJob.preemptionCount !== undefined) {
+        preemptedJob.preemptionCount++;
+      }
+    }
+    previousJob = current ?? null;
+
     if (current) {
+      const jobKey = `${current.id}-${current.release}`;
+      
+      // Initialize job instance if it's the first execution of the job
+      if (!jobTracking.has(jobKey)) {
+        if (!jobCounter.has(current.id)) {
+          jobCounter.set(current.id, 0);
+        }
+        jobCounter.set(current.id, jobCounter.get(current.id)! + 1);
+        
+        const jobInstance: JobInstances = {
+          taskid: current.id,
+          jobNumber: jobCounter.get(current.id)!,
+          jobFinished: false,
+          release: current.release,
+          start: t,
+          deadline: current.deadline,
+          executionTime: 0,
+          missedDeadline: null,
+          preemptionCount: 0,
+          responseTime: null,
+          laxity: null,
+        };
+        jobTracking.set(jobKey, jobInstance);
+        jobStartTimes.set(jobKey, t);
+      }
+
+      const jobInstance = jobTracking.get(jobKey)!;
+      jobInstance.executionTime += 1;
+
       current.remaining -= 1;
       schedule.push({ time: t, duration: 1, taskId: current.id, jobRelease: current.release, jobDeadline: current.deadline, remainingExecution: current.remaining });
     } else {
       schedule.push({ time: t, duration: 1, taskId: null });
     }
+  }
+
+  // Finalize any remaining jobs, jobs that didn't finish stay as incomplete
+  for (const [jobKey, jobInstance] of jobTracking.entries()) {
+    if (jobInstance.responseTime === null) {
+      // Job didn't finish during hyperperiod, leave as null
+      jobInstance.jobFinished = false;
+      jobInstance.missedDeadline = null;
+      jobInstance.responseTime = null;
+      jobInstance.laxity = null;
+    }
+  }
+
+  // Sort job instances per task
+  for (const [jobKey, jobInstance] of jobTracking.entries()) {
+    const taskId = jobInstance.taskid;
+    if (!jobInstancesPerTask.has(taskId)) {
+      jobInstancesPerTask.set(taskId, []);
+    }
+    jobInstancesPerTask.get(taskId)!.push(jobInstance);
   }
 
   return schedule;

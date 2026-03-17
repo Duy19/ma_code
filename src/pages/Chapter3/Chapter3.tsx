@@ -34,6 +34,33 @@ const suspensionTaskset: Task[] = [
   },
 ];
 
+// Tasks for the suspension puzzle where user must place the intervals
+const suspensionPuzzleTasks: Task[] = [
+  { 
+    id: "t1", 
+    name: "Task1", 
+    C: 2, 
+    T: 10, 
+    D: 10, 
+    O: 0,
+    S: 7,
+    color: "#fbbf24"
+  },
+  { 
+    id: "t2", 
+    name: "Task2", 
+    C: 2, 
+    T: 9, 
+    D: 9, 
+    O: 0,
+    S: 1,
+    suspension: [
+      { start: 1, end: 2 }
+    ],
+    color: "#a78bfa"
+  },
+];
+
 const STORY: StoryStep[] = [
   {
     text: "Hello there! So far you have learned a lot about how to schedule, visualize and analyze tasksets in embedded systems. You learned that EDF is optimal for uniprocessor scheduling, and that RM is a simple and efficient fixed-priority algorithm.",
@@ -60,7 +87,23 @@ const STORY: StoryStep[] = [
     showSidebarPuzzle: false,
   },
   {
-    text: "As you can see the suspension of a task can be very long therefore making Task 1 with **C=2** miss its deadline. Standard EDF and RM are not very suitable for handling suspensions."
+    text: "Now it is your turn! Try to find the suspension intervals yourself.",
+    tasks: suspensionPuzzleTasks,
+    showOverlay: true,
+    showCanvas: true,
+    showSuspensionPuzzle: true,
+    suspensionPuzzleConfig: {
+      tasks: [
+        {
+          taskId: "t1",
+          totalSuspension: 7,
+          numIntervals: 1,
+          solution: [
+            { start: 3, end: 10 },
+          ],
+        },
+      ],
+    }
   },
 ];
 

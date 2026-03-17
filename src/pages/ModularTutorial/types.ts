@@ -15,6 +15,24 @@ export interface HintConfig {
   type: HintType;
   unlockAt: number;
 }
+export interface SuspensionInterval {
+  start: number;
+  end: number;
+}
+
+
+export interface SuspensionParameters {
+  taskId: string;
+  totalSuspension: number;
+  numIntervals: number;
+  solution: SuspensionInterval[];
+}
+
+// Suspension Puzzle Configuration
+export interface SuspensionPuzzleConfig {
+  tasks: SuspensionParameters[];
+  maxTime?: number;
+}
 
 /**
  * StoryState = The state of the page as it progresses through steps.
@@ -64,6 +82,10 @@ export interface StoryState {
     offsets?: number;
     suspension?: number;
   };
+  
+  // Suspension puzzle configuration
+  suspensionPuzzleConfig?: SuspensionPuzzleConfig;
+  suspensionPuzzleCompleted?: boolean;
   
   // Highlight
   highlight?: string | null;
@@ -143,6 +165,10 @@ export interface StoryStep {
     algorithmName: string;
   };
   
+  // Suspension puzzle configuration
+  showSuspensionPuzzle?: boolean;
+  suspensionPuzzleConfig?: SuspensionPuzzleConfig;
+  
   // Navigation and conditions
   navigateTo?: string;
   waitFor?: (state: WaitForState) => boolean;
@@ -166,6 +192,7 @@ export interface WaitForState {
   quizCompleted: boolean;
   dropGameCompleted: boolean;
   sidebarPuzzleCompleted: boolean;
+  suspensionPuzzleCompleted: boolean;
 }
 
 export interface OverlayRenderProps {

@@ -12,6 +12,8 @@ import { ButtonsRenderer } from "./ButtonsRenderer";
 import { QuizRenderer } from "./QuizRenderer";
 import { DropGameRenderer } from "./DropGameRenderer";
 import { SidebarPuzzleRenderer } from "./SidebarPuzzleRenderer";
+import { SuspensionPuzzleRenderer } from "./SuspensionPuzzleRenderer";
+import { simulateEDFWithSuspension } from "../../logic/simulator";
 
 /**
  * Layout manager for the tutorial template
@@ -73,6 +75,10 @@ interface LayoutManagerProps {
   onSidebarPuzzleComplete: () => void;
   sidebarPuzzleRenderProps?: any;
   
+  // Suspension puzzle specific
+  onSuspensionPuzzleComplete: () => void;
+  suspensionPuzzleRenderProps?: any;
+  
   // Canvas visibility
   visibilityDefaultCanvas: {
     showReleaseMarkersDefault: boolean;
@@ -116,11 +122,74 @@ export function LayoutManager({
   quizRendererProps,
   onDropGameComplete,
   onSidebarPuzzleComplete,
+  onSuspensionPuzzleComplete,
   sidebarPuzzleRenderProps,
   visibilityDefaultCanvas,
 }: LayoutManagerProps) {
   
   if (cumulativeState.layoutStyle === "standard") {
+    // Layout for suspension puzzle
+    if (cumulativeState.showSuspensionPuzzle && cumulativeState.suspensionPuzzleConfig) {
+      return (
+        <div style={{ display: "flex", height: "100%", flexDirection: "column", gap: 0 }}>
+          {/* Overlay section */}
+          {cumulativeState.showOverlay && (
+            <div
+              style={{
+                flex: "0 0 auto",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "flex-start",
+                paddingLeft: 40,
+                paddingRight: 40,
+                paddingTop: 20,
+                gap: 40,
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: 40 }}>
+                {renderOverlay ? (
+                  renderOverlay({
+                    text: currentStep?.text || "",
+                    onNext: onNextStep,
+                    step,
+                    totalSteps: storyLength,
+                  })
+                ) : (
+                  <TutorialOverlay
+                    visible
+                    text={currentStep?.text || ""}
+                    onNext={onNextStep}
+                  />
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Canvas and Form for Suspension Puzzle */}
+          <div style={{ flex: 1, display: "flex", gap: 12, padding: "12px 16px", minHeight: 0, width: "100%" }}>
+            <SuspensionPuzzleRenderer
+              cumulativeState={cumulativeState}
+              onSuspensionPuzzleComplete={onSuspensionPuzzleComplete}
+              onNextStep={onNextStep}
+              puzzleTasks={currentTasks}
+              algorithm={simulateEDFWithSuspension}
+              hyperperiod={cumulativeState.hyperperiod}
+              interval={cumulativeState.interval}
+              suspensionConfig={cumulativeState.suspensionPuzzleConfig!}
+              canvasProps={canvasRenderProps}
+              userScheduleRef={{}}
+              setUserScheduleRef={() => {}}
+              hintBlocks={{}}
+              visibility={{
+                showReleaseMarkers: visibilityDefaultCanvas.showReleaseMarkersDefault,
+                showDeadlineMarkers: visibilityDefaultCanvas.showDeadlineMarkersDefault,
+              }}
+            />
+          </div>
+        </div>
+      );
+    }
+    
     // Layout for sidebar puzzle
     if (cumulativeState.showSidebarPuzzle && currentStep?.sidebarPuzzleConfig) {
       return (
