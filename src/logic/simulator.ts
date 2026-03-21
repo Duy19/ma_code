@@ -73,7 +73,7 @@ function releasePattern(
 }
 
 
-export function simulateEDF(tasks: Task[], hyperperiod: number): ScheduleEntry[] {
+export function simulateEDF(tasks: Task[], hyperperiod: number): ScheduleResult {
   const schedule: ScheduleEntry[] = [];
 
   // active task instances
@@ -209,12 +209,13 @@ export function simulateEDF(tasks: Task[], hyperperiod: number): ScheduleEntry[]
     jobInstancesPerTask.get(taskId)!.push(jobInstance);
   }
 
-  return schedule;
+  console.log('EDF, Schedule:', schedule, 'JobInstances:', jobInstancesPerTask, 'avgPreemptions:', [...jobTracking.values()].reduce((sum, job) => sum + (job.preemptionCount ?? 0), 0) / jobTracking.size, 'avgResponseTime:', [...jobTracking.values()].reduce((sum, job) => sum + (job.responseTime ?? 0), 0) / jobTracking.size);
+  return { schedule, jobInstancesPerTask };
 }
 
 
 
-export function simulateRM(tasks: Task[], hyperperiod: number): ScheduleEntry[] {
+export function simulateRM(tasks: Task[], hyperperiod: number): ScheduleResult {
   const schedule: ScheduleEntry[] = [];
 
   // active task instances
@@ -351,10 +352,12 @@ export function simulateRM(tasks: Task[], hyperperiod: number): ScheduleEntry[] 
     jobInstancesPerTask.get(taskId)!.push(jobInstance);
   }
 
-  return schedule;
+  console.log('EDF, Schedule:', schedule, 'JobInstances:', jobInstancesPerTask, 'avgPreemptions:', [...jobTracking.values()].reduce((sum, job) => sum + (job.preemptionCount ?? 0), 0) / jobTracking.size, 'avgResponseTime:', [...jobTracking.values()].reduce((sum, job) => sum + (job.responseTime ?? 0), 0) / jobTracking.size);
+  console.log('utilization:', tasks.reduce((sum, task) => sum + task.C / task.T, 0));
+  return { schedule, jobInstancesPerTask };
 }
 
-export function simulateDM(tasks: Task[], hyperperiod: number): ScheduleEntry[] {
+export function simulateDM(tasks: Task[], hyperperiod: number): ScheduleResult {
   const schedule: ScheduleEntry[] = [];
 
   // active task instances
@@ -491,7 +494,7 @@ export function simulateDM(tasks: Task[], hyperperiod: number): ScheduleEntry[] 
     jobInstancesPerTask.get(taskId)!.push(jobInstance);
   }
 
-  return schedule;
+  return { schedule, jobInstancesPerTask };
 }
 
 /**

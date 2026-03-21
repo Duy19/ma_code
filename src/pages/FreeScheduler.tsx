@@ -34,14 +34,14 @@ export default function FreeScheduler() {
   
   let newSchedule: ScheduleEntry[] = [];
     if (algorithm === "EDF") {
-      newSchedule = simulateEDF(tasks, hp);
+      newSchedule = simulateEDF(tasks, hp).schedule;
     }
 
     else if (algorithm === "RM") {
-      newSchedule = simulateRM(tasks, hp);
+      newSchedule = simulateRM(tasks, hp).schedule;
     }
     else if (algorithm === "DM") {
-      newSchedule = simulateDM(tasks, hp);
+      newSchedule = simulateDM(tasks, hp).schedule;
     }
 // TODO: Add more algorithms here as needed
 

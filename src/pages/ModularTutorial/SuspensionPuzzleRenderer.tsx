@@ -136,7 +136,7 @@ export function SuspensionPuzzleRenderer({
 
   // Calculate the correct schedule with the real suspension
   const correctSchedule = useMemo(() => {
-    return algorithm(puzzleTasks, hyperperiod);
+    return algorithm(puzzleTasks, hyperperiod).schedule;
   }, [puzzleTasks, hyperperiod, algorithm]);
 
   const handleIntervalChange = (

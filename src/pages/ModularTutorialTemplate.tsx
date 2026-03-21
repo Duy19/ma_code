@@ -3,7 +3,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useHints } from "../logic/HintManager";
 import type { Task } from "../core/task";
-import type { ScheduleEntry } from "../logic/simulator";
+import type { ScheduleEntry, ScheduleResult } from "../logic/simulator";
 
 // Import components and functions for logic
 import { useTutorialState } from "./ModularTutorial/useTutorialState";
@@ -152,7 +152,7 @@ export function ModularTutorialTemplate(props: ModularTutorialTemplateProps) {
   const currentTasks = cumulativeState.tasks;
   
   // Setup algorithms for selection
-  let algorithmMap: Record<string, (tasks: Task[], hyperperiod: number) => ScheduleEntry[]>;
+  let algorithmMap: Record<string, (tasks: Task[], hyperperiod: number) => ScheduleEntry[] | ScheduleResult>;
   
   if (algorithms) {
     algorithmMap = algorithms;
@@ -178,7 +178,8 @@ export function ModularTutorialTemplate(props: ModularTutorialTemplateProps) {
   // Calculates the correct schedule based on current tasks and selected algorithm
   const correctSchedule = useMemo(() => {
     if (!currentAlgorithmFunc) return [];
-    return currentAlgorithmFunc(currentTasks, cumulativeState.hyperperiod);
+    const result = currentAlgorithmFunc(currentTasks, cumulativeState.hyperperiod);
+    return Array.isArray(result) ? result : result.schedule;
   }, [currentAlgorithmFunc, currentTasks, cumulativeState.hyperperiod]);
 
   // Derived state from cumulative state

@@ -4,7 +4,7 @@ import quizQuestions from "../../components/Quiz/questions";
 import SchedulerCanvas from "../../components/Scheduling/SchedulerCanvas";
 import type { StoryState, CanvasRenderProps } from "./types";
 import type { Task } from "../../core/task";
-import type { ScheduleEntry } from "../../logic/simulator";
+import type { ScheduleEntry, ScheduleResult } from "../../logic/simulator";
 
 /**
  * Quiz renderer component
@@ -27,7 +27,7 @@ interface QuizRendererProps {
     showDeadlineMarkersDefault: boolean;
   };
   canvasProps: any;
-  algorithmMap: Record<string, (tasks: Task[], hyperperiod: number) => ScheduleEntry[]>;
+  algorithmMap: Record<string, (tasks: Task[], hyperperiod: number) => ScheduleEntry[] | ScheduleResult>;
   effectiveAlgorithmName: string;
   correctSchedule: ScheduleEntry[];
 }
@@ -70,7 +70,12 @@ export function QuizRenderer({
     // Use the specified algorithm or fall back to the current one
     const algorithmToUse = algorithm || effectiveAlgorithmName;
     const algorithmFunc = algorithmMap[algorithmToUse];
-    const scheduleToUse = algorithmFunc ? algorithmFunc(tasks, hyperperiod) : correctSchedule;
+    
+    let scheduleToUse: ScheduleEntry[] = correctSchedule;
+    if (algorithmFunc) {
+      const result = algorithmFunc(tasks, hyperperiod);
+      scheduleToUse = Array.isArray(result) ? result : result.schedule;
+    }
 
     const canvasRenderProps: CanvasRenderProps = {
       tasks: tasks.filter(task => !cumulativeState.hiddenTasks.includes(task.id)),

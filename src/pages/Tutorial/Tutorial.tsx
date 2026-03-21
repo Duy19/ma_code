@@ -25,7 +25,7 @@ const STORY = [
 
 export default function TutorialStep1() {
   const hyperperiod = 24;
-  const schedule: ScheduleEntry[] = simulateEDF(tutorialTasks, hyperperiod);
+  const schedule: ScheduleEntry[] = simulateEDF(tutorialTasks, hyperperiod).schedule;
   const [step, setStep] = useState(0);
   const currentStep = STORY[step];
   const navigate = useNavigate();

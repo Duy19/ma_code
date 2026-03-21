@@ -38,7 +38,7 @@ export default function Tutorial3() {
   const [sceneKey, setSceneKey] = useState(0);
   const [step, setStep] = useState(0);
 
-  const schedule: ScheduleEntry[] = simulateEDF(activeTasks, hyperperiod);
+  const schedule: ScheduleEntry[] = simulateEDF(activeTasks, hyperperiod).schedule;
   const currentStep = STORY[step];
 
   // Task-Check

@@ -16,7 +16,7 @@ export default function drawGame() {
       baseTasks={[]}
       hyperperiod={0}
       interval={[0, 0]}
-      algorithm={() => []}
+      algorithm={() => ({ schedule: [], jobInstancesPerTask: new Map() })}
       algorithmName={""}
       defaultAlgorithm={""}
       showSidebar={false}

@@ -82,7 +82,7 @@ export function SidebarPuzzleRenderer({
 
   // Calculate the correct schedule with the real tasks
   const correctSchedule = useMemo(() => {
-    return algorithm(puzzleTasks, hyperperiod);
+    return algorithm(puzzleTasks, hyperperiod).schedule;
   }, [puzzleTasks, hyperperiod, algorithm]);
 
   // Field display names and keys
@@ -243,7 +243,7 @@ export function SidebarPuzzleCanvasRenderer({
   
   // Calculate the correct schedule with the real tasks
   const correctSchedule = useMemo(() => {
-    return algorithm(puzzleTasks, hyperperiod);
+    return algorithm(puzzleTasks, hyperperiod).schedule;
   }, [puzzleTasks, hyperperiod, algorithm]);
 
   return (

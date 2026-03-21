@@ -1,7 +1,7 @@
 // @ts-nocheck
 import { ReactNode } from "react";
 import type { Task } from "../../core/task";
-import type { ScheduleEntry } from "../../logic/simulator";
+import type { ScheduleEntry, ScheduleResult } from "../../logic/simulator";
 import type { Definition } from "../../components/General/DefinitionsBox";
 
 /**
@@ -242,8 +242,8 @@ export interface ModularTutorialTemplateProps {
   baseTasks: Task[];
   hyperperiod: number;
   interval?: [number, number];
-  algorithm?: (tasks: Task[], hyperperiod: number) => ScheduleEntry[];
-  algorithms?: Record<string, (tasks: Task[], hyperperiod: number) => ScheduleEntry[]>;
+  algorithm?: (tasks: Task[], hyperperiod: number) => ScheduleEntry[] | ScheduleResult;
+  algorithms?: Record<string, (tasks: Task[], hyperperiod: number) => ScheduleEntry[] | ScheduleResult>;
   defaultAlgorithm?: string;
   algorithmName?: string;
   hintConfig?: HintConfig[];

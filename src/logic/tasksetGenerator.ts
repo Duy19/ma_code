@@ -50,13 +50,13 @@ function countPreemptions(tasks: Task[], algo: string, end: number): number {
   let schedule: ScheduleEntry[] = [];
   let longTask = tasks.reduce((prev, current) => (prev.C > current.C) ? prev : current).id;
   if (algo === "EDF") {
-    schedule = simulateEDF(tasks, end);
+    schedule = simulateEDF(tasks, end).schedule;
   }
   else if (algo === "RM") {
-    schedule = simulateRM(tasks, end);
+    schedule = simulateRM(tasks, end).schedule;
   }
   else if (algo === "DM") {
-    schedule = simulateDM(tasks, end);
+    schedule = simulateDM(tasks, end).schedule;
   }
 
   let preemptions = 0;
@@ -405,6 +405,6 @@ export function taskGeneration_p(){
   return [TasksetConfig, Pset];
 }
 
-const generatedTaskset = taskGeneration_p();
-console.log(generatedTaskset[0]);
-console.log(generatedTaskset[1]);
+//const generatedTaskset = taskGeneration_p();
+//console.log(generatedTaskset[0]);
+//console.log(generatedTaskset[1]);
