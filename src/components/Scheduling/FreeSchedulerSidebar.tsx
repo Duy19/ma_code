@@ -5,7 +5,7 @@ import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import type { Task } from "../../core/task";
 import CloseIcon from '@mui/icons-material/Close';
-import { useRef } from "react";
+import { useRef, useState } from "react";
 
 
 /**
@@ -39,10 +39,14 @@ interface FreeSchedulerSidebarProps {
   hyperperiod?: number;
   isFieldEditable?: (task: Task, field: keyof Task | "algorithm") => boolean;
   algorithmOptions?: string[];
+  interval?: [number, number];
+  onIntervalChange?: (interval: [number, number]) => void;
 }
 
 export default function FreeSchedulerSidebar({ tasks, algorithm, onTasksChange, onAlgorithmChange, onClose, visibility, isFieldEditable, 
-  maxExecution, maxDeadline, maxPeriod, maxSuspension, maxOffset, hyperperiod, algorithmOptions }: FreeSchedulerSidebarProps) {
+  maxExecution, maxDeadline, maxPeriod, maxSuspension, maxOffset, hyperperiod, algorithmOptions, interval, onIntervalChange }: FreeSchedulerSidebarProps) {
+  const [tempIntervalStart, setTempIntervalStart] = useState<string>(interval?.[0]?.toString() ?? "");
+  const [tempIntervalEnd, setTempIntervalEnd] = useState<string>(interval?.[1]?.toString() ?? "");
   const DEFAULT_VISIBILITY: SidebarVisibility = {
     showTaskNames: true,
     showExecutionTime: true,
@@ -145,6 +149,50 @@ export default function FreeSchedulerSidebar({ tasks, algorithm, onTasksChange, 
           <CloseIcon/>
         </IconButton>
       </Typography>
+
+      {/* Interval Input */}
+      {onIntervalChange && (
+        <Box sx={{ mb: 2, p: 1.5, backgroundColor: "#f0f0f0", borderRadius: 1 }}>
+          <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>View Interval</Typography>
+          <Box sx={{ display: "flex", gap: 1, flexDirection: "column" }}>
+            <Box sx={{ display: "flex", gap: 1 }}>
+              <TextField
+                label="Start"
+                type="number"
+                size="small"
+                value={tempIntervalStart}
+                onChange={(e) => setTempIntervalStart(e.target.value)}
+                slotProps={{ htmlInput: { min: 0, step: 1 } }}
+                sx={{ flex: 1 }}
+              />
+              <TextField
+                label="End"
+                type="number"
+                size="small"
+                value={tempIntervalEnd}
+                onChange={(e) => setTempIntervalEnd(e.target.value)}
+                slotProps={{ htmlInput: { min: 0, step: 1 } }}
+                sx={{ flex: 1 }}
+              />
+            </Box>
+            <Button 
+              variant="contained" 
+              size="small"
+              onClick={() => {
+                const start = Number(tempIntervalStart);
+                const end = Number(tempIntervalEnd);
+                if (start >= 0 && end > start) {
+                  onIntervalChange([start, end]);
+                } else {
+                  alert("Valid interval: Start >= 0 and End > Start");
+                }
+              }}
+            >
+              Confirm
+            </Button>
+          </Box>
+        </Box>
+      )}
 
       {/* Hyperperiod Display */}
       {hyperperiod && (

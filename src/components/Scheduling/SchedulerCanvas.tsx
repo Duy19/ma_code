@@ -93,9 +93,10 @@ export default function SchedulerCanvas({
 }: Props) {
 
   // Calculate the maximum deadline that appears within the hyperperiod
-  // If interval is provided, use it isntead of only from 0 - hyperperiod
+  // If interval is provided, use it instead of the full hyperperiod
   let maxDeadline = 0;
-  if(interval && interval[1] <= hyperperiod && interval[1] >= 0) {
+  if(interval) {
+    // When interval is provided, use its width
     maxDeadline = interval[1] - interval[0];
   }
   else{
@@ -131,11 +132,12 @@ export default function SchedulerCanvas({
   // Compute all suspension intervals for each task beforehand
   const suspensionIntervalsMap = useMemo(() => {
     const map = new Map<string, SuspensionInterval[]>();
+    const effectiveLength = interval ? interval[1] : hyperperiod;
     tasks.forEach(task => {
-      map.set(task.id, getSuspension(task, hyperperiod));
+      map.set(task.id, getSuspension(task, effectiveLength));
     });
     return map;
-  }, [tasks, hyperperiod]);
+  }, [tasks, hyperperiod, interval]);
 
   // Lookup Map for highlighted executions
   const highlightExecutionMap = useMemo(() => {
@@ -275,6 +277,7 @@ export default function SchedulerCanvas({
                     {Array.from({ length: maxDeadline + 1}).map((_, t) => {
                       const x = t * pxPerStep;
                       const showLabel = 1;
+                      const displayTime = interval ? t + interval[0] : t;
                       return (
                         <g key={t}>
                           {/* Small ticks */}
@@ -295,7 +298,7 @@ export default function SchedulerCanvas({
                               fontSize={timeFontSize - 2}
                               fill="#0f0e0dff"
                             >
-                              {t}
+                              {displayTime}
                             </text>
                             )}
                         </g>
@@ -441,14 +444,17 @@ export default function SchedulerCanvas({
               {/* Release and Deadline Markers */}
               {(() => {
                 // Calculate release times and deadlines for this task
+                // Use interval end if provided, otherwise use hyperperiod
+                const effectiveLength = interval ? interval[1] : hyperperiod;
+                
                 // Collect unique releases and map to deadlines
                 const releaseSet = new Set<number>();
-                for (let k = 0; k * task.T + (task.O ?? 0) < hyperperiod + (task.O ?? 0); k++) {
+                for (let k = 0; k * task.T + (task.O ?? 0) < effectiveLength + (task.O ?? 0); k++) {
                   releaseSet.add((task.O ?? 0) + k * task.T);
                 }
                 
                 let jobs = Array.from(releaseSet)
-                  .filter(release => release < hyperperiod + (task.O ?? 0))
+                  .filter(release => release < effectiveLength + (task.O ?? 0))
                   .map(release => ({
                     release,
                     deadline: release + task.D,

@@ -1,0 +1,190 @@
+{
+    "tasksets": [
+        {
+        "taskset_id": "ts_1",
+        "difficulty": 1,
+        "algorithm": "EDF, RM, DM",
+        "tasks": [
+            {"id": "T1", "C": 1, "T": 5, "D": 5, "O": 0},
+            {"id": "T2", "C": 1, "T": 5, "D": 5, "O": 0}
+        ]
+        },
+
+        {
+        "taskset_id": "ts_2",
+        "difficulty": 1,
+        "algorithm": "EDF, RM, DM",
+        "tasks": [
+            {"id": "T1", "C": 3, "T": 7, "D": 7, "O": 0},
+            {"id": "T2", "C": 3, "T": 7, "D": 7, "O": 0}
+        ]
+        },
+        {
+        "taskset_id": "ts_3",
+        "difficulty": 1,
+        "algorithm": "EDF, RM, DM",
+        "tasks": [
+            {"id": "T1", "C": 1, "T": 15, "D": 15, "O": 0},
+            {"id": "T2", "C": 2, "T": 10, "D": 10, "O": 0}
+        ]
+        },
+        {
+        "taskset_id": "ts_4",
+        "difficulty": 1,
+        "algorithm": "EDF, RM, DM",
+        "tasks": [
+            {"id": "T1", "C": 3, "T": 6, "D": 6, "O": 0},
+            {"id": "T2", "C": 2, "T": 8, "D": 8, "O": 0}
+        ]
+        },
+        {
+        "taskset_id": "ts_5",
+        "difficulty": 1,
+        "algorithm": "EDF, RM, DM",
+        "tasks": [
+            {"id": "T1", "C": 1, "T": 2, "D": 2, "O": 0},
+            {"id": "T2", "C": 2, "T": 4, "D": 4, "O": 0}
+        ]
+        },
+        {
+        "taskset_id": "ts_6",
+        "difficulty": 5,
+        "algorithm": "EDF, DM",
+        "tasks": [
+            {"id": "T1", "C": 8, "T": 40, "D": 40, "O": 0},
+            {"id": "T2", "C": 1, "T": 8, "D": 8, "O": 0},
+            {"id": "T3", "C": 4, "T": 20, "D": 20, "O": 7},
+            {"id": "T4", "C": 1, "T": 5, "D": 5, "O": 1},
+            {"id": "T5", "C": 1, "T": 10, "D": 10, "O": 0},
+            {"id": "T6", "C": 1, "T": 8, "D": 8, "O": 2}
+        ]
+        },
+        {
+        "taskset_id": "ts_7",
+        "difficulty": 5,
+        "algorithm": "RM",
+        "tasks": [
+            {"id": "T1", "C": 8, "T": 40, "D": 40, "O": 0},
+            {"id": "T2", "C": 1, "T": 8, "D": 8, "O": 0},
+            {"id": "T3", "C": 4, "T": 20, "D": 20, "O": 7},
+            {"id": "T4", "C": 1, "T": 5, "D": 5, "O": 1},
+            {"id": "T5", "C": 1, "T": 10, "D": 10, "O": 0},
+            {"id": "T6", "C": 1, "T": 8, "D": 8, "O": 2}
+        ]
+        },
+        {
+        "taskset_id": "ts_8",
+        "difficulty": 5,
+        "algorithm": "RM",
+        "tasks": [
+            {"id": "T1", "C": 12, "T": 50, "D": 50, "O": 0},
+            {"id": "T2", "C": 1, "T": 10, "D": 10, "O": 3},
+            {"id": "T3", "C": 1, "T": 10, "D": 10, "O": 4},
+            {"id": "T4", "C": 2, "T": 10, "D": 10, "O": 6},
+            {"id": "T5", "C": 12, "T": 50, "D": 50, "O": 0},
+            {"id": "T6", "C": 1, "T": 5, "D": 5, "O": 1}
+        ]
+        },
+        {
+        "taskset_id": "ts_9",
+        "difficulty": 2,
+        "algorithm": "EDF",
+        "tasks": [
+            {"id": "T1", "C": 2, "T": 6, "D": 6, "O": 0},
+            {"id": "T2", "C": 1, "T": 6, "D": 6, "O": 0},
+            {"id": "T3", "C": 2, "T": 4, "D": 4, "O": 0}
+        ]
+        },
+        {
+        "taskset_id": "ts_10",
+        "difficulty": 2,
+        "algorithm": "EDF",
+        "tasks": [
+            {"id": "T1", "C": 3, "T": 8, "D": 8, "O": 0},
+            {"id": "T2", "C": 1, "T": 8, "D": 8, "O": 0},
+            {"id": "T3", "C": 1, "T": 3, "D": 3, "O": 0}
+        ]
+        },
+        {
+        "taskset_id": "ts_11",
+        "difficulty": 3,
+        "algorithm": "EDF",
+        "tasks": [
+            {"id": "T1", "C": 3, "T": 12, "D": 12, "O": 0},
+            {"id": "T2", "C": 2, "T": 15, "D": 15, "O": 0},
+            {"id": "T3", "C": 1, "T": 3, "D": 3, "O": 0},
+            {"id": "T4", "C": 4, "T": 15, "D": 15, "O": 0}
+        ]
+        },
+        {
+        "taskset_id": "ts_12",
+        "difficulty": 1,
+        "algorithm": "EDF, RM, DM",
+        "tasks": [
+            {"id": "T1", "C": 1, "T": 5, "D": 5, "O": 0},
+            {"id": "T2", "C": 1, "T": 5, "D": 5, "O": 0},
+            {"id": "T3", "C": 1, "T": 5, "D": 5, "O": 0},
+            {"id": "T4", "C": 1, "T": 5, "D": 5, "O": 0},
+            {"id": "T5", "C": 1, "T": 5, "D": 5, "O": 0}
+        ]
+        },
+                
+        {
+        "taskset_id": "ts_13",
+        "difficulty": 1,
+        "algorithm": "EDF, RM, DM",
+        "tasks": [
+            {"id": "T1", "C": 1, "T": 6, "D": 6, "O": 0},
+            {"id": "T2", "C": 1, "T": 6, "D": 6, "O": 0},
+            {"id": "T3", "C": 1, "T": 6, "D": 6, "O": 0},
+            {"id": "T4", "C": 1, "T": 6, "D": 6, "O": 0},
+            {"id": "T5", "C": 1, "T": 6, "D": 6, "O": 0},
+            {"id": "T6", "C": 1, "T": 6, "D": 6, "O": 0}
+        ]
+        },
+        {
+                "taskset_id": "ts_14",
+        "difficulty": 4,
+        "algorithm": "RM",
+        "tasks": [
+            {"id": "T1", "C": 8, "T": 30, "D": 30, "O": 0},
+            {"id": "T2", "C": 4, "T": 15, "D": 15, "O": 0},
+            {"id": "T3", "C": 1, "T": 5, "D": 5, "O": 2},
+            {"id": "T4", "C": 1, "T": 5, "D": 5, "O": 4}
+        ]
+        },
+        {
+        "taskset_id": "ts_15",
+        "difficulty": 3,
+        "algorithm": "EDF",
+        "tasks": [
+            {"id": "T1", "C": 4, "T": 10, "D": 10, "O": 0},
+            {"id": "T2", "C": 3, "T": 20, "D": 20, "O": 0},
+            {"id": "T3", "C": 1, "T": 4, "D": 4, "O": 0},
+            {"id": "T4", "C": 1, "T": 5, "D": 5, "O": 0}
+        ]
+        },
+    {
+        "taskset_id": "ts_16",
+        "difficulty": 5,
+        "algorithm": "EDF",
+        "tasks": [
+            {"id": "T1", "C": 9, "T": 32, "D": 32, "O": 3},
+            {"id": "T2", "C": 6, "T": 20, "D": 20, "O": 0},
+            {"id": "T3", "C": 1, "T": 5, "D": 5, "O": 10},
+            {"id": "T4", "C": 1, "T": 5, "D": 5, "O": 3},
+            {"id": "T5", "C": 1, "T": 4, "D": 4, "O": 1}
+        ]
+        },
+                
+        {
+        "taskset_id": "ts_17",
+        "difficulty": 1,
+        "algorithm": "EDF",
+        "tasks": [
+            {"id": "T1", "C": 9, "T": 10, "D": 10, "O": 0},
+            {"id": "T2", "C": 7, "T": 8, "D": 8, "O": 0}
+        ]
+        }
+    ] 
+}

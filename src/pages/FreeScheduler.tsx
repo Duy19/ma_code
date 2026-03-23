@@ -15,7 +15,25 @@ export default function FreeScheduler() {
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
   const[algorithm, setAlgorithm] = useState<string>("EDF");
   const [hyperperiod, setHyperperiod] = useState(24);
+  const [interval, setInterval] = useState<[number, number]>([0, 24]);
   const [schedule, setSchedule] = useState<ScheduleEntry[]>([]);
+
+  const handleIntervalChange = (newInterval: [number, number]) => {
+    setInterval(newInterval);
+    // Re-simulate with the length needed to cover the interval
+    if (tasks.length > 0 && tasks.some(t => t.T && t.T > 0 && !isNaN(t.T))) {
+      const simulationLength = Math.max(hyperperiod, newInterval[1]);
+      let newSchedule: ScheduleEntry[] = [];
+      if (algorithm === "EDF") {
+        newSchedule = simulateEDF(tasks, simulationLength).schedule;
+      } else if (algorithm === "RM") {
+        newSchedule = simulateRM(tasks, simulationLength).schedule;
+      } else if (algorithm === "DM") {
+        newSchedule = simulateDM(tasks, simulationLength).schedule;
+      }
+      setSchedule(newSchedule);
+    }
+  };
 
   useEffect(() => {
   if (tasks.length === 0) return;
@@ -29,6 +47,7 @@ export default function FreeScheduler() {
   const periods = tasks.map(t => t.T);
   const hp = lcmArray(periods);
   setHyperperiod(hp);
+  setInterval([0, hp]);
 
   // Schedule based on selected algorithm
   
@@ -70,7 +89,7 @@ export default function FreeScheduler() {
           p: 2,
         }}
       >
-        <SchedulerCanvas tasks={tasks} hyperperiod={hyperperiod} schedule={schedule} pxPerStep={28} timeStepLabelEvery={2} />
+        <SchedulerCanvas tasks={tasks} hyperperiod={hyperperiod} schedule={schedule} interval={interval} pxPerStep={28} timeStepLabelEvery={2} />
       </Box>
 
       <Drawer         
@@ -88,6 +107,8 @@ export default function FreeScheduler() {
             onAlgorithmChange={setAlgorithm}
             onTasksChange={setTasks}
             onClose={() => setSidebarOpen(false)}
+            interval={interval}
+            onIntervalChange={handleIntervalChange}
           />
       </Drawer>
     </Box>
