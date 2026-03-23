@@ -105,7 +105,7 @@ def functionFitting():
 
 def plotVariableDifficultyCorrelation():
     fig, axes = plt.subplots(2, 2, figsize=(14, 10))
-    fig.suptitle('Variable Correlation with Task Difficulty', fontsize=16, fontweight='bold')
+    fig.suptitle('Parameter Correlation with Task Difficulty', fontsize=16, fontweight='bold')
     
     variables = [
         ('N', N, 'Number of Tasks'),
@@ -136,8 +136,8 @@ def plotVariableDifficultyCorrelation():
         ax.legend(fontsize=9)
     
     plt.tight_layout()
-    plt.savefig('variable_difficulty_correlation.png', dpi=150, bbox_inches='tight')
-    print("\n Saved plot as 'variable_difficulty_correlation.png'")
+    plt.savefig('parameter_difficulty_correlation.png', dpi=150, bbox_inches='tight')
+    print("\n Saved plot as 'parameter_difficulty_correlation.png'")
     plt.show()
 
 
@@ -160,7 +160,7 @@ def calculateParameterSpaceDistance():
     
     im = ax.imshow(masked_matrix, cmap='coolwarm', aspect='auto')
     
-    taskset_ids = [f'ts_{i+1}' for i in range(n_tasksets)]
+    taskset_ids = [f'ts_{i+1}\n(d:{int(y[i])})' for i in range(n_tasksets)]
     ax.set_xticks(range(n_tasksets))
     ax.set_yticks(range(n_tasksets))
     ax.set_xticklabels(taskset_ids, rotation=45, ha='right')
@@ -180,7 +180,7 @@ def calculateParameterSpaceDistance():
     
     plt.tight_layout()
     plt.savefig('parameter_space_distance_matrix.png', dpi=150, bbox_inches='tight')
-    print("\n Saved distance matrix as 'parameter_space_distance_matrix.png'")
+    print("\n Saved distance matrix as 'parameter_distance_map.png'")
     plt.show()
     
     # Print statistics
