@@ -35,6 +35,11 @@ def testfunction2(X, a, b, c, d, e):
 
     return a*N * b*(1 + P) * c*U * d*L * e*((1+P)*U*N)
 
+def testfunction3(X, a, b, c, d, e):
+    N, U, P, L = X
+
+    return a + b*N + c*U + d*P + e*(U*P*L)
+
 # Try different approaches, starting with curve fitting for some functions I came up with
 def curveFitting(function):
     print("\n Starting curve fitting using scipy's curve_fit")
@@ -179,7 +184,7 @@ def calculateParameterSpaceDistance():
                           ha="center", va="center", color="w", fontsize=8)
     
     plt.tight_layout()
-    plt.savefig('parameter_space_distance_matrix.png', dpi=150, bbox_inches='tight')
+    plt.savefig('parameter_distance_map.png', dpi=150, bbox_inches='tight')
     print("\n Saved distance matrix as 'parameter_distance_map.png'")
     plt.show()
     
@@ -194,10 +199,15 @@ def calculateParameterSpaceDistance():
 
 
 def main():
-    #functionFitting()
-    #curveFitting(linearFunction)
-    #curveFitting(quadraticFunction)
+    functionFitting()
+    print("\n ======= Linear ========")
+    curveFitting(linearFunction)
+    print("\n ======= Quadratic ========")
+    curveFitting(quadraticFunction)
+    print("\n ======= Test Function 2========")
     curveFitting(testfunction2)
+    print("\n ======= Test Function 3========")
+    curveFitting(testfunction3)
     plotVariableDifficultyCorrelation()
     calculateParameterSpaceDistance()
 
