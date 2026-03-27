@@ -2,7 +2,7 @@
 
 import type { Task, SuspensionInterval, SuspensionPattern } from "../../core/task";
 import type { ScheduleEntry } from "../../logic/simulator";
-import { useMemo } from "react";
+import { useMemo, useRef, forwardRef, useImperativeHandle } from "react";
 
 /*
 The main canvas component to render the scheduling visualization.
@@ -54,6 +54,7 @@ type Props = {
   schedule?: ScheduleEntry[];
   pxPerStep?: number;
   timeStepLabelEvery?: number;
+  rightPaddingSteps?: number;
   heightPerTask?: number;
   leftLabelWidth?: number;
   svgManualWidth?: number;
@@ -76,13 +77,14 @@ const DEFAULT_VISIBILITY = {
 };
 
 // SchedulerCanvas function to visualize the scheduling
-export default function SchedulerCanvas({
+const SchedulerCanvas = forwardRef(function SchedulerCanvas({
   tasks,
   hyperperiod,
   interval,
   schedule = [],
   pxPerStep = 28,
   //timeStepLabelEvery = 1,
+  rightPaddingSteps = 2,
   heightPerTask = 125,
   leftLabelWidth = 72,
   visibility,
@@ -90,7 +92,7 @@ export default function SchedulerCanvas({
   hideDeadlineMarkersFor = [],
   highlight,
   highlightExecutions = [],
-}: Props) {
+}: Props, ref: any) {
 
   // Calculate the maximum deadline that appears within the hyperperiod
   // If interval is provided, use it instead of the full hyperperiod
@@ -115,7 +117,8 @@ export default function SchedulerCanvas({
     }
   }
 
-  const svgWidth = leftLabelWidth + maxDeadline * pxPerStep + 40;
+  const drawingSteps = maxDeadline + Math.max(rightPaddingSteps, 0);
+  const svgWidth = leftLabelWidth + drawingSteps * pxPerStep + 40;
   const svgHeight = tasks.length * heightPerTask + 80;
   const axisColor = "#0d2b6cff";
   const timeFontSize = 15;
@@ -152,11 +155,73 @@ export default function SchedulerCanvas({
     return highlightExecutionMap.get(taskId)?.has(time) ?? false;
   };
 
+  const svgRef = useRef<SVGSVGElement>(null);
+
+  const downloadAsPNG = () => {
+    if (!svgRef.current) {
+      console.error('SVG ref not found');
+      return;
+    }
+
+    const svg = svgRef.current;
+    const rect = svg.getBoundingClientRect();
+    
+    // Use the SVG's width/height attributes instead of bounding rect
+    const width = parseInt(svg.getAttribute('width') || '800');
+    const height = parseInt(svg.getAttribute('height') || '600');
+
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    // Set white background
+    ctx.fillStyle = 'white';
+    ctx.fillRect(0, 0, width, height);
+
+    const svgString = new XMLSerializer().serializeToString(svg);
+    const blob = new Blob([svgString], { type: 'image/svg+xml' });
+    const url = URL.createObjectURL(blob);
+    
+    const img = new Image();
+    img.onload = () => {
+      ctx.drawImage(img, 0, 0);
+      URL.revokeObjectURL(url);
+      
+      canvas.toBlob((blob) => {
+        if (blob) {
+          const link = document.createElement('a');
+          const blobUrl = URL.createObjectURL(blob);
+          link.href = blobUrl;
+          link.download = `schedule_${new Date().getTime()}.png`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(blobUrl);
+        }
+      }, 'image/png');
+    };
+    
+    img.onerror = () => {
+      console.error('Failed to load SVG as image');
+      URL.revokeObjectURL(url);
+    };
+    
+    img.src = url;
+  };
+
+  useImperativeHandle(ref, () => ({
+    downloadAsPNG,
+  }));
+
   return (
     <div className="flex h-screen">
       <div className="flex-1 min-w-0 overflow-auto border-r rounded-md shadow-sm bg-white">
         {/* SVG Canvas */}
         <svg
+          ref={svgRef}
           width={svgWidth}
           height={svgHeight}
           viewBox={`0 0 ${svgWidth} ${svgHeight}`}
@@ -248,7 +313,7 @@ export default function SchedulerCanvas({
                   <line
                     x1={leftLabelWidth}
                     y1={centerY - 10}
-                    x2={leftLabelWidth + maxDeadline * pxPerStep}
+                    x2={leftLabelWidth + drawingSteps * pxPerStep}
                     y2={centerY - 10}
                     stroke="#1442a5ff"
                     strokeWidth={2}
@@ -511,4 +576,6 @@ export default function SchedulerCanvas({
     </div>
   </div>
   );
-}
+});
+
+export default SchedulerCanvas;

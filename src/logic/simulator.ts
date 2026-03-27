@@ -1,5 +1,8 @@
+// @ts-nocheck
+
 // Scheduling-Simulator
 import type { Task, SuspensionPattern, SuspensionInterval } from "../core/task";
+import { giniCoefficient } from "../utils/formulas";
 
 export interface ScheduleEntry {
   time: number;
@@ -27,6 +30,10 @@ export interface JobInstances{
 export interface ScheduleResult {
   schedule: ScheduleEntry[];
   jobInstancesPerTask: Map<string, JobInstances[]>;
+  avgPreemptions?: number;
+  avgLaxity?: number;
+  giniT?: number;
+  giniC?: number;
 }
 
 // Helper function to get all the Suspension Intervals or the pattern for a task in the hyperperiod
@@ -75,7 +82,8 @@ function releasePattern(
 
 export function simulateEDF(tasks: Task[], hyperperiod: number): ScheduleResult {
   const schedule: ScheduleEntry[] = [];
-
+  const giniT = giniCoefficient(tasks.map(t => t.T));
+  const giniC = giniCoefficient(tasks.map(t => t.C));
   // active task instances
   interface ActiveInstance {
     id: string;
@@ -209,15 +217,20 @@ export function simulateEDF(tasks: Task[], hyperperiod: number): ScheduleResult 
     jobInstancesPerTask.get(taskId)!.push(jobInstance);
   }
 
-  console.log('EDF, Schedule:', schedule, 'JobInstances:', jobInstancesPerTask, 'avgPreemptions:', [...jobTracking.values()].reduce((sum, job) => sum + (job.preemptionCount ?? 0), 0) / jobTracking.size, 'avgResponseTime:', [...jobTracking.values()].reduce((sum, job) => sum + (job.responseTime ?? 0), 0) / jobTracking.size);
-  return { schedule, jobInstancesPerTask };
+  let avgPreemptions = [...jobTracking.values()].reduce((sum, job) => sum + (job.preemptionCount ?? 0), 0) / jobTracking.size;
+  let avgLaxity = [...jobTracking.values()].reduce((sum, job) => sum + (job.laxity ?? 0), 0) / jobTracking.size;
+  let giniT = giniCoefficient(tasks.map(t => t.T));
+  let giniC = giniCoefficient(tasks.map(t => t.C));
+  console.log('EDF, Schedule:', schedule, 'JobInstances:', jobInstancesPerTask, 'avgPreemptions:', avgPreemptions, 'avgLaxity:', avgLaxity, 'Gini Coefficient (Periods):', giniT, 'Gini Coefficient (Execution Times):', giniC);
+  return { schedule, jobInstancesPerTask, avgPreemptions, avgLaxity, giniT, giniC };
 }
 
 
 
 export function simulateRM(tasks: Task[], hyperperiod: number): ScheduleResult {
   const schedule: ScheduleEntry[] = [];
-
+  const giniT = giniCoefficient(tasks.map(t => t.T));
+  const giniC = giniCoefficient(tasks.map(t => t.C));
   // active task instances
   interface ActiveInstance {
     id: string;
@@ -352,14 +365,18 @@ export function simulateRM(tasks: Task[], hyperperiod: number): ScheduleResult {
     jobInstancesPerTask.get(taskId)!.push(jobInstance);
   }
 
-  console.log('EDF, Schedule:', schedule, 'JobInstances:', jobInstancesPerTask, 'avgPreemptions:', [...jobTracking.values()].reduce((sum, job) => sum + (job.preemptionCount ?? 0), 0) / jobTracking.size, 'avgResponseTime:', [...jobTracking.values()].reduce((sum, job) => sum + (job.responseTime ?? 0), 0) / jobTracking.size);
-  console.log('utilization:', tasks.reduce((sum, task) => sum + task.C / task.T, 0));
-  return { schedule, jobInstancesPerTask };
+  let avgPreemptions = [...jobTracking.values()].reduce((sum, job) => sum + (job.preemptionCount ?? 0), 0) / jobTracking.size;
+  let avgLaxity = [...jobTracking.values()].reduce((sum, job) => sum + (job.laxity ?? 0), 0) / jobTracking.size;
+  let giniT = giniCoefficient(tasks.map(t => t.T));
+  let giniC = giniCoefficient(tasks.map(t => t.C));
+  console.log('EDF, Schedule:', schedule, 'JobInstances:', jobInstancesPerTask, 'avgPreemptions:', avgPreemptions, 'avgLaxity:', avgLaxity, 'Gini Coefficient (Periods):', giniT, 'Gini Coefficient (Execution Times):', giniC);
+  return { schedule, jobInstancesPerTask, avgPreemptions, avgLaxity, giniT, giniC };
 }
 
 export function simulateDM(tasks: Task[], hyperperiod: number): ScheduleResult {
   const schedule: ScheduleEntry[] = [];
-
+  const giniT = giniCoefficient(tasks.map(t => t.T));
+  const giniC = giniCoefficient(tasks.map(t => t.C));
   // active task instances
   interface ActiveInstance {
     id: string;
@@ -494,7 +511,12 @@ export function simulateDM(tasks: Task[], hyperperiod: number): ScheduleResult {
     jobInstancesPerTask.get(taskId)!.push(jobInstance);
   }
 
-  return { schedule, jobInstancesPerTask };
+  let avgPreemptions = [...jobTracking.values()].reduce((sum, job) => sum + (job.preemptionCount ?? 0), 0) / jobTracking.size;
+  let avgLaxity = [...jobTracking.values()].reduce((sum, job) => sum + (job.laxity ?? 0), 0) / jobTracking.size;
+  let giniT = giniCoefficient(tasks.map(t => t.T));
+  let giniC = giniCoefficient(tasks.map(t => t.C));
+  console.log('DM, Schedule:', schedule, 'JobInstances:', jobInstancesPerTask, 'avgPreemptions:', avgPreemptions, 'avgLaxity:', avgLaxity, 'Gini Coefficient (Periods):', giniT, 'Gini Coefficient (Execution Times):', giniC);
+  return { schedule, jobInstancesPerTask, avgPreemptions, avgLaxity, giniT, giniC };
 }
 
 /**

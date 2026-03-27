@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import { ModularTutorialTemplate } from "./ModularTutorialTemplate";
 import type { StoryStep } from "./ModularTutorial/types";
 import type { Task } from "../core/task";

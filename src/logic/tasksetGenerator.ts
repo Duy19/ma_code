@@ -3,7 +3,7 @@ import { Task } from "@mui/icons-material";
 import type { Task } from "../core/task";
 import "../utils/formulas";
 import { tda } from "../utils/formulas";
-import type { ScheduleEntry } from "./simulator";
+import type { ScheduleEntry, ScheduleResult } from "./simulator";
 import { simulateEDF, simulateRM, simulateDM } from "./simulator";
 
 
@@ -215,11 +215,6 @@ export function taskGeneration_reverse_TypeB(n: number, utarget: number, algo: s
 
   return [];
 }
-// Different approaches to taskset generation can be implemented here
-// Should there be different functions for different Puzzles or a single function with parameters to control the generation process?
-// Using UUniFast algorithm for by Bini and Buttazzo (2005) for generating task utilizations, and then assigning periods and computation times accordingly.
-// Based on Python Implementation of UUniFast from here: https://github.com/tu-dortmund-ls12-rt/SSSEvaluation/blob/master/schedTest/tgPath.py
-
 
 let Uset: number[] = [];
 let Pset: Task[] = [];
@@ -408,3 +403,106 @@ export function taskGeneration_p(){
 //const generatedTaskset = taskGeneration_p();
 //console.log(generatedTaskset[0]);
 //console.log(generatedTaskset[1]);
+
+
+
+// Different approaches to taskset generation can be implemented here
+// Should there be different functions for different Puzzles or a single function with parameters to control the generation process?
+// Using UUniFast algorithm for by Bini and Buttazzo (2005) for generating task utilizations, and then assigning periods and computation times accordingly.
+// Based on Python Implementation of UUniFast from here: https://github.com/tu-dortmund-ls12-rt/SSSEvaluation/blob/master/schedTest/tgPath.py
+
+
+// GA Implementation HERE and using fitness function
+
+export interface fittingParameters {
+  N?: number;
+  U?: number;
+  P?: number;
+  L?: number;
+  giniT?: number;
+  giniC?: number;
+}
+
+interface coefficients {
+  linear?: {
+    a?: number;
+    b?: number;
+    c?: number;
+    d?: number;
+    e?: number;
+    f?: number;
+    g?: number;
+  };
+
+  polynomial?: {
+    a?: number;
+    b?: number;
+    c?: number;
+    d?: number;
+    e?: number;
+    f?: number;
+    g?: number;
+  };
+}
+
+function linearFitness(params: fittingParameters, coeffs?: coefficients["linear"]) {
+  // Implementation for fitness function
+  // Determine a-g in python script
+  const a = coeffs?.a ?? 1;
+  const b = coeffs?.b ?? 1;
+  const c = coeffs?.c ?? 1;
+  const d = coeffs?.d ?? 1;
+  const e = coeffs?.e ?? 1;
+  const f = coeffs?.f ?? 1;
+  const g = coeffs?.g ?? 1;
+
+  return (
+    a +
+    b * (params.N ?? 1) +
+    c * (params.U ?? 1) +
+    d * (params.P ?? 1) +
+    e * (params.L ?? 1) +
+    f * (params.giniT ?? 1) +
+    g * (params.giniC ?? 1)
+  );
+}
+
+function getParameters(taskset: Task[], algo: string, interval: [number, number]) {
+  let results: ScheduleResult;
+  if (algo === "EDF") {
+    results = simulateEDF(taskset, interval[1]);
+  }
+  else if (algo === "RM") {
+    results = simulateRM(taskset, interval[1]);
+  }
+  else if (algo === "DM") {
+    results = simulateDM(taskset, interval[1]);
+  }
+
+  else {
+    console.error("Invalid algorithm specified for parameter extraction.");
+  }
+
+
+  let parameters: fittingParameters = {
+    N: results.jobInstancesPerTask.size,
+    U: taskset.reduce((sum, task) => sum + task.C / task.T, 0),
+    P: results.avgPreemptions,
+    L: results.avgLaxity,
+    giniT: results.giniT,
+    giniC: results.giniC,
+  };
+
+  return parameters;
+}
+
+
+
+function initPopulation(popSize: number) {
+  
+}
+
+export function GA_TasksetGeneration() {
+
+  
+}

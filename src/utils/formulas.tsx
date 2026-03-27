@@ -110,3 +110,23 @@ export function renderWithMath(text: string): React.ReactNode[] {
     });
   });
 }
+
+
+export function giniCoefficient(values: number[]): number {
+  if (values.length === 0) return 0;
+
+  const sorted = [...values].sort((a, b) => a - b);
+
+  const n = sorted.length;
+  const sum = sorted.reduce((acc, v) => acc + v, 0);
+
+  if (sum === 0) return 0;
+
+  let cumulative = 0;
+
+  for (let i = 0; i < n; i++) {
+    cumulative += (i + 1) * sorted[i];
+  }
+
+  return (2 * cumulative) / (n * sum) - (n + 1) / n;
+}

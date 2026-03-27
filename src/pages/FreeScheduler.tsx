@@ -1,9 +1,10 @@
 import SchedulerCanvas from "../components/Scheduling/SchedulerCanvas";
 import type { Task } from "../core/task";
 import FreeSchedulerSidebar from "../components/Scheduling/FreeSchedulerSidebar";
-import { Box, Drawer, IconButton } from "@mui/material";
+import { Box, Drawer, IconButton, Button } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
-import { useEffect, useState } from "react";
+import DownloadIcon from "@mui/icons-material/Download";
+import { useEffect, useRef, useState } from "react";
 import { simulateEDF, simulateRM, simulateDM, type ScheduleEntry } from "../logic/simulator";
 import { lcmArray } from "../utils/formulas";
 
@@ -17,6 +18,7 @@ export default function FreeScheduler() {
   const [hyperperiod, setHyperperiod] = useState(24);
   const [interval, setInterval] = useState<[number, number]>([0, 24]);
   const [schedule, setSchedule] = useState<ScheduleEntry[]>([]);
+  const schedulerCanvasRef = useRef<any>(null);
 
   const handleIntervalChange = (newInterval: [number, number]) => {
     setInterval(newInterval);
@@ -87,9 +89,29 @@ export default function FreeScheduler() {
           alignItems: "left",
           overflow: "auto",
           p: 2,
+          flexDirection: "column",
         }}
       >
-        <SchedulerCanvas tasks={tasks} hyperperiod={hyperperiod} schedule={schedule} interval={interval} pxPerStep={28} timeStepLabelEvery={2} />
+        <Box sx={{ mb: 2 }}>
+          <Button
+            variant="contained"
+            startIcon={<DownloadIcon />}
+            onClick={() => schedulerCanvasRef.current?.downloadAsPNG()}
+            disabled={!schedule || schedule.length === 0}
+          >
+            Save Schedule as PNG
+          </Button>
+        </Box>
+        <SchedulerCanvas 
+          ref={schedulerCanvasRef}
+          tasks={tasks} 
+          hyperperiod={hyperperiod} 
+          schedule={schedule} 
+          interval={interval} 
+          pxPerStep={28} 
+          rightPaddingSteps={4}
+          timeStepLabelEvery={2} 
+        />
       </Box>
 
       <Drawer         
