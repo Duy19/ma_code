@@ -164,9 +164,9 @@
             {"id": "T4", "C": 1, "T": 5, "D": 5, "O": 0}
         ]
         },
-    {
+        {
         "taskset_id": "ts_16",
-        "difficulty": 5,
+        "difficulty": 4,
         "algorithm": "EDF",
         "tasks": [
             {"id": "T1", "C": 9, "T": 32, "D": 32, "O": 3},
@@ -176,14 +176,59 @@
             {"id": "T5", "C": 1, "T": 4, "D": 4, "O": 1}
         ]
         },
-                
+
         {
         "taskset_id": "ts_17",
-        "difficulty": 1,
-        "algorithm": "EDF",
+        "difficulty": 2,
+        "algorithm": "EDF, RM, DM",
         "tasks": [
-            {"id": "T1", "C": 9, "T": 10, "D": 10, "O": 0},
-            {"id": "T2", "C": 7, "T": 8, "D": 8, "O": 0}
+            {"id": "T1", "C": 50, "T": 100, "D": 100, "O": 0},
+            {"id": "T2", "C": 1, "T": 5, "D": 5, "O": 0}
+        ]
+        },
+                {
+        "taskset_id": "ts_18",
+        "difficulty": 4,
+        "algorithm": "EDF, RM, DM",
+        "tasks": [
+            {"id": "T1", "C": 40, "T": 100, "D": 100, "O": 0},
+            {"id": "T2", "C": 1, "T": 5, "D": 5, "O": 2},
+            {"id": "T3", "C": 9, "T": 49, "D": 49, "O": 0},
+            {"id": "T4", "C": 1, "T": 5, "D": 5, "O": 0}
+        ]
+        },
+                        
+        {
+        "taskset_id": "ts_19",
+        "difficulty": 3,
+        "algorithm": "EDF, RM, DM",
+        "tasks": [
+            {"id": "T1", "C": 5, "T": 20, "D": 20, "O": 0},
+            {"id": "T2", "C": 3, "T": 15, "D": 15, "O": 0},
+            {"id": "T3", "C": 1, "T": 4, "D": 4, "O": 0},
+            {"id": "T4", "C": 1, "T": 5, "D": 5, "O": 0}
+        ]
+        },
+                        
+        {
+        "taskset_id": "ts_20",
+        "difficulty": 3,
+        "algorithm": "EDF, RM, DM",
+        "tasks": [
+            {"id": "T1", "C": 1, "T": 6, "D": 6, "O": 0},
+            {"id": "T2", "C": 5, "T": 18, "D": 18, "O": 0},
+            {"id": "T3", "C": 1, "T": 4, "D": 4, "O": 0},
+            {"id": "T4", "C": 6, "T": 24, "D": 24, "O": 0}
+        ]
+        },
+                        {
+        "taskset_id": "ts_21",
+        "difficulty": 2,
+        "algorithm": "EDF, RM, DM",
+        "tasks": [
+            {"id": "T1", "C": 5, "T": 20, "D": 20, "O": 0},
+            {"id": "T2", "C": 1, "T": 5, "D": 5, "O": 0},
+            {"id": "T3", "C": 6, "T": 25, "D": 25, "O": 0}
         ]
         }
     ] 
