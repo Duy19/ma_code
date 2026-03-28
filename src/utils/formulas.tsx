@@ -15,6 +15,35 @@ export function lcmArray(arr: number[]): number {
   return arr.reduce((acc, val) => lcm(acc, val), 1);
 }
 
+function getDecimalPlaces(value: number): number {
+  if (!Number.isFinite(value)) return 0;
+  const asString = value.toString().toLowerCase();
+  if (asString.includes("e-")) {
+    const [base, exp] = asString.split("e-");
+    const exponent = Number(exp);
+    const decimalsInBase = (base.split(".")[1] ?? "").length;
+    return decimalsInBase + exponent;
+  }
+  return (asString.split(".")[1] ?? "").length;
+}
+
+export function lcmArrayWithDecimals(arr: number[], maxDecimals = 1): number {
+  if (arr.length === 0) return 0;
+
+  const decimals = Math.min(
+    maxDecimals,
+    Math.max(0, ...arr.map((v) => getDecimalPlaces(v)))
+  );
+  const scale = 10 ** decimals;
+  const scaled = arr.map((v) => Math.round(v * scale));
+
+  if (scaled.some((v) => v <= 0 || !Number.isFinite(v))) {
+    return 0;
+  }
+
+  return lcmArray(scaled) / scale;
+}
+
 export function liuLaylandBound(tasks: Task[]): boolean {
 
   let tasksetUtil = 0;

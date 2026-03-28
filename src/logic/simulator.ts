@@ -4,6 +4,16 @@
 import type { Task, SuspensionPattern, SuspensionInterval } from "../core/task";
 import { giniCoefficient } from "../utils/formulas";
 
+const Fixed_Decimal = 10;
+
+function toTick(value: number): number {
+  return Math.round(value * Fixed_Decimal);
+}
+
+function fromTick(tick: number): number {
+  return tick / Fixed_Decimal;
+}
+
 export interface ScheduleEntry {
   time: number;
   duration: number;
@@ -65,92 +75,108 @@ function releasePattern(
   t: number,
   lastRelease: Map<string, number>
 ): boolean {
-  const offset = task.O ?? 0;
+  const offsetTick = toTick(task.O ?? 0);
+  const periodTick = toTick(task.T);
+  const tTick = toTick(t);
 
-  // To late
-  if (t < offset) return false;
+  if (periodTick <= 0) return false;
+  if (tTick < offsetTick) return false;
 
   // Sporadic
   if (task.type === "sporadic") {
-    return t - (lastRelease.get(task.id) ?? -Infinity) >= task.T;
+    const lastReleaseTick = lastRelease.has(task.id)
+      ? toTick(lastRelease.get(task.id)!)
+      : -Infinity;
+    return tTick - lastReleaseTick >= periodTick;
   }
 
   // Periodic (default)
-  return (t - offset) % task.T === 0;
+  return (tTick - offsetTick) % periodTick === 0;
 }
 
+interface ActiveInstance {
+  id: string;
+  release: number;
+  deadline: number;
+  remainingExecution: number;
+  period: number;
+}
 
-export function simulateEDF(tasks: Task[], hyperperiod: number): ScheduleResult {
+function simulate(
+  tasks: Task[],
+  hyperperiod: number,
+  comparePriority: (a: ActiveInstance, b: ActiveInstance, taskOrder: Map<string, number>) => number
+): ScheduleResult {
   const schedule: ScheduleEntry[] = [];
   const giniT = giniCoefficient(tasks.map(t => t.T));
   const giniC = giniCoefficient(tasks.map(t => t.C));
-  // active task instances
-  interface ActiveInstance {
-    id: string;
-    release: number;
-    deadline: number;
-    remainingExecution: number;
-    period: number;
-  }
 
-  let active: ActiveInstance[] = [];
-
-  // Map tasks to an deterministic order for tie-break
   const taskOrder = new Map<string, number>();
-    tasks.forEach((task, index) => {
-      taskOrder.set(task.id, index);
-    });
+  tasks.forEach((task, index) => {
+    taskOrder.set(task.id, index);
+  });
 
-  const lastRelease = new Map<string, number>();
-  
-  // Track job instances
+  const hyperperiodTick = toTick(hyperperiod);
+
+  const taskTicks = new Map<string, { C: number; T: number; D: number; O: number }>();
+  tasks.forEach((task) => {
+    taskTicks.set(task.id, {
+      C: toTick(task.C),
+      T: toTick(task.T),
+      D: toTick(task.D),
+      O: toTick(task.O ?? 0),
+    });
+  });
+
+  const nextRelease = new Map<string, number>();
+  tasks.forEach((task) => {
+    nextRelease.set(task.id, taskTicks.get(task.id)!.O);
+  });
+
   const jobInstancesPerTask = new Map<string, JobInstances[]>();
   const jobTracking = new Map<string, JobInstances>();
-  const jobStartTimes = new Map<string, number>();
-  let jobCounter = new Map<string, number>(); 
-  let previousJob: ActiveInstance | null = null; 
+  const jobCounter = new Map<string, number>();
 
-  for (let t = 0; t < hyperperiod; t++) {
-    for (const task of tasks) {
-      if (releasePattern(task, t, lastRelease)) {
-        active.push({
-          id: task.id,
-          release: t,
-          deadline: t + task.D,
-          remainingExecution: task.C,
-          period: task.T,
-        });
-        lastRelease.set(task.id, t);
-      }
-    }
+  let active: ActiveInstance[] = [];
+  let previousJob: ActiveInstance | null = null;
+  let t = 0;
 
-    // Remove finished jobs and save the information
+  const finalizeFinishedJobs = (finishedAtTick: number) => {
     const finishedJobs = active.filter((a) => a.remainingExecution <= 0);
     for (const job of finishedJobs) {
       const jobKey = `${job.id}-${job.release}`;
       const jobInstance = jobTracking.get(jobKey);
-      if (jobInstance) {
+      if (jobInstance && jobInstance.responseTime === null) {
         jobInstance.jobFinished = true;
-        jobInstance.missedDeadline = t > job.deadline;
-        jobInstance.responseTime = t - job.release;
-        jobInstance.laxity = job.deadline - t;
+        jobInstance.missedDeadline = finishedAtTick > job.deadline;
+        jobInstance.responseTime = fromTick(finishedAtTick - job.release);
+        jobInstance.laxity = fromTick(job.deadline - finishedAtTick);
       }
     }
-    
     active = active.filter((a) => a.remainingExecution > 0);
+  };
 
-    active.sort((a, b) => {
-      // sort by deadline
-      if (a.deadline !== b.deadline) {
-        return a.deadline - b.deadline;
+  while (t < hyperperiodTick) {
+    finalizeFinishedJobs(t);
+
+    for (const task of tasks) {
+      const release = nextRelease.get(task.id)!;
+      const ticks = taskTicks.get(task.id)!;
+      if (release <= t && release < hyperperiodTick) {
+        active.push({
+          id: task.id,
+          release,
+          deadline: release + ticks.D,
+          remainingExecution: ticks.C,
+          period: ticks.T,
+        });
+        nextRelease.set(task.id, release + ticks.T);
       }
-      // tie-break via task order
-      return taskOrder.get(a.id)! - taskOrder.get(b.id)!;
-    });
+    }
 
+    active.sort((a, b) => comparePriority(a, b, taskOrder));
     const current = active[0];
-    
-    // Count preemptions (context switch even though remaining execution is not 0)
+
     if (previousJob !== null && previousJob.remainingExecution > 0 && current?.id !== previousJob.id) {
       const preemptedJobKey = `${previousJob.id}-${previousJob.release}`;
       const preemptedJob = jobTracking.get(preemptedJobKey);
@@ -160,23 +186,37 @@ export function simulateEDF(tasks: Task[], hyperperiod: number): ScheduleResult 
     }
     previousJob = current ?? null;
 
+    let nextReleaseTime = Infinity;
+    for (const release of nextRelease.values()) {
+      if (release > t) {
+        nextReleaseTime = Math.min(nextReleaseTime, release);
+      }
+    }
+
+    const completionTime = current ? t + current.remainingExecution : Infinity;
+    const nextEventTime = Math.min(nextReleaseTime, completionTime, hyperperiodTick);
+
+    if (!Number.isFinite(nextEventTime) || nextEventTime <= t) {
+      break;
+    }
+
+    const runDuration = nextEventTime - t;
+
     if (current) {
       const jobKey = `${current.id}-${current.release}`;
-      
-      // Initialize job instance if it's the first execution of the job
       if (!jobTracking.has(jobKey)) {
         if (!jobCounter.has(current.id)) {
           jobCounter.set(current.id, 0);
         }
         jobCounter.set(current.id, jobCounter.get(current.id)! + 1);
-        
+
         const jobInstance: JobInstances = {
           taskid: current.id,
           jobNumber: jobCounter.get(current.id)!,
           jobFinished: false,
-          release: current.release,
-          start: t,
-          deadline: current.deadline,
+          release: fromTick(current.release),
+          start: fromTick(t),
+          deadline: fromTick(current.deadline),
           executionTime: 0,
           missedDeadline: null,
           preemptionCount: 0,
@@ -184,317 +224,35 @@ export function simulateEDF(tasks: Task[], hyperperiod: number): ScheduleResult 
           laxity: null,
         };
         jobTracking.set(jobKey, jobInstance);
-        jobStartTimes.set(jobKey, t);
       }
 
       const jobInstance = jobTracking.get(jobKey)!;
-      jobInstance.executionTime += 1;
+      jobInstance.executionTime = fromTick(toTick(jobInstance.executionTime) + runDuration);
 
-      current.remainingExecution -= 1;
-      schedule.push({ time: t, duration: 1, taskId: current.id, jobRelease: current.release, jobDeadline: current.deadline, remainingExecution: current.remainingExecution });
+      current.remainingExecution -= runDuration;
+      schedule.push({
+        time: fromTick(t),
+        duration: fromTick(runDuration),
+        taskId: current.id,
+        jobRelease: fromTick(current.release),
+        jobDeadline: fromTick(current.deadline),
+        remainingExecution: fromTick(Math.max(0, current.remainingExecution)),
+      });
     } else {
-      schedule.push({ time: t, duration: 1, taskId: null });
+      schedule.push({
+        time: fromTick(t),
+        duration: fromTick(runDuration),
+        taskId: null,
+      });
     }
+
+    t = nextEventTime;
   }
 
-  // Finalize any remaining jobs, jobs that didn't finish stay as incomplete
-  for (const [jobKey, jobInstance] of jobTracking.entries()) {
+  finalizeFinishedJobs(hyperperiodTick);
+
+  for (const jobInstance of jobTracking.values()) {
     if (jobInstance.responseTime === null) {
-      // Job didn't finish during hyperperiod, leave as null
-      jobInstance.jobFinished = false;      
-      jobInstance.missedDeadline = null;
-      jobInstance.responseTime = null;
-      jobInstance.laxity = null;
-    }
-  }
-
-  // Sort job instances per task
-  for (const [jobKey, jobInstance] of jobTracking.entries()) {
-    const taskId = jobInstance.taskid;
-    if (!jobInstancesPerTask.has(taskId)) {
-      jobInstancesPerTask.set(taskId, []);
-    }
-    jobInstancesPerTask.get(taskId)!.push(jobInstance);
-  }
-
-  let avgPreemptions = [...jobTracking.values()].reduce((sum, job) => sum + (job.preemptionCount ?? 0), 0) / jobTracking.size;
-  let avgLaxity = [...jobTracking.values()].reduce((sum, job) => sum + (job.laxity ?? 0), 0) / jobTracking.size;
-  let giniT = giniCoefficient(tasks.map(t => t.T));
-  let giniC = giniCoefficient(tasks.map(t => t.C));
-  console.log('EDF, Schedule:', schedule, 'JobInstances:', jobInstancesPerTask, 'avgPreemptions:', avgPreemptions, 'avgLaxity:', avgLaxity, 'Gini Coefficient (Periods):', giniT, 'Gini Coefficient (Execution Times):', giniC);
-  return { schedule, jobInstancesPerTask, avgPreemptions, avgLaxity, giniT, giniC };
-}
-
-
-
-export function simulateRM(tasks: Task[], hyperperiod: number): ScheduleResult {
-  const schedule: ScheduleEntry[] = [];
-  const giniT = giniCoefficient(tasks.map(t => t.T));
-  const giniC = giniCoefficient(tasks.map(t => t.C));
-  // active task instances
-  interface ActiveInstance {
-    id: string;
-    release: number;
-    deadline: number;
-    remaining: number;
-    period: number;
-  }
-
-  let active: ActiveInstance[] = [];
-    
-  // Map tasks to an deterministic order for tie-break
-  const taskOrder = new Map<string, number>();
-    tasks.forEach((task, index) => {
-      taskOrder.set(task.id, index);
-    });
-
-  const lastRelease = new Map<string, number>();
-  
-  // Track job instances
-  const jobInstancesPerTask = new Map<string, JobInstances[]>();
-  const jobTracking = new Map<string, JobInstances>();
-  const jobStartTimes = new Map<string, number>();
-  let jobCounter = new Map<string, number>(); 
-  let previousJob: ActiveInstance | null = null; 
-
-  for (let t = 0; t < hyperperiod; t++) {
-    for (const task of tasks) {
-      if (releasePattern(task, t, lastRelease)) {
-        active.push({
-          id: task.id,
-          release: t,
-          deadline: t + task.D,
-          remaining: task.C,
-          period: task.T,
-        });
-        lastRelease.set(task.id, t);
-      }
-    }
-
-    // Remove finished jobs and save the information
-    const finishedJobs = active.filter((a) => a.remaining <= 0);
-    for (const job of finishedJobs) {
-      const jobKey = `${job.id}-${job.release}`;
-      const jobInstance = jobTracking.get(jobKey);
-      if (jobInstance) {
-        jobInstance.jobFinished = true;
-        jobInstance.missedDeadline = t > job.deadline;
-        jobInstance.responseTime = t - job.release;
-        jobInstance.laxity = job.deadline - t;
-      }
-    }
-    
-    active = active.filter((a) => a.remaining > 0);
-    
-    // sort by period (Rate Monotonic)
-    active.sort((a, b) => {
-      if (a.period !== b.period) {
-        return a.period - b.period;
-      }
-
-      // tie-break via task order
-      return taskOrder.get(a.id)! - taskOrder.get(b.id)!;
-    });
-
-    const current = active[0];
-    
-    // Count preemptions (context switch even though remaining execution is not 0)
-    if (previousJob !== null && previousJob.remaining > 0 && current?.id !== previousJob.id) {
-      const preemptedJobKey = `${previousJob.id}-${previousJob.release}`;
-      const preemptedJob = jobTracking.get(preemptedJobKey);
-      if (preemptedJob && preemptedJob.preemptionCount !== undefined) {
-        preemptedJob.preemptionCount++;
-      }
-    }
-    previousJob = current ?? null;
-
-    if (current) {
-      const jobKey = `${current.id}-${current.release}`;
-      
-      // Initialize job instance if it's the first execution of the job
-      if (!jobTracking.has(jobKey)) {
-        if (!jobCounter.has(current.id)) {
-          jobCounter.set(current.id, 0);
-        }
-        jobCounter.set(current.id, jobCounter.get(current.id)! + 1);
-        
-        const jobInstance: JobInstances = {
-          taskid: current.id,
-          jobNumber: jobCounter.get(current.id)!,
-          jobFinished: false,
-          release: current.release,
-          start: t,
-          deadline: current.deadline,
-          executionTime: 0,
-          missedDeadline: null,
-          preemptionCount: 0,
-          responseTime: null,
-          laxity: null,
-        };
-        jobTracking.set(jobKey, jobInstance);
-        jobStartTimes.set(jobKey, t);
-      }
-
-      const jobInstance = jobTracking.get(jobKey)!;
-      jobInstance.executionTime += 1;
-
-      current.remaining -= 1;
-      schedule.push({ time: t, duration: 1, taskId: current.id, jobRelease: current.release, jobDeadline: current.deadline, remainingExecution: current.remaining });
-    } else {
-      schedule.push({ time: t, duration: 1, taskId: null });
-    }
-  }
-
-  // Finalize any remaining jobs, jobs that didn't finish stay as incomplete
-  for (const [jobKey, jobInstance] of jobTracking.entries()) {
-    if (jobInstance.responseTime === null) {
-      // Job didn't finish during hyperperiod, leave as null
-      jobInstance.jobFinished = false;      
-      jobInstance.missedDeadline = null;
-      jobInstance.responseTime = null;
-      jobInstance.laxity = null;
-    }
-  }
-
-  // Sort job instances per task
-  for (const [jobKey, jobInstance] of jobTracking.entries()) {
-    const taskId = jobInstance.taskid;
-    if (!jobInstancesPerTask.has(taskId)) {
-      jobInstancesPerTask.set(taskId, []);
-    }
-    jobInstancesPerTask.get(taskId)!.push(jobInstance);
-  }
-
-  let avgPreemptions = [...jobTracking.values()].reduce((sum, job) => sum + (job.preemptionCount ?? 0), 0) / jobTracking.size;
-  let avgLaxity = [...jobTracking.values()].reduce((sum, job) => sum + (job.laxity ?? 0), 0) / jobTracking.size;
-  let giniT = giniCoefficient(tasks.map(t => t.T));
-  let giniC = giniCoefficient(tasks.map(t => t.C));
-  console.log('EDF, Schedule:', schedule, 'JobInstances:', jobInstancesPerTask, 'avgPreemptions:', avgPreemptions, 'avgLaxity:', avgLaxity, 'Gini Coefficient (Periods):', giniT, 'Gini Coefficient (Execution Times):', giniC);
-  return { schedule, jobInstancesPerTask, avgPreemptions, avgLaxity, giniT, giniC };
-}
-
-export function simulateDM(tasks: Task[], hyperperiod: number): ScheduleResult {
-  const schedule: ScheduleEntry[] = [];
-  const giniT = giniCoefficient(tasks.map(t => t.T));
-  const giniC = giniCoefficient(tasks.map(t => t.C));
-  // active task instances
-  interface ActiveInstance {
-    id: string;
-    release: number;
-    deadline: number;
-    remaining: number;
-    period: number;
-  }
-
-  let active: ActiveInstance[] = [];
-    
-  // Map tasks to an deterministic order for tie-break
-  const taskOrder = new Map<string, number>();
-    tasks.forEach((task, index) => {
-      taskOrder.set(task.id, index);
-    });
-
-  const lastRelease = new Map<string, number>();
-  
-  // Track job instances
-  const jobInstancesPerTask = new Map<string, JobInstances[]>();
-  const jobTracking = new Map<string, JobInstances>();
-  const jobStartTimes = new Map<string, number>();
-  let jobCounter = new Map<string, number>(); 
-  let previousJob: ActiveInstance | null = null; 
-
-  for (let t = 0; t < hyperperiod; t++) {
-    for (const task of tasks) {
-      if (releasePattern(task, t, lastRelease)) {
-        active.push({
-          id: task.id,
-          release: t,
-          deadline: t + task.D,
-          remaining: task.C,
-          period: task.T,
-        });
-        lastRelease.set(task.id, t);
-      }
-    }
-
-    // Remove finished jobs and save the information
-    const finishedJobs = active.filter((a) => a.remaining <= 0);
-    for (const job of finishedJobs) {
-      const jobKey = `${job.id}-${job.release}`;
-      const jobInstance = jobTracking.get(jobKey);
-      if (jobInstance) {
-        jobInstance.jobFinished = true;
-        jobInstance.missedDeadline = t > job.deadline;
-        jobInstance.responseTime = t - job.release;
-        jobInstance.laxity = job.deadline - t;
-      }
-    }
-    
-    active = active.filter((a) => a.remaining > 0);
-    
-    // sort by deadline
-    active.sort((a, b) => {
-      if (a.deadline !== b.deadline) {
-        return a.deadline - b.deadline;
-      }
-
-      // tie-break via task order
-      return taskOrder.get(a.id)! - taskOrder.get(b.id)!;
-    });
-
-    const current = active[0];
-    
-    // Count preemptions (context switch even though remaining execution is not 0)
-    if (previousJob !== null && previousJob.remaining > 0 && current?.id !== previousJob.id) {
-      const preemptedJobKey = `${previousJob.id}-${previousJob.release}`;
-      const preemptedJob = jobTracking.get(preemptedJobKey);
-      if (preemptedJob && preemptedJob.preemptionCount !== undefined) {
-        preemptedJob.preemptionCount++;
-      }
-    }
-    previousJob = current ?? null;
-
-    if (current) {
-      const jobKey = `${current.id}-${current.release}`;
-      
-      // Initialize job instance if it's the first execution of the job
-      if (!jobTracking.has(jobKey)) {
-        if (!jobCounter.has(current.id)) {
-          jobCounter.set(current.id, 0);
-        }
-        jobCounter.set(current.id, jobCounter.get(current.id)! + 1);
-        
-        const jobInstance: JobInstances = {
-          taskid: current.id,
-          jobNumber: jobCounter.get(current.id)!,
-          jobFinished: false,
-          release: current.release,
-          start: t,
-          deadline: current.deadline,
-          executionTime: 0,
-          missedDeadline: null,
-          preemptionCount: 0,
-          responseTime: null,
-          laxity: null,
-        };
-        jobTracking.set(jobKey, jobInstance);
-        jobStartTimes.set(jobKey, t);
-      }
-
-      const jobInstance = jobTracking.get(jobKey)!;
-      jobInstance.executionTime += 1;
-
-      current.remaining -= 1;
-      schedule.push({ time: t, duration: 1, taskId: current.id, jobRelease: current.release, jobDeadline: current.deadline, remainingExecution: current.remaining });
-    } else {
-      schedule.push({ time: t, duration: 1, taskId: null });
-    }
-  }
-
-  // Finalize any remaining jobs, jobs that didn't finish stay as incomplete
-  for (const [jobKey, jobInstance] of jobTracking.entries()) {
-    if (jobInstance.responseTime === null) {
-      // Job didn't finish during hyperperiod, leave as null
       jobInstance.jobFinished = false;
       jobInstance.missedDeadline = null;
       jobInstance.responseTime = null;
@@ -502,8 +260,7 @@ export function simulateDM(tasks: Task[], hyperperiod: number): ScheduleResult {
     }
   }
 
-  // Sort job instances per task
-  for (const [jobKey, jobInstance] of jobTracking.entries()) {
+  for (const jobInstance of jobTracking.values()) {
     const taskId = jobInstance.taskid;
     if (!jobInstancesPerTask.has(taskId)) {
       jobInstancesPerTask.set(taskId, []);
@@ -511,12 +268,65 @@ export function simulateDM(tasks: Task[], hyperperiod: number): ScheduleResult {
     jobInstancesPerTask.get(taskId)!.push(jobInstance);
   }
 
-  let avgPreemptions = [...jobTracking.values()].reduce((sum, job) => sum + (job.preemptionCount ?? 0), 0) / jobTracking.size;
-  let avgLaxity = [...jobTracking.values()].reduce((sum, job) => sum + (job.laxity ?? 0), 0) / jobTracking.size;
-  let giniT = giniCoefficient(tasks.map(t => t.T));
-  let giniC = giniCoefficient(tasks.map(t => t.C));
-  console.log('DM, Schedule:', schedule, 'JobInstances:', jobInstancesPerTask, 'avgPreemptions:', avgPreemptions, 'avgLaxity:', avgLaxity, 'Gini Coefficient (Periods):', giniT, 'Gini Coefficient (Execution Times):', giniC);
+  const trackedJobs = [...jobTracking.values()];
+  const avgPreemptions = trackedJobs.length > 0
+    ? trackedJobs.reduce((sum, job) => sum + (job.preemptionCount ?? 0), 0) / trackedJobs.length
+    : 0;
+  const avgLaxity = trackedJobs.length > 0
+    ? trackedJobs.reduce((sum, job) => sum + (job.laxity ?? 0), 0) / trackedJobs.length
+    : 0;
+
   return { schedule, jobInstancesPerTask, avgPreemptions, avgLaxity, giniT, giniC };
+}
+
+
+export function simulateEDF(tasks: Task[], hyperperiod: number): ScheduleResult {
+  return simulate(
+    tasks,
+    hyperperiod,
+    (a, b, taskOrder) => {
+      if (a.deadline !== b.deadline) {
+        return a.deadline - b.deadline;
+      }
+      return taskOrder.get(a.id)! - taskOrder.get(b.id)!;
+    }
+  );
+}
+
+
+
+export function simulateRM(tasks: Task[], hyperperiod: number): ScheduleResult {
+  return simulate(
+    tasks,
+    hyperperiod,
+    (a, b, taskOrder) => {
+      if (a.period !== b.period) {
+        return a.period - b.period;
+      }
+      return taskOrder.get(a.id)! - taskOrder.get(b.id)!;
+    }
+  );
+}
+
+export function simulateDM(tasks: Task[], hyperperiod: number): ScheduleResult {
+  const taskRelativeDeadline = new Map<string, number>();
+  tasks.forEach((task) => {
+    taskRelativeDeadline.set(task.id, task.D);
+  });
+
+  return simulate(
+    tasks,
+    hyperperiod,
+    (a, b, taskOrder) => {
+      const aRelativeDeadline = taskRelativeDeadline.get(a.id) ?? Infinity;
+      const bRelativeDeadline = taskRelativeDeadline.get(b.id) ?? Infinity;
+
+      if (aRelativeDeadline !== bRelativeDeadline) {
+        return aRelativeDeadline - bRelativeDeadline;
+      }
+      return taskOrder.get(a.id)! - taskOrder.get(b.id)!;
+    }
+  );
 }
 
 /**
@@ -812,6 +622,11 @@ export function simulateDMWithSuspension(tasks: Task[], hyperperiod: number): Sc
       taskOrder.set(task.id, index);
   });
 
+  const taskRelativeDeadline = new Map<string, number>();
+  tasks.forEach((task) => {
+    taskRelativeDeadline.set(task.id, task.D);
+  });
+
   const lastRelease = new Map<string, number>();
 
   // Precompute suspension intervals for all tasks
@@ -882,9 +697,11 @@ export function simulateDMWithSuspension(tasks: Task[], hyperperiod: number): Sc
     });
 
     executableTasks.sort((a, b) => {
-      // Sort statically by deadline for Deadline Monotonic
-      if (a.deadline !== b.deadline) {
-        return a.deadline - b.deadline;
+      // Sort statically by relative deadline for Deadline Monotonic
+      const aRelativeDeadline = taskRelativeDeadline.get(a.id) ?? Infinity;
+      const bRelativeDeadline = taskRelativeDeadline.get(b.id) ?? Infinity;
+      if (aRelativeDeadline !== bRelativeDeadline) {
+        return aRelativeDeadline - bRelativeDeadline;
       }
       
       // tie-break via task order

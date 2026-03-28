@@ -76,6 +76,17 @@ const DEFAULT_VISIBILITY = {
   showDeadlineMarkers: true,
 };
 
+const TIME_TICK_SCALE = 10;
+
+function toTick(value: number): number {
+  return Math.round(value * TIME_TICK_SCALE);
+}
+
+function formatTimeLabel(value: number): string {
+  const rounded = Math.round(value * 1000) / 1000;
+  return Number.isInteger(rounded) ? String(rounded) : String(rounded).replace(/\.0+$/, "").replace(/(\.\d*?)0+$/, "$1");
+}
+
 // SchedulerCanvas function to visualize the scheduling
 const SchedulerCanvas = forwardRef(function SchedulerCanvas({
   tasks,
@@ -83,7 +94,7 @@ const SchedulerCanvas = forwardRef(function SchedulerCanvas({
   interval,
   schedule = [],
   pxPerStep = 28,
-  //timeStepLabelEvery = 1,
+  timeStepLabelEvery = 1,
   rightPaddingSteps = 2,
   heightPerTask = 125,
   leftLabelWidth = 72,
@@ -123,6 +134,13 @@ const SchedulerCanvas = forwardRef(function SchedulerCanvas({
   const axisColor = "#0d2b6cff";
   const timeFontSize = 15;
   const labelFontSize = 18;
+  const minLabelPixelSpacing = 44;
+
+  const effectiveTickStep = Math.max(timeStepLabelEvery, 0.001);
+  const drawTickStep = effectiveTickStep >= 1 ? 0.5 : effectiveTickStep;
+  const labelStride = effectiveTickStep >= 1
+    ? 1
+    : Math.max(1, Math.ceil(minLabelPixelSpacing / (effectiveTickStep * pxPerStep)));
 
   const mergedVisibility = {
     ...DEFAULT_VISIBILITY,
@@ -339,12 +357,15 @@ const SchedulerCanvas = forwardRef(function SchedulerCanvas({
               {mergedVisibility.showTimeTicks && (
                 <>
                   <g transform={`translate(${leftLabelWidth}, ${yTop + heightPerTask - heightPerTask / 1.75})`}>
-                    {Array.from({ length: maxDeadline + 1}).map((_, t) => {
-                      const x = t * pxPerStep;
-                      const showLabel = 1;
-                      const displayTime = interval ? t + interval[0] : t;
+                    {Array.from({ length: Math.max(1, Math.floor(maxDeadline / drawTickStep) + 1) }).map((_, idx) => {
+                      const tick = idx * drawTickStep;
+                      const x = tick * pxPerStep;
+                      const displayTime = interval ? tick + interval[0] : tick;
+                      const showLabel = effectiveTickStep >= 1
+                        ? toTick(displayTime) % TIME_TICK_SCALE === 0
+                        : idx % labelStride === 0;
                       return (
-                        <g key={t}>
+                        <g key={`tick-${idx}`}>
                           {/* Small ticks */}
                           <line
                             x1={x}
@@ -363,12 +384,33 @@ const SchedulerCanvas = forwardRef(function SchedulerCanvas({
                               fontSize={timeFontSize - 2}
                               fill="#0f0e0dff"
                             >
-                              {displayTime}
+                              {formatTimeLabel(displayTime)}
                             </text>
-                            )}
+                          )}
                         </g>
                       );
                     })}
+                    {(() => {
+                      const tickCount = Math.floor(maxDeadline / drawTickStep) + 1;
+                      const lastTick = (tickCount - 1) * drawTickStep;
+                      if (toTick(maxDeadline) === toTick(lastTick)) return null;
+                      const x = maxDeadline * pxPerStep;
+                      const displayTime = interval ? maxDeadline + interval[0] : maxDeadline;
+                      return (
+                        <g key="tick-last">
+                          <line x1={x} y1={0} x2={x} y2={6} stroke={axisColor} strokeWidth={1} />
+                          <text
+                            x={x}
+                            y={18}
+                            textAnchor="middle"
+                            fontSize={timeFontSize - 2}
+                            fill="#0f0e0dff"
+                          >
+                            {formatTimeLabel(displayTime)}
+                          </text>
+                        </g>
+                      );
+                    })()}
                   </g>
                 </>
               )}  
@@ -471,6 +513,23 @@ const SchedulerCanvas = forwardRef(function SchedulerCanvas({
                 <>
                   {schedule
                     .filter((s) => s.taskId === task.id)
+                    .reduce((acc, s) => {
+                      const last = acc[acc.length - 1];
+                      if (!last) {
+                        acc.push({ ...s });
+                        return acc;
+                      }
+
+                      const lastEnd = last.time + last.duration;
+                      // Merge splits of executions if the same task continues.
+                      if (toTick(lastEnd) === toTick(s.time)) {
+                        last.duration += s.duration;
+                      } else {
+                        acc.push({ ...s });
+                      }
+
+                      return acc;
+                    }, [] as ScheduleEntry[])
                     .filter((s) => {
                       // If schedule interval is provided, only show executions that are within the interval
                       if (interval) {

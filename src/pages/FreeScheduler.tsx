@@ -6,10 +6,12 @@ import MenuIcon from "@mui/icons-material/Menu";
 import DownloadIcon from "@mui/icons-material/Download";
 import { useEffect, useRef, useState } from "react";
 import { simulateEDF, simulateRM, simulateDM, type ScheduleEntry } from "../logic/simulator";
-import { lcmArray } from "../utils/formulas";
+import { lcmArrayWithDecimals } from "../utils/formulas";
 
 const initialTasks: Task[] = [
 ];
+
+const MAX_SIMULATION_HYPERPERIOD = 1000;
 
 export default function FreeScheduler() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -47,7 +49,7 @@ export default function FreeScheduler() {
 
   // Hyperperiod = LCM of all Task Periods
   const periods = tasks.map(t => t.T);
-  const hp = lcmArray(periods);
+  const hp = Math.min(lcmArrayWithDecimals(periods, 1), MAX_SIMULATION_HYPERPERIOD);
   setHyperperiod(hp);
   setInterval([0, hp]);
 
@@ -110,7 +112,7 @@ export default function FreeScheduler() {
           interval={interval} 
           pxPerStep={28} 
           rightPaddingSteps={4}
-          timeStepLabelEvery={2} 
+          timeStepLabelEvery={1} 
         />
       </Box>
 

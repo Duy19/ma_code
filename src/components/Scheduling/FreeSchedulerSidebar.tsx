@@ -45,6 +45,7 @@ interface FreeSchedulerSidebarProps {
 
 export default function FreeSchedulerSidebar({ tasks, algorithm, onTasksChange, onAlgorithmChange, onClose, visibility, isFieldEditable, 
   maxExecution, maxDeadline, maxPeriod, maxSuspension, maxOffset, hyperperiod, algorithmOptions, interval, onIntervalChange }: FreeSchedulerSidebarProps) {
+  const roundTo1 = (value: number) => Math.round(value * 10) / 10;
   const [tempIntervalStart, setTempIntervalStart] = useState<string>(interval?.[0]?.toString() ?? "");
   const [tempIntervalEnd, setTempIntervalEnd] = useState<string>(interval?.[1]?.toString() ?? "");
   const DEFAULT_VISIBILITY: SidebarVisibility = {
@@ -106,6 +107,10 @@ export default function FreeSchedulerSidebar({ tasks, algorithm, onTasksChange, 
       finalValue = Math.min(finalValue, effectiveMaxSuspension);
     }
 
+    if (typeof finalValue === "number" && Number.isFinite(finalValue) && ["C", "T", "D", "O", "S"].includes(field)) {
+      finalValue = roundTo1(finalValue);
+    }
+
     const newTasks = [...tasks];
     newTasks[index] = { ...newTasks[index], [field]: finalValue === "" ? "" : finalValue };
     onTasksChange(newTasks);
@@ -162,7 +167,7 @@ export default function FreeSchedulerSidebar({ tasks, algorithm, onTasksChange, 
                 size="small"
                 value={tempIntervalStart}
                 onChange={(e) => setTempIntervalStart(e.target.value)}
-                slotProps={{ htmlInput: { min: 0, step: 1 } }}
+                slotProps={{ htmlInput: { min: 0, step: 0.1 } }}
                 sx={{ flex: 1 }}
               />
               <TextField
@@ -171,7 +176,7 @@ export default function FreeSchedulerSidebar({ tasks, algorithm, onTasksChange, 
                 size="small"
                 value={tempIntervalEnd}
                 onChange={(e) => setTempIntervalEnd(e.target.value)}
-                slotProps={{ htmlInput: { min: 0, step: 1 } }}
+                slotProps={{ htmlInput: { min: 0, step: 0.1 } }}
                 sx={{ flex: 1 }}
               />
             </Box>
@@ -182,7 +187,7 @@ export default function FreeSchedulerSidebar({ tasks, algorithm, onTasksChange, 
                 const start = Number(tempIntervalStart);
                 const end = Number(tempIntervalEnd);
                 if (start >= 0 && end > start) {
-                  onIntervalChange([start, end]);
+                  onIntervalChange([roundTo1(start), roundTo1(end)]);
                 } else {
                   alert("Valid interval: Start >= 0 and End > Start");
                 }
@@ -276,7 +281,7 @@ export default function FreeSchedulerSidebar({ tasks, algorithm, onTasksChange, 
                 margin="dense"
                 value={task.C}
                 onChange={(e) => handleTaskChange(index, "C", Number(e.target.value))}
-                slotProps={{ htmlInput: { min: 0, max: effectiveMaxExecution, step: 1 } }}
+                slotProps={{ htmlInput: { min: 0, max: effectiveMaxExecution, step: 0.1 } }}
                 disabled={isFieldEditable ? !isFieldEditable(task, "C") : false}
               />
             </>
@@ -292,7 +297,7 @@ export default function FreeSchedulerSidebar({ tasks, algorithm, onTasksChange, 
                 margin="dense"
                 value={task.T}
                 onChange={(e) => handleTaskChange(index, "T", Number(e.target.value))}
-                slotProps={{ htmlInput: { min: 1, max: effectiveMaxPeriod, step: 1 } }}
+                slotProps={{ htmlInput: { min: 0.1, max: effectiveMaxPeriod, step: 0.1 } }}
                 disabled={isFieldEditable ? !isFieldEditable(task, "T") : false}
               />
           </>
@@ -308,7 +313,7 @@ export default function FreeSchedulerSidebar({ tasks, algorithm, onTasksChange, 
                 margin="dense"
                 value={task.D}
                 onChange={(e) => handleTaskChange(index, "D", Number(e.target.value))}
-                slotProps={{ htmlInput: { min: 1, max: effectiveMaxDeadline, step: 1 } }}
+                slotProps={{ htmlInput: { min: 0.1, max: effectiveMaxDeadline, step: 0.1 } }}
                 disabled={isFieldEditable ? !isFieldEditable(task, "D") : false}
               />
             </>
@@ -324,7 +329,7 @@ export default function FreeSchedulerSidebar({ tasks, algorithm, onTasksChange, 
                 margin="dense"
                 value={task.O ?? 0}
                 onChange={(e) => handleTaskChange(index, "O", Number(e.target.value))}
-                slotProps={{ htmlInput: { min: 0, max: effectiveMaxOffset, step: 1 } }}
+                slotProps={{ htmlInput: { min: 0, max: effectiveMaxOffset, step: 0.1 } }}
                 disabled={isFieldEditable ? !isFieldEditable(task, "O") : false}
               />
             </>
@@ -340,7 +345,7 @@ export default function FreeSchedulerSidebar({ tasks, algorithm, onTasksChange, 
                 margin="dense"
                 value={task.S ?? 0}
                 onChange={(e) => handleTaskChange(index, "S", Number(e.target.value))}
-                slotProps={{ htmlInput: { min: 0, max: effectiveMaxSuspension, step: 1 } }}
+                slotProps={{ htmlInput: { min: 0, max: effectiveMaxSuspension, step: 0.1 } }}
                 disabled={isFieldEditable ? !isFieldEditable(task, "S") : false}
               />
             </>
