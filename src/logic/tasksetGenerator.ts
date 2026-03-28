@@ -2,9 +2,10 @@
 import { Task } from "@mui/icons-material";
 import type { Task } from "../core/task";
 import "../utils/formulas";
-import { tda } from "../utils/formulas";
+import { lcm, tda } from "../utils/formulas";
 import type { ScheduleEntry, ScheduleResult } from "./simulator";
 import { simulateEDF, simulateRM, simulateDM } from "./simulator";
+import type { number } from "motion";
 
 
 // Taskset generation configuration for Puzzle Type A (Given: Schedule, Solution: Correct Taskset Parameters)
@@ -496,13 +497,119 @@ function getParameters(taskset: Task[], algo: string, interval: [number, number]
   return parameters;
 }
 
-
-
-function initPopulation(popSize: number) {
-  
+interface GAConfig {
+  populationSize: number;
+  generations: number;
+  mutationRate: number;
+  crossoverRate: number;
+  fitnessFunction: "linear" | "polynomial";
+  fitnessCoefficients?: coefficients["linear"] | coefficients["polynomial"];
+  algorithm: "RM" | "DM" | "EDF";
+  numberOfTasks: number;
+  periodRange: [number, number];
+  utilizationRange: [number, number];
+  executionTimeRange: [number, number];
+  deadlineType: "implicit" | "constrained";  
 }
 
-export function GA_TasksetGeneration() {
+interface Individual {
+  taskset: Task[];
+  fitness: number;
+}
 
+function generateRandomTaskset(config: GAConfig): Task[] {
+  let taskset: Task[] = [];
+  for (let i = 0; i < config.numberOfTasks; i++) {
+    const period = Math.round(Math.max(config.periodRange[0], Math.min(config.periodRange[1], Math.random() * (config.periodRange[1] - config.periodRange[0]) + config.periodRange[0])));    
+    const utilization = Math.max(config.utilizationRange[0], Math.min(config.utilizationRange[1], Math.random() * (config.utilizationRange[1] - config.utilizationRange[0]) + config.utilizationRange[0]));
+    const executionTime = Math.round(Math.max(1, Math.min(period, utilization * period)));
+    const offset = 0;
+    let deadline: number;
+    if (config.deadlineType === "implicit") {
+      deadline = period;
+    } else if (config.deadlineType === "constrained") {
+      deadline = Math.round(Math.max(executionTime, Math.min(period, Math.random() * (period - executionTime) + executionTime)));
+    } else {
+      deadline = period;
+    }
+
+    const task: Task = {
+      id: `T${i}`,
+      name: `Task ${i}`,
+      C: executionTime,
+      T: period,
+      D: deadline,
+      offset: offset,
+      color: `hsl(${Math.round(Math.random() * 360)}, 70%, 60%)`
+    };
+    taskset.push(task);
+  }
+  return taskset;
+}
+
+function clampTask(task: Task, config: GAConfig): Task {
+  const period = Math.round(Math.max(config.periodRange[0], Math.min(config.periodRange[1], task.T)));
+  const executionTime = Math.round(Math.max(1, Math.min(period, task.C)));
+  let deadline = Math.round(Math.max(executionTime, Math.min(period, task.D)));
   
+  if (config.deadlineType === "implicit") {
+    deadline = period;
+  }
+  
+  return {
+    ...task,
+    C: executionTime,
+    T: period,
+    D: deadline,
+    offset: Math.round(task.offset || 0)
+  };
+}
+
+function initPopulation(popSize: number, config: GAConfig) {
+  let population  = []; 
+  for (let i = 0; i < popSize; i++) {
+    const individual = {} as Individual;
+    let taskset = generateRandomTaskset(config);
+    individual.taskset = taskset.map(task => clampTask(task, config));
+    individual.fitness = 0;
+    population.push(individual);
+  }
+  return population;
+}
+
+function evalueateFitness(taskset: Task[], config: GAConfig) {
+  const parameters = getParameters(taskset, config.algorithm, lcm(taskset.map(t => t.T)));
+
+  if (config.fitnessFunction === "linear") {
+    return linearFitness(parameters, config.fitnessCoefficients as coefficients["linear"]);
+  }
+  else if (config.fitnessFunction === "polynomial") {
+    return 0; 
+  }
+  else {
+    console.error("Invalid fitness function specified in GA configuration.");
+    return 0;
+  }
+}
+
+
+export function GA_TasksetGeneration(config: GAConfig) {
+  let population = initPopulation(30, config);
+
+  for (let gen = 0; gen < config.generations; gen++) {
+    for (let individual of population) {
+      individual.fitness = evalueateFitness(individual.taskset, config);
+    }
+    const newPopulation: Individual[] = [];
+    for (let i = 0; i < config.populationSize; i++) {
+      // Selection
+    }
+
+    // Crossover
+
+    // Mutation
+
+  }
+
+  return population[0].taskset;
 }
