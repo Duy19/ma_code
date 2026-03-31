@@ -28,6 +28,7 @@ interface coefficients {
     e?: number;
   };
   quadratic?: {
+    //Todo: Add formula and test them against each other
     bias?: number;
   };
 }

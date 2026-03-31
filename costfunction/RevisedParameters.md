@@ -27,43 +27,38 @@ f(N,giniC,P,giniT)=&-1.30876641+1.50792892N-4.92417509P-7.53047359giniC+11.62444
 
 ### testfunction2
 
-R^2 Score: -0.6430
+R^2 Score: -0.4194
 
-Kendall tau: 0.8427 (p=2.991e-09)
+Kendall tau: 0.8143 (p=1.531e-08)
 
 ```math
-\begin{aligned}
-f(N,giniC,P,giniT)=&(0.85297580\cdot N)\cdot(0.86003098\cdot(1+P))\\
-&\cdot(0.81318491\cdot giniC)\cdot(1.08439605\cdot giniT)\\
-&\cdot(1.12591146\cdot(1+P)\cdot giniC\cdot N)
-\end{aligned}
+f(N,giniC,P,giniT)=1.69229585N+1.60977697P+1.57993703giniC+1.81805224giniT
 ```
 
-### testfunction3
-
-R^2 Score: 0.8647
+R^2 Score: 0.8648
 
 Kendall tau: 0.8211 (p=6.274e-09)
 
 ```math
-f(N,giniC,P,giniT)=-0.30707590+0.36027311N+4.24616187giniC+1.42941434P+0.37973097(giniC\cdot P\cdot giniT)
+f(N,giniC,P,giniT)=-0.31258550+0.36193186N+1.47236834P+4.38228801giniC-0.22941148giniT+0.40863876(giniC\cdot P\cdot giniT)
 ```
 
 
 
-### pySR
 
-Best model:
+### pySR Best result
+
+R² Score: 0.9322
+
+Kendall tau: 0.8701
 
 ```math
-f(N,U,P,L,giniT) = U \cdot L \cdot giniT + P \cdot (N - 1.7743556) + 1.1095759
+f(N,giniC,P,giniT) = N \cdot (N \cdot (-0.08342513) + giniC + (P + 1.5941482) \cdot 0.3979973)
 ```
 
-Metrics:
+**Expanded form:**
 
-- `R^2 = 0.9368`
-- `Kendall's tau = 0.8810`
-
-
-This specific PySR expression does not use `giniC`.
+```math
+f(N,giniC,P,giniT) = -0.08342513N^2 + 0.39799730NP + NginiC + 0.63438274N
+```
 
