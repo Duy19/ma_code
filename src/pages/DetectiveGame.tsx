@@ -52,7 +52,7 @@ function buildGAConfigFromDifficulty(choice: DifficultyChoice) {
     numberOfTasks = 5;
     periodRange = [2, 100];
     utilizationRange = [0.6, 1];
-    generations = 30;
+    generations = 20;
     mutationRate = 0.12;
     crossoverRate = 0.9;
     maxFitnessHorizon = 120;
@@ -61,7 +61,7 @@ function buildGAConfigFromDifficulty(choice: DifficultyChoice) {
   }
 
   return {
-    populationSize: 50,
+    populationSize: 30,
     generations,
     selectionAmount: 10,
     mutationRate,
