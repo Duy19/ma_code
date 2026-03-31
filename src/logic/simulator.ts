@@ -44,6 +44,7 @@ export interface ScheduleResult {
   avgLaxity?: number;
   giniT?: number;
   giniC?: number;
+  utilization?: number;
 }
 
 // Helper function to get all the Suspension Intervals or the pattern for a task in the hyperperiod
@@ -276,7 +277,9 @@ function simulate(
     ? trackedJobs.reduce((sum, job) => sum + (job.laxity ?? 0), 0) / trackedJobs.length
     : 0;
 
-  return { schedule, jobInstancesPerTask, avgPreemptions, avgLaxity, giniT, giniC };
+  const utilization = tasks.reduce((sum, task) => sum + task.C / task.T, 0);  
+  console.log(`Simulation finished: ${schedule.length} schedule entries, ${trackedJobs.length} jobs, U=${utilization.toFixed(2)}, avgPreemptions=${avgPreemptions.toFixed(2)}, avgLaxity=${avgLaxity.toFixed(2)}, giniT=${giniT.toFixed(2)}, giniC=${giniC.toFixed(2)}`);
+  return { schedule, jobInstancesPerTask, avgPreemptions, avgLaxity, giniT, giniC, utilization };
 }
 
 

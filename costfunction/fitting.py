@@ -8,6 +8,7 @@ from scipy.stats import kendalltau
 # Load data from CSV file
 data = pd.read_csv('learningTasksets.csv')
 raw = data[['N', 'U', 'P', 'L', 'giniC', 'giniT']].values
+raw2 = data[['N', 'P', 'giniC', 'giniT']].values
 y = data['difficulty'].values
 N = raw[:, 0]
 U = raw[:, 1]
@@ -20,27 +21,32 @@ X = (N, U, P, L, GC, GT)
 
 def linearFunction(X, a, b, c, d):
     N, U, P, L, GC, GT = X
-    return a*N + b*U + c*P + d*L
+    # return a*N + b*U + c*P + d*L
+    return a*N + b*GC + c*P + d*GT
 
-def quadraticFunction(X, a, b, c, d, e, f, g, h, i, j):
+def quadraticFunction(X, b0, b1, b2, b3, b4, q1, q2, q3, q4, i1, i2, i3, i4, i5, i6):
     N, U, P, L, GC, GT = X
-    return (a*N**2 + b*U**2 + c*P**2 + d*L**2 +
-            e*N*U + f*N*P + g*N*L + h*U*P + i*U*L + j*P*L)
+    return (
+        b0
+        + b1*N + b2*P + b3*GC + b4*GT
+        + q1*N**2 + q2*P**2 + q3*GC**2 + q4*GT**2
+        + i1*N*P + i2*N*GC + i3*N*GT + i4*P*GC + i5*P*GT + i6*GC*GT
+    )
 
 def testFunction(X, a, b, c, d):
     N, U, P, L, GC, GT = X
-
-    return (N**a * (1 + P)**b * U**c ) / (L**d + 1)
+    # return (N**a * (1 + P)**b * U**c ) / (L**d + 1)
+    return (N**a * (1 + P)**b * GC**c ) / (GT**d + 1)
 
 def testfunction2(X, a, b, c, d, e):
     N, U, P, L, GC, GT = X
-
-    return a*N * b*(1 + P) * c*U * d*L * e*((1+P)*U*N)
+    # return a*N * b*(1 + P) * c*U * d*L * e*((1+P)*U*N)
+    return a*N * b*(1 + P) * c*GC * d*GT * e*((1+P)*GC*N)
 
 def testfunction3(X, a, b, c, d, e):
     N, U, P, L, GC, GT = X
-
-    return a + b*N + c*U + d*P + e*(U*P*L)
+    # return a + b*N + c*U + d*P + e*(U*P*L)
+    return a + b*N + c*GC + d*P + e*(GC*P*GT)
 
 # Try different approaches, starting with curve fitting for some functions I came up with
 def curveFitting(function):
@@ -74,18 +80,19 @@ def _format_formula(result):
         a, b, c, d = p
         return (
             "```math\n"
-            f"f(N,U,P,L)={a:.8f}N{b:+.8f}U{c:+.8f}P{d:+.8f}L\n"
+            f"f(N,giniC,P,giniT)={a:.8f}N{b:+.8f}giniC{c:+.8f}P{d:+.8f}giniT\n"
             "```"
         )
 
     if name == "quadraticFunction":
-        a, b, c, d, e, f, g, h, i, j = p
+        b0, b1, b2, b3, b4, q1, q2, q3, q4, i1, i2, i3, i4, i5, i6 = p
         return (
             "```math\n"
             "\\begin{aligned}\n"
-            f"f(N,U,P,L)=&{a:.8f}N^2{b:+.8f}U^2{c:+.8f}P^2{d:+.8f}L^2\\\\\n"
-            f"&{e:+.8f}NU{f:+.8f}NP{g:+.8f}NL\\\\\n"
-            f"&{h:+.8f}UP{i:+.8f}UL{j:+.8f}PL\n"
+            f"f(N,giniC,P,giniT)=&{b0:.8f}{b1:+.8f}N{b2:+.8f}P{b3:+.8f}giniC{b4:+.8f}giniT\\\\\n"
+            f"&{q1:+.8f}N^2{q2:+.8f}P^2{q3:+.8f}giniC^2{q4:+.8f}giniT^2\\\\\n"
+            f"&{i1:+.8f}NP{i2:+.8f}N\,giniC{i3:+.8f}N\,giniT\\\\\n"
+            f"&{i4:+.8f}P\,giniC{i5:+.8f}P\,giniT{i6:+.8f}giniC\,giniT\n"
             "\\end{aligned}\n"
             "```"
         )
@@ -95,9 +102,9 @@ def _format_formula(result):
         return (
             "```math\n"
             "\\begin{aligned}\n"
-            f"f(N,U,P,L)=&({a:.8f}\\cdot N)\\cdot({b:.8f}\\cdot(1+P))\\\\\n"
-            f"&\\cdot({c:.8f}\\cdot U)\\cdot({d:.8f}\\cdot L)\\\\\n"
-            f"&\\cdot({e:.8f}\\cdot(1+P)\\cdot U\\cdot N)\n"
+            f"f(N,giniC,P,giniT)=&({a:.8f}\\cdot N)\\cdot({b:.8f}\\cdot(1+P))\\\\\n"
+            f"&\\cdot({c:.8f}\\cdot giniC)\\cdot({d:.8f}\\cdot giniT)\\\\\n"
+            f"&\\cdot({e:.8f}\\cdot(1+P)\\cdot giniC\\cdot N)\n"
             "\\end{aligned}\n"
             "```"
         )
@@ -106,7 +113,7 @@ def _format_formula(result):
         a, b, c, d, e = p
         return (
             "```math\n"
-            f"f(N,U,P,L)={a:.8f}{b:+.8f}N{c:+.8f}U{d:+.8f}P{e:+.8f}(UPL)\n"
+            f"f(N,giniC,P,giniT)={a:.8f}{b:+.8f}N{c:+.8f}giniC{d:+.8f}P{e:+.8f}(giniC\\cdot P\\cdot giniT)\n"
             "```"
         )
 
@@ -146,14 +153,14 @@ def functionFitting():
         random_state=42,
     )
     print("\n Now training the model")
-    model.fit(raw, y)
+    model.fit(raw2, y)
     print("\n Done training the model, now evaluating results")
     print("\n Best fitting Fnuction:")
     print(model.sympy())
-    print(f"\nR² Score: {model.score(raw, y):.4f}")
+    print(f"\nR² Score: {model.score(raw2, y):.4f}")
 
     print("\n Plotting results vs predictions")
-    predictions = model.predict(raw)
+    predictions = model.predict(raw2)
 
     fig, axes = plt.subplots(1, 2, figsize=(14, 5))
 
@@ -162,7 +169,7 @@ def functionFitting():
     axes[0].plot([y.min(), y.max()], [y.min(), y.max()], 'r--', label='Perfect Fit')
     axes[0].set_xlabel('Actual Difficulty')
     axes[0].set_ylabel('Predicted Difficulty')
-    axes[0].set_title(f'Fit Quality (R² = {model.score(raw, y):.3f})')
+    axes[0].set_title(f'Fit Quality (R² = {model.score(raw2, y):.3f})')
     axes[0].legend()
     axes[0].grid(True, alpha=0.3)
 
@@ -274,60 +281,80 @@ def plotVariableDifficultyCorrelation():
     plt.show()
 
 
-def calculateParameterSpaceDistance():
+def calculateCostFunctionDistancePerTaskset(linear_result, quadratic_result):
+    print("\n Calculating linear vs quadratic distance per taskset")
 
-    print("\n Calculating Parameter Space Distances")
-    n_tasksets = len(raw)
-    distance_matrix = np.full((n_tasksets, n_tasksets), np.nan)
-    
-    for i in range(n_tasksets):
-        for j in range(i, n_tasksets):
-            # Euclidean distance: sqrt((N1-N2)^2 + (U1-U2)^2 + (P1-P2)^2 + (L1-L2)^2)
-            distance = np.sqrt(np.sum((raw[i] - raw[j])**2))
-            distance_matrix[i, j] = distance
-    
-    fig, ax = plt.subplots(figsize=(12, 10))
-    
+    y_linear = linearFunction(X, *linear_result["parameters"])
+    y_quadratic = quadraticFunction(X, *quadratic_result["parameters"])
+    diff_data = y_quadratic - y_linear
 
-    masked_matrix = np.ma.masked_where(np.tril(np.ones_like(distance_matrix), k=-1).astype(bool), distance_matrix)
-    
-    im = ax.imshow(masked_matrix, cmap='coolwarm', aspect='auto')
-    
-    taskset_ids = [f'ts_{i+1}\n(d:{int(y[i])})' for i in range(n_tasksets)]
-    ax.set_xticks(range(n_tasksets))
-    ax.set_yticks(range(n_tasksets))
-    ax.set_xticklabels(taskset_ids, rotation=45, ha='right')
-    ax.set_yticklabels(taskset_ids)
-    
-    ax.set_xlabel('Taskset', fontsize=12, fontweight='bold')
-    ax.set_ylabel('Taskset', fontsize=12, fontweight='bold')
-    ax.set_title('Parameter Space Euclidean Distance', fontsize=14, fontweight='bold')
-    
-    cbar = plt.colorbar(im, ax=ax)
-    cbar.set_label('Distance', rotation=270, labelpad=20)
-    
-    for i in range(n_tasksets):
-        for j in range(i, n_tasksets):
-            text = ax.text(j, i, f'{distance_matrix[i, j]:.2f}',
-                          ha="center", va="center", color="w", fontsize=8)
-    
+    mae = np.mean(np.abs(diff_data))
+    rmse = np.sqrt(np.mean(diff_data ** 2))
+    max_abs = np.max(np.abs(diff_data))
+    tau, tau_pvalue = kendalltau(y_linear, y_quadratic)
+
+    print("\n Function distance metrics on observed tasksets:")
+    print(f"MAE: {mae:.4f}")
+    print(f"RMSE: {rmse:.4f}")
+    print(f"Max |Δ|: {max_abs:.4f}")
+    print(f"Kendall tau (linear vs quadratic): {tau:.4f} (p={tau_pvalue:.4g})")
+
+    taskset_idx = np.arange(1, len(y_linear) + 1)
+
+    fig, ax = plt.subplots(figsize=(15, 7))
+
+    ax.plot(taskset_idx, y_linear, marker='o', linewidth=2, color='royalblue', label='Linear')
+    ax.plot(taskset_idx, y_quadratic, marker='s', linewidth=2, color='firebrick', label='Quadratic')
+
+    for i in range(len(taskset_idx)):
+        ax.vlines(
+            taskset_idx[i],
+            y_linear[i],
+            y_quadratic[i],
+            color='gray',
+            alpha=0.55,
+            linewidth=1.3,
+        )
+
+    ax.set_xlabel('Taskset')
+    ax.set_ylabel('Predicted Difficulty')
+    ax.set_title('Linear vs Quadratic per Taskset (vertical distance = |Δ|)')
+    ax.set_xticks(taskset_idx)
+    ax.grid(True, alpha=0.3)
+    ax.legend()
+
+    text = (
+        f"MAE={mae:.3f} | RMSE={rmse:.3f} | Max|Δ|={max_abs:.3f} | "
+        f"Tau={tau:.3f}"
+    )
+    ax.text(
+        0.01,
+        0.99,
+        text,
+        transform=ax.transAxes,
+        ha='left',
+        va='top',
+        bbox=dict(boxstyle='round,pad=0.35', facecolor='white', alpha=0.9, edgecolor='gray'),
+    )
+
     plt.tight_layout()
-    plt.savefig('parameter_distance_map.png', dpi=150, bbox_inches='tight')
-    print("\n Saved distance matrix as 'parameter_distance_map.png'")
+    plt.savefig('costfunction_distance_per_taskset.png', dpi=150, bbox_inches='tight')
+    print("\n Saved plot as 'costfunction_distance_per_taskset.png'")
     plt.show()
-    
-    # Print statistics
-    upper_triangle = distance_matrix[np.triu_indices(n_tasksets, k=1)]
-    print("\n Distance Matrix Statistics:")
-    print(f"Min distance: {np.nanmin(upper_triangle):.4f}")
-    print(f"Max distance: {np.nanmax(upper_triangle):.4f}")
-    print(f"Mean distance: {np.nanmean(upper_triangle):.4f}")
-    
-    return distance_matrix
+
+    return {
+        "tasksets": {
+            "mae": mae,
+            "rmse": rmse,
+            "max_abs": max_abs,
+            "tau": tau,
+            "tau_pvalue": tau_pvalue,
+        }
+    }
 
 
 def main():
-    #functionFitting()
+    functionFitting()
     fitting_results = []
 
     print("\n ======= Linear ========")
@@ -343,8 +370,13 @@ def main():
     print("\n ======= Markdown Text =======")
     print(markdown_text)
 
+    result_by_name = {result["name"]: result for result in fitting_results}
+    calculateCostFunctionDistancePerTaskset(
+        result_by_name["linearFunction"],
+        result_by_name["quadraticFunction"],
+    )
+
     plotVariableDifficultyCorrelation()
-    calculateParameterSpaceDistance()
 
 if __name__ == "__main__":
     main()
