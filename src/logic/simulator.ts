@@ -44,6 +44,7 @@ export interface ScheduleResult {
   avgLaxity?: number;
   giniT?: number;
   giniC?: number;
+  giniD?: number;
   utilization?: number;
 }
 
@@ -111,6 +112,7 @@ function simulate(
   const schedule: ScheduleEntry[] = [];
   const giniT = giniCoefficient(tasks.map(t => t.T));
   const giniC = giniCoefficient(tasks.map(t => t.C));
+  const giniD = giniCoefficient(tasks.map(t => t.D));
 
   const taskOrder = new Map<string, number>();
   tasks.forEach((task, index) => {
@@ -278,8 +280,34 @@ function simulate(
     : 0;
 
   const utilization = tasks.reduce((sum, task) => sum + task.C / task.T, 0);  
-  console.log(`Simulation finished: ${schedule.length} schedule entries, ${trackedJobs.length} jobs, U=${utilization.toFixed(2)}, avgPreemptions=${avgPreemptions.toFixed(2)}, avgLaxity=${avgLaxity.toFixed(2)}, giniT=${giniT.toFixed(2)}, giniC=${giniC.toFixed(2)}`);
-  return { schedule, jobInstancesPerTask, avgPreemptions, avgLaxity, giniT, giniC, utilization };
+  console.log(`Simulation finished: ${schedule.length} schedule entries, ${trackedJobs.length} jobs, U=${utilization.toFixed(2)}, avgPreemptions=${avgPreemptions.toFixed(2)}, avgLaxity=${avgLaxity.toFixed(2)}, giniT=${giniT.toFixed(2)}, giniC=${giniC.toFixed(2)}, giniD=${giniD.toFixed(2)}`);
+  const tasksetForLog = {
+    taskset_id: (tasks[0] as any)?.taskset_id ?? "ts_",
+    difficulty: (tasks[0] as any)?.difficulty ?? null,
+    algorithm: "EDF, RM, DM",
+    tasks: tasks.map((task) => ({ id: task.id, C: task.C, T: task.T, D: task.D, O: task.O ?? 0 })),
+  };
+  console.log(`{
+        "taskset_id": "${tasksetForLog.taskset_id}",
+        "difficulty": ${tasksetForLog.difficulty ?? 0},
+        "algorithm": "${tasksetForLog.algorithm}",
+        "tasks": [
+            ${tasksetForLog.tasks.map((task) => `{"id": "${task.id}", "C": ${task.C}, "T": ${task.T}, "D": ${task.D}, "O": ${task.O}}`).join(",\n            ")}
+        ]
+        }`);
+  console.log([
+    tasksetForLog.taskset_id,
+    tasks.length,
+    utilization.toFixed(2),
+    avgPreemptions.toFixed(2),
+    avgLaxity.toFixed(2),
+    giniC.toFixed(2),
+    giniT.toFixed(2),
+    giniD.toFixed(2),
+    hyperperiod,
+    tasksetForLog.difficulty ?? 0,
+  ].join(","));
+  return { schedule, jobInstancesPerTask, avgPreemptions, avgLaxity, giniT, giniC, giniD, utilization };
 }
 
 

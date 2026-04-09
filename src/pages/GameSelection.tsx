@@ -45,7 +45,7 @@ const games: GameCard[] = [
       "Test your knowledge with comprehensive quizzes covering scheduling algorithms and real-time systems concepts.",
     path: "/Quizzes",
     color: "#f31081",
-    imgPath: new URL("../assets/overlay/drawgame.png", import.meta.url).href,
+    imgPath: new URL("../assets/overlay/quizGame.png", import.meta.url).href,
   },
   {
     id: "drag-drop",
@@ -54,7 +54,7 @@ const games: GameCard[] = [
       "Interactive game where you arrange and organize scheduling elements. Learn by doing with intuitive drag-and-drop mechanics.",
     path: "/DragDropGames",
     color: "#0b26f5",
-    imgPath: new URL("../assets/overlay/deductgame.png", import.meta.url).href,
+    imgPath: new URL("../assets/overlay/dragdropGame.png", import.meta.url).href,
   },
 ];
 
