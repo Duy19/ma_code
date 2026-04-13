@@ -259,6 +259,10 @@ function UUniFast_Discard(n: number, U_avg: number) {
   }
 }
 
+function UUniFast_Discard_Difficulty(difficulty: number) {
+
+}
+
 function UUnifast_Guided(n: number, U_total: number, U_max: number) {
   const dominantTaskUtilization = 0.3 + Math.random() * 0.15;
   const U_first = dominantTaskUtilization*U_total;

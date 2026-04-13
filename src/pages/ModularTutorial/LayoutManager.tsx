@@ -166,7 +166,7 @@ export function LayoutManager({
           )}
 
           {/* Canvas and Form for Suspension Puzzle */}
-          <div style={{ flex: 1, display: "flex", gap: 12, padding: "12px 16px", minHeight: 0, width: "100%" }}>
+          <div style={{ flex: 1, display: "flex", gap: 12, padding: "12px 16px", minHeight: 0, width: "100%", alignItems: "flex-start" }}>
             <SuspensionPuzzleRenderer
               cumulativeState={cumulativeState}
               onSuspensionPuzzleComplete={onSuspensionPuzzleComplete}
@@ -236,6 +236,7 @@ export function LayoutManager({
               puzzleTasks={currentStep.sidebarPuzzleConfig.puzzleTasks}
               algorithm={currentStep.sidebarPuzzleConfig.algorithm}
               algorithmName={currentStep.sidebarPuzzleConfig.algorithmName}
+              availableAlgorithms={quizRendererProps.algorithmMap}
               hyperperiod={cumulativeState.hyperperiod}
               interval={cumulativeState.interval || currentStep.sidebarPuzzleConfig.interval}
               puzzleVisibleFields={effectivePuzzleVisibleFields}

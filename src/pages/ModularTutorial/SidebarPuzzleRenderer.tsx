@@ -6,6 +6,7 @@ import SchedulerCanvas from "../../components/Scheduling/SchedulerCanvas";
 import type { StoryState } from "./types";
 import type { Task } from "../../core/task";
 import type { ScheduleEntry } from "../../logic/simulator";
+import { areSchedulesEquivalent } from "./taskGenPuzzle/scheduleComparison";
 
 /**
  * Sidebar Puzzle Renderer
@@ -22,6 +23,7 @@ interface SidebarPuzzleRendererProps {
   puzzleTasks: Task[];
   algorithm: (tasks: Task[], hyperperiod: number) => ScheduleEntry[];
   algorithmName: string;
+  availableAlgorithms?: Record<string, (tasks: Task[], hyperperiod: number) => ScheduleEntry[] | { schedule: ScheduleEntry[] }>;
   hyperperiod: number;
   interval?: [number, number];
   
@@ -46,6 +48,7 @@ export function SidebarPuzzleRenderer({
   puzzleTasks,
   algorithm,
   algorithmName,
+  availableAlgorithms,
   hyperperiod,
   interval,
   puzzleVisibleFields,
@@ -84,6 +87,16 @@ export function SidebarPuzzleRenderer({
   const correctSchedule = useMemo(() => {
     return algorithm(puzzleTasks, hyperperiod).schedule;
   }, [puzzleTasks, hyperperiod, algorithm]);
+
+  const selectedAlgorithmSchedule = useMemo(() => {
+    const selectedAlgorithmFn = availableAlgorithms?.[selectedAlgorithm];
+    if (!selectedAlgorithmFn) {
+      return null;
+    }
+
+    const result = selectedAlgorithmFn(puzzleTasks, hyperperiod);
+    return Array.isArray(result) ? result : result.schedule;
+  }, [availableAlgorithms, selectedAlgorithm, puzzleTasks, hyperperiod]);
 
   // Field display names and keys
   const fieldKeyMap: Record<string, keyof Task> = {
@@ -167,9 +180,15 @@ export function SidebarPuzzleRenderer({
       alert("Please edit the fields above to match the schedule");
       return;
     }
-    if (puzzleEditableFields.includes("algorithmSelection") && selectedAlgorithm !== algorithmName) {
-      alert("Please select the correct algorithm!");
-      return;
+    if (puzzleEditableFields.includes("algorithmSelection")) {
+      const algorithmMatches = selectedAlgorithmSchedule
+        ? areSchedulesEquivalent(selectedAlgorithmSchedule, correctSchedule)
+        : selectedAlgorithm === algorithmName;
+
+      if (!algorithmMatches) {
+        alert("Please select an algorithm that produces the same schedule!");
+        return;
+      }
     }
     if (!inputsMatch) {
       alert("Your values don't match yet.");
@@ -191,7 +210,7 @@ export function SidebarPuzzleRenderer({
   };
 
   return (
-    <Box sx={{ display: "flex", gap: 2, height: "100%", minHeight: 0, width: "100%" }}>
+    <Box sx={{ display: "flex", gap: 2, height: "100%", minHeight: 0, width: "100%", alignItems: "flex-start" }}>
       <SidebarPuzzleCanvasRenderer
         puzzleTasks={puzzleTasks}
         algorithm={algorithm}
@@ -206,6 +225,8 @@ export function SidebarPuzzleRenderer({
       <SidebarPuzzleFormRenderer
         puzzleTasks={puzzleTasks}
         algorithmName={algorithmName}
+        correctSchedule={correctSchedule}
+        selectedAlgorithmSchedule={selectedAlgorithmSchedule}
         puzzleVisibleFields={puzzleVisibleFields}
         puzzleEditableFields={puzzleEditableFields}
         editableTasks={editableTasks}
@@ -289,6 +310,8 @@ export function SidebarPuzzleCanvasRenderer({
 export function SidebarPuzzleFormRenderer({
   puzzleTasks,
   algorithmName,
+  correctSchedule,
+  selectedAlgorithmSchedule,
   puzzleVisibleFields,
   puzzleEditableFields,
   editableTasks,
@@ -306,6 +329,8 @@ export function SidebarPuzzleFormRenderer({
 }: {
   puzzleTasks: Task[];
   algorithmName: string;
+  correctSchedule: ScheduleEntry[];
+  selectedAlgorithmSchedule: ScheduleEntry[] | null;
   puzzleVisibleFields: string[];
   puzzleEditableFields: string[];
   editableTasks?: string[];
@@ -401,9 +426,15 @@ export function SidebarPuzzleFormRenderer({
       alert("👉 Please edit the fields above to match the schedule");
       return;
     }
-    if (puzzleEditableFields.includes("algorithmSelection") && selectedAlgorithm !== algorithmName) {
-      alert("⚠️ Please select the correct algorithm!");
-      return;
+    if (puzzleEditableFields.includes("algorithmSelection")) {
+      const algorithmMatches = selectedAlgorithmSchedule
+        ? areSchedulesEquivalent(selectedAlgorithmSchedule, correctSchedule)
+        : selectedAlgorithm === algorithmName;
+
+      if (!algorithmMatches) {
+        alert("⚠️ Please select an algorithm that produces the same schedule!");
+        return;
+      }
     }
     if (!inputsMatch) {
       alert("⚠️ Your values don't match yet. Keep trying!");
@@ -433,10 +464,12 @@ export function SidebarPuzzleFormRenderer({
         borderRadius: 2,
         padding: 2,
         minHeight: 0,
+        alignSelf: "flex-start",
         overflow: "auto",
         backgroundColor: "#ffffff",
         boxShadow: "0 2px 12px rgba(0, 0, 0, 0.08)",
-        flex: 1,
+        flex: "0 0 33%",
+        maxWidth: "33%",
       }}
     >
       <Typography variant="h5" sx={{ marginBottom: 2, marginTop: 0, fontWeight: 700, color: "#1a1a1a" }}>
@@ -471,7 +504,7 @@ export function SidebarPuzzleFormRenderer({
       )}
 
       {/* Task parameters inputs */}
-      <Box sx={{ flex: 1, overflow: "auto", marginBottom: 2, marginTop: 2 }}>
+      <Box sx={{ flex: 1, overflow: "auto", marginBottom: 2, marginTop: 0 }}>
         {puzzleTasks.map((task) => {
           const isEditableTask =
             !editableTasks || editableTasks.length === 0 || editableTasks.includes(task.id);

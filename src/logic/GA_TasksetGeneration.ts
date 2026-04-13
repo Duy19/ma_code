@@ -63,6 +63,7 @@ export interface GAConfiguration {
   periodRange: [number, number];
   utilizationRange: [number, number];
   executionTimeRange: [number, number];
+  difficultyTolerance?: number;
 }
 
 type RepairStrategy = "reduceC" | "increaseT" | "skip";
@@ -141,53 +142,87 @@ function convertDatabaseEntryToTaskset(entry: databaseEntry): Task[] {
   }));
 }
 
-function convertToNaturalNumber(value: number, minValue = 1): number {
-  if (!Number.isFinite(value)) {
-    return minValue;
+function randomInt(min: number, max: number): number {
+  const lower = Math.min(min, max);
+  const upper = Math.max(min, max);
+  return Math.floor(Math.random() * (upper - lower + 1)) + lower;
+}
+
+function boundedRandomOffset(current: number, min: number, max: number, maxStep: number): number {
+  const lower = Math.max(min - current, -Math.max(1, Math.floor(maxStep)));
+  const upper = Math.min(max - current, Math.max(1, Math.floor(maxStep)));
+  if (lower > upper) {
+    return current;
   }
-  return Math.max(minValue, Math.floor(value));
+  return current + randomInt(lower, upper);
 }
 
-function normalizeValues(task: Task, config: GAConfiguration): Task {
-  const minPeriod = convertToNaturalNumber(config.periodRange[0], 1);
-  const maxPeriod = convertToNaturalNumber(config.periodRange[1], minPeriod);
-
-  const convertedT = convertToNaturalNumber(task.T, minPeriod);
-  const newT = Math.min(maxPeriod, Math.max(minPeriod, convertedT));
-
-  const convertedC = convertToNaturalNumber(task.C, 1);
-  const newC = Math.min(newT, Math.max(1, convertedC));
-
-  const convertedD = convertToNaturalNumber(task.D, newC);
-  const newD = Math.min(newT, Math.max(newC, convertedD));
-
-  const convertedO = Number.isFinite(task.O as number)
-    ? Math.floor(task.O as number)
-    : 0;
-  const newO = Math.min(Math.max(0, newT - 1), Math.max(0, convertedO));
-
-  return {
-    ...task,
-    C: newC,
-    T: newT,
-    D: newD,
-    O: newO,
-  };
+function getDifficultyMode(config: GAConfiguration): "easy" | "medium" | "hard" {
+  const target = config.targetDifficulty ?? 3;
+  if (target <= 2) return "easy";
+  if (target <= 4) return "medium";
+  return "hard";
 }
 
+function getMediumConstraintValue(config: GAConfiguration): number {
+  const target = config.targetDifficulty ?? 3;
+  const normalized = Math.max(0, Math.min(1, (target - 2) / 2));
+  return normalized * normalized * (3 - 2 * normalized);
+}
+
+function enforceTaskDifficultyConstraints(task: Task, config: GAConfiguration, applyMediumConstraints = false): Task {
+  const mode = getDifficultyMode(config);
+  const constrained: Task = { ...task };
+
+  if (mode === "easy") {
+    constrained.D = constrained.T;
+    constrained.O = 0;
+    return constrained;
+  }
+
+  if (mode === "medium") {
+    const intensity = getMediumConstraintValue(config);
+    const allowOffsetTwo = constrained.T > 2 && Math.random() < (0.1 + 0.5 * intensity);
+    const maxOffset = Math.min(Math.max(0, constrained.T - 1), allowOffsetTwo ? 2 : 1);
+    constrained.O = Math.min(maxOffset, Math.max(0, constrained.O ?? 0));
+
+    if (applyMediumConstraints) {
+      const constrainedDeadlineProbability = 0.08 + 0.42 * intensity;
+      const allowConstrainedDeadline = constrained.T > constrained.C && Math.random() < constrainedDeadlineProbability;
+      if (allowConstrainedDeadline) {
+        constrained.D = randomInt(constrained.C, Math.max(constrained.C, constrained.T - 1));
+      } else {
+        constrained.D = constrained.T;
+      }
+    } else {
+      constrained.D = Math.min(constrained.T, Math.max(constrained.C, constrained.D));
+    }
+
+    return constrained;
+  }
+
+  constrained.D = Math.min(constrained.T, Math.max(constrained.C, constrained.D));
+  constrained.O = Math.min(Math.max(0, constrained.T - 1), Math.max(0, constrained.O ?? 0));
+  return constrained;
+}
+
+function enforceTasksetDifficultyConstraints(taskset: Task[], config: GAConfiguration, applyMediumConstraints = false): Task[] {
+  return taskset.map((task) => enforceTaskDifficultyConstraints(task, config, applyMediumConstraints));
+}
 
 function generateRandomTaskset(config: GAConfiguration): Task[] {
   const tasks: Task[] = [];
+  const minPeriod = config.periodRange[0];
+  const maxPeriod = config.periodRange[1];
   
   for (let i = 0; i < config.numberOfTasks; i++) {
-    const T = Math.floor(Math.random() * (config.periodRange[1] - config.periodRange[0] + 1)) + config.periodRange[0];
-    const D = T;
-    const C = Math.max(1, Math.floor(D));
-    const O = Math.floor(Math.random() * T);
-    const generatedTask: Task = { id: `task-${i}`, name: `Task ${i}`, C, T, D, O, color: getTaskColor(i) };
-    tasks.push(normalizeValues(generatedTask, config));
+    const T = randomInt(minPeriod, maxPeriod);
+    const C = randomInt(1, T);
+    const D = randomInt(C, T);
+    const O = randomInt(0, Math.max(0, T - 1));
+    tasks.push({ id: `task-${i}`, name: `Task ${i}`, C, T, D, O, color: getTaskColor(i) });
   }
-  return tasks;
+  return enforceTasksetDifficultyConstraints(tasks, config, true);
 }
 
 function repairStrategy(task: Task, config: GAConfiguration): RepairStrategy {
@@ -251,7 +286,7 @@ function repairTaskset(taskset: Task[], config: GAConfiguration, maxUtilization 
     if (!tryFix) break;
   }
 
-  return repaired;
+  return enforceTasksetDifficultyConstraints(repaired, config, false);
 }
 
 function getParameters(taskset: Task[], algorithm: "RM" | "DM" | "EDF", length: number): fittingParameters {
@@ -285,12 +320,34 @@ function linearFitness(params: fittingParameters, coeffs?: coefficients["linear"
   return bias + nCoef * N + uCoef * giniC + pCoef * P + lCoef * giniT;
 }
 
-function evaluateFitness(taskset: Task[], config: GAConfiguration): number {
-  const length = 1000;
+function fittedFitness(params: fittingParameters): number {
+  const N = Math.max(1, params.N ?? 1);
+  const P = params.P ?? 0;
+  const giniC = params.giniC ?? 0;
+
+  return giniC * (9.996 - (19.724 / N)) + Math.exp(P);
+}
+
+function evaluatePredictedDifficulty(taskset: Task[], config: GAConfiguration): number {
+  const length = 200;
   const hyperperiod = lcmArray(taskset.map(t => t.T));
   const maxLength = Math.min(hyperperiod, length);
   const params = getParameters(taskset, config.usedAlgorithm, maxLength);
-  return linearFitness(params, config.fitnessCoefficients as coefficients["linear"]);
+  return fittedFitness(params);
+}
+
+function evaluateFitness(taskset: Task[], config: GAConfiguration): number {
+  const predictedDifficulty = evaluatePredictedDifficulty(taskset, config);
+  if (config.targetDifficulty === undefined || config.targetDifficulty === null) {
+    return predictedDifficulty;
+  }
+
+  const tolerance = config.difficultyTolerance ?? 0.25;
+  const distance = Math.abs(predictedDifficulty - config.targetDifficulty);
+  const insideToleranceBonus = distance <= tolerance ? 1 : 0;
+
+  // Maximize closeness to target; values outside tolerance get a strong penalty.
+  return insideToleranceBonus - distance;
 }
 
 function tournamentSelection(population: Individual[], databaseTasksetsCount: number): Individual[] {
@@ -319,16 +376,28 @@ function mutate(individual: Individual, config: GAConfiguration): void {
   for (let i = 0; i < individual.taskset.length; i++) {
     if (Math.random() >= config.mutationRate) continue;
     const t = individual.taskset[i];
-    individual.taskset[i] = normalizeValues(
-      {
-        ...t,
-        C: Math.round(t.C * (0.8 + Math.random() * 0.4)),
-        T: Math.round(t.T * (0.8 + Math.random() * 0.4)),
-        D: Math.round(t.D * (0.8 + Math.random() * 0.4)),
-        O: Math.max(0, Math.round((t.O ?? 0) * (0.8 + Math.random() * 0.4))),
-      },
-      config
-    );
+    const periodMin = config.periodRange[0];
+    const periodMax = config.periodRange[1];
+    const tOffsetLimit = Math.max(1, Math.round((periodMax - periodMin) / 4));
+    const cOffsetLimit = Math.max(1, Math.round(Math.max(1, t.C) / 4));
+    const dOffsetLimit = Math.max(1, Math.round(Math.max(1, t.D) / 4));
+    const oOffsetLimit = Math.max(1, Math.round(Math.max(1, t.T) / 4));
+
+    const mutatedT = boundedRandomOffset(t.T, periodMin, periodMax, tOffsetLimit);
+    const mutatedC = boundedRandomOffset(t.C, 1, mutatedT, cOffsetLimit);
+    const mutatedD = boundedRandomOffset(t.D, mutatedC, mutatedT, dOffsetLimit);
+    const mutatedOBase = t.O ?? 0;
+    const mutatedO = boundedRandomOffset(mutatedOBase, 0, Math.max(0, mutatedT - 1), oOffsetLimit);
+
+    individual.taskset[i] = {
+      ...t,
+      C: mutatedC,
+      T: mutatedT,
+      D: mutatedD,
+      O: mutatedO,
+    };
+
+    individual.taskset[i] = enforceTaskDifficultyConstraints(individual.taskset[i], config, false);
   }
 }
 
@@ -337,7 +406,7 @@ function initPopulation(config: GAConfiguration): Individual[] {
 
   const databaseTasksets = getDatabaseTasksets(config);
   for (const entry of databaseTasksets) {
-    const taskset = convertDatabaseEntryToTaskset(entry);
+    const taskset = enforceTasksetDifficultyConstraints(convertDatabaseEntryToTaskset(entry), config, false);
     initialPopulation.push({ taskset, fitness: 0 });
   }
 
