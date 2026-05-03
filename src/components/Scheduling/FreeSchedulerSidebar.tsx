@@ -1,11 +1,13 @@
 // @ts-nocheck
 import { Box, Typography, TextField, IconButton, Divider, 
-    MenuItem, Select, FormControl, InputLabel, Button, FormGroup, FormControlLabel, Checkbox } from "@mui/material";
+  MenuItem, Select, FormControl, InputLabel, Button, FormGroup, FormControlLabel, Checkbox,
+  Accordion, AccordionSummary, AccordionDetails } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
-import type { Task } from "../../core/task";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import type { SuspensionPattern, Task } from "../../core/task";
 import CloseIcon from '@mui/icons-material/Close';
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 
 
 /**
@@ -19,7 +21,8 @@ interface SidebarVisibility {
   showPeriods?: boolean;  
   showDeadlines?: boolean;
   showOffsets?: boolean;
-  showSuspension?: boolean;  
+  showSuspension?: boolean;
+  showSuspensionToggle?: boolean;
   showTaskControls?: boolean;
   showAlgorithmSelection?: boolean;
 
@@ -41,10 +44,12 @@ interface FreeSchedulerSidebarProps {
   algorithmOptions?: string[];
   interval?: [number, number];
   onIntervalChange?: (interval: [number, number]) => void;
+  allowSuspension?: boolean;
+  onAllowSuspensionChange?: (enabled: boolean) => void;
 }
 
 export default function FreeSchedulerSidebar({ tasks, algorithm, onTasksChange, onAlgorithmChange, onClose, visibility, isFieldEditable, 
-  maxExecution, maxDeadline, maxPeriod, maxSuspension, maxOffset, hyperperiod, algorithmOptions, interval, onIntervalChange }: FreeSchedulerSidebarProps) {
+  maxExecution, maxDeadline, maxPeriod, maxSuspension, maxOffset, hyperperiod, algorithmOptions, interval, onIntervalChange, allowSuspension = false, onAllowSuspensionChange }: FreeSchedulerSidebarProps) {
   const roundTo1 = (value: number) => Math.round(value * 10) / 10;
   const [tempIntervalStart, setTempIntervalStart] = useState<string>(interval?.[0]?.toString() ?? "");
   const [tempIntervalEnd, setTempIntervalEnd] = useState<string>(interval?.[1]?.toString() ?? "");
@@ -55,6 +60,7 @@ export default function FreeSchedulerSidebar({ tasks, algorithm, onTasksChange, 
     showDeadlines: true,
     showOffsets: true,
     showSuspension: true,
+    showSuspensionToggle: true,
     showTaskControls: true,
     showAlgorithmSelection: true
   };
@@ -72,6 +78,7 @@ export default function FreeSchedulerSidebar({ tasks, algorithm, onTasksChange, 
   const effectiveMaxOffset = Math.min(maxOffset ?? 1000, 1000);
 
   const nextTaskNumber = useRef(1);
+  const userDisabledSuspension = useRef(false);
   const taskColors = [
     "#f94e8aff", 
     "#3B82F6", 
@@ -79,6 +86,47 @@ export default function FreeSchedulerSidebar({ tasks, algorithm, onTasksChange, 
     "#b37914ff", 
     "#8B5CF6", 
   ];
+
+  // Default suspension pattern, generated for each task when enabling suspension
+  const defaultSuspensionPattern = () => ({
+    offset: 0,
+    duration: 0,
+    period: 0,
+  });
+
+  // Show suspension automatically if provided for the tasks but the toggle is not enabled
+  useEffect(() => {
+    if (!allowSuspension && !userDisabledSuspension.current && mergedVisibility.showSuspension) {
+      const hasAnySuspension = tasks.some(t => 
+        (t.suspension !== undefined && t.suspension !== null) ||
+        (t.S !== undefined && t.S > 0)
+      );
+      if (hasAnySuspension) {
+        onAllowSuspensionChange?.(true);
+      }
+    }
+  }, []);
+
+  // Handler for toggling the suspension feature on each task input
+  const handleAllowSuspensionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const enabled = event.target.checked;
+    userDisabledSuspension.current = !enabled;
+    onAllowSuspensionChange?.(enabled);
+
+    const updatedTasks = tasks.map((task) => {
+      const existingPattern = task.suspension && !Array.isArray(task.suspension) ? task.suspension : undefined;
+
+      return {
+        ...task,
+        S: 0,
+        suspension: enabled ? existingPattern ?? defaultSuspensionPattern() : defaultSuspensionPattern(),
+      };
+    });
+
+    onTasksChange(updatedTasks);
+  };
+
+
   const handleTaskChange = (index: number, field: keyof Task, value: any) => {
     if ((field === "id") || (field === "name") && tasks.some((t, i) => i !== index && t[field] === value)) {
       alert(`Task with same ${field} already exist. They have to be unique.`);
@@ -116,6 +164,26 @@ export default function FreeSchedulerSidebar({ tasks, algorithm, onTasksChange, 
     onTasksChange(newTasks);
   };
 
+
+  // Update schedule when suspension pattern changes
+  const handleSuspensionChange = (index: number, field: keyof SuspensionPattern, value: number) => {
+    const newTasks = [...tasks];
+    const currentSuspension = !Array.isArray(newTasks[index].suspension) && newTasks[index].suspension
+      ? newTasks[index].suspension
+      : defaultSuspensionPattern();
+
+    newTasks[index] = {
+      ...newTasks[index],
+      S: 0,
+      suspension: {
+        ...currentSuspension,
+        [field]: roundTo1(Math.max(0, value)),
+      },
+    };
+
+    onTasksChange(newTasks);
+  };
+
   // Function to add a new task. Default values can be adjusted as needed.
 
   const addTask = () => {
@@ -133,9 +201,10 @@ export default function FreeSchedulerSidebar({ tasks, algorithm, onTasksChange, 
       T: 5,
       D: 5,
       S: 0,
-      };
-      onTasksChange([...tasks, newTask]);
+      suspension: allowSuspension ? defaultSuspensionPattern() : undefined,
     };
+    onTasksChange([...tasks, newTask]);
+  };
 
   // Function to remove a task by index  
   const removeTask = (index: number) => {
@@ -146,7 +215,7 @@ export default function FreeSchedulerSidebar({ tasks, algorithm, onTasksChange, 
   // Rendering sidebar UI
   return (
     // Sidebar Container and Title
-    <Box sx={{ width: "90%", p: 2, height: "100%", boxSizing: "border-box", overflowY: "auto" }}>
+    <Box sx={{ width: "100%", p: 2, height: "100%", boxSizing: "border-box", overflowY: "auto" }}>
       <Typography variant="h6" gutterBottom>
         Task Settings
         {/* Close Button */}
@@ -209,10 +278,10 @@ export default function FreeSchedulerSidebar({ tasks, algorithm, onTasksChange, 
       )}
 
       {/* Suspension Checkbox */}
-      {mergedVisibility.showSuspension && (
+      {mergedVisibility.showSuspensionToggle && (
         <>
           <FormGroup>
-            <FormControlLabel control={<Checkbox />} label="Allow Suspension" />
+            <FormControlLabel control={<Checkbox checked={allowSuspension} onChange={handleAllowSuspensionChange} />} label="Allow Suspension" />
           </FormGroup>
         </>
       )}
@@ -243,114 +312,181 @@ export default function FreeSchedulerSidebar({ tasks, algorithm, onTasksChange, 
       </Typography>
 
       {tasks.map((task, index) => (
-        <Box key={task.id} sx={{ mb: 2, border: "1px solid #ddd", borderRadius: 2, p: 1 }}>
-          {mergedVisibility.showTaskControls && (
-            <>
-              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <Typography variant="subtitle2">{task.name}</Typography>
-                <IconButton size="small" onClick={() => removeTask(index)}>
+        <Accordion
+          key={task.id}
+          defaultExpanded
+          sx={{ mb: 2, border: "1px solid #ddd", borderRadius: 2, boxShadow: "none", "&:before": { display: "none" } }}
+        >
+          <AccordionSummary
+            expandIcon={<ExpandMoreIcon />}
+            sx={{ px: 2, minHeight: 0, "& .MuiAccordionSummary-content": { my: 1 } }}
+          >
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%", pr: 1 }}>
+              <Typography variant="subtitle1" sx={{ fontWeight: 500, fontSize: "1.2rem" }}>
+                {task.name}
+              </Typography>
+              {mergedVisibility.showTaskControls && (
+                <IconButton size="small" sx={{ mr: 2 }} onClick={() => removeTask(index)}>
                   <DeleteIcon fontSize="small" />
                 </IconButton>
+              )}
+            </Box>
+          </AccordionSummary>
+
+          <AccordionDetails sx={{ p: 1.5 }}>
+            <Box
+              sx={{
+                display: "grid",
+                gap: 2,
+                alignItems: "start",
+                gridTemplateColumns:
+                  allowSuspension && mergedVisibility.showSuspension
+                    ? "minmax(0, 1fr) minmax(180px, 240px)"
+                    : "minmax(0, 1fr)",
+              }}
+            >
+              <Box sx={{ minWidth: 0 }}>
+                {mergedVisibility.showTaskNames && (
+                  <TextField
+                    label="N (Task name)"
+                    type="string"
+                    size="small"
+                    fullWidth
+                    margin="dense"
+                    value={task.name}
+                    onChange={(e) => handleTaskChange(index, "name", String(e.target.value))}
+                    slotProps={{ htmlInput: {maxLength: 5}}}
+                    disabled={isFieldEditable ? !isFieldEditable(task, "name") : false}
+                  />
+                )}
+
+                {mergedVisibility.showExecutionTime && (
+                  <TextField
+                    label="C (Execution)"
+                    type="number"
+                    size="small"
+                    fullWidth
+                    margin="dense"
+                    value={task.C}
+                    onChange={(e) => handleTaskChange(index, "C", Number(e.target.value))}
+                    slotProps={{ htmlInput: { min: 0, max: effectiveMaxExecution, step: 0.1 } }}
+                    disabled={isFieldEditable ? !isFieldEditable(task, "C") : false}
+                  />
+                )}
+
+                {mergedVisibility.showPeriods && (
+                  <TextField
+                    label="T (Period)"
+                    type="number"
+                    size="small"
+                    fullWidth
+                    margin="dense"
+                    value={task.T}
+                    onChange={(e) => handleTaskChange(index, "T", Number(e.target.value))}
+                    slotProps={{ htmlInput: { min: 0.1, max: effectiveMaxPeriod, step: 0.1 } }}
+                    disabled={isFieldEditable ? !isFieldEditable(task, "T") : false}
+                  />
+                )}
+
+                {mergedVisibility.showDeadlines && (
+                  <TextField
+                    label="D (Deadline)"
+                    type="number"
+                    size="small"
+                    fullWidth
+                    margin="dense"
+                    value={task.D}
+                    onChange={(e) => handleTaskChange(index, "D", Number(e.target.value))}
+                    slotProps={{ htmlInput: { min: 0.1, max: effectiveMaxDeadline, step: 0.1 } }}
+                    disabled={isFieldEditable ? !isFieldEditable(task, "D") : false}
+                  />
+                )}
+
+                {mergedVisibility.showOffsets && (
+                  <TextField
+                    label="O (Offset)"
+                    type="number"
+                    size="small"
+                    fullWidth
+                    margin="dense"
+                    value={task.O ?? 0}
+                    onChange={(e) => handleTaskChange(index, "O", Number(e.target.value))}
+                    slotProps={{ htmlInput: { min: 0, max: effectiveMaxOffset, step: 0.1 } }}
+                    disabled={isFieldEditable ? !isFieldEditable(task, "O") : false}
+                  />
+                )}
               </Box>
-            </>
-          )}
 
-          {mergedVisibility.showTaskNames && (
-            <>
-              <TextField
-                label="N (Task name)"
-                type="string"
-                size="small"
-                fullWidth
-                margin="dense"
-                value={task.name}
-                onChange={(e) => handleTaskChange(index, "name", String(e.target.value))}
-                slotProps={{ htmlInput: {maxLength: 5}}}
-                disabled={isFieldEditable ? !isFieldEditable(task, "name") : false}
-              />
-            </>
-          )}
-
-          {mergedVisibility.showExecutionTime && (
-            <>
-              <TextField
-                label="C (Execution)"
-                type="number"
-                size="small"
-                fullWidth
-                margin="dense"
-                value={task.C}
-                onChange={(e) => handleTaskChange(index, "C", Number(e.target.value))}
-                slotProps={{ htmlInput: { min: 0, max: effectiveMaxExecution, step: 0.1 } }}
-                disabled={isFieldEditable ? !isFieldEditable(task, "C") : false}
-              />
-            </>
-          )}
-
-          {mergedVisibility.showPeriods && (
-          <>
-              <TextField
-                label="T (Period)"
-                type="number"
-                size="small"
-                fullWidth
-                margin="dense"
-                value={task.T}
-                onChange={(e) => handleTaskChange(index, "T", Number(e.target.value))}
-                slotProps={{ htmlInput: { min: 0.1, max: effectiveMaxPeriod, step: 0.1 } }}
-                disabled={isFieldEditable ? !isFieldEditable(task, "T") : false}
-              />
-          </>
-          )}
-
-          {mergedVisibility.showDeadlines && (
-            <>
-              <TextField
-                label="D (Deadline)"
-                type="number"
-                size="small"
-                fullWidth
-                margin="dense"
-                value={task.D}
-                onChange={(e) => handleTaskChange(index, "D", Number(e.target.value))}
-                slotProps={{ htmlInput: { min: 0.1, max: effectiveMaxDeadline, step: 0.1 } }}
-                disabled={isFieldEditable ? !isFieldEditable(task, "D") : false}
-              />
-            </>
-          )}
-
-          {mergedVisibility.showOffsets && (
-            <>
-              <TextField
-                label="O (Offset)"
-                type="number"
-                size="small"
-                fullWidth
-                margin="dense"
-                value={task.O ?? 0}
-                onChange={(e) => handleTaskChange(index, "O", Number(e.target.value))}
-                slotProps={{ htmlInput: { min: 0, max: effectiveMaxOffset, step: 0.1 } }}
-                disabled={isFieldEditable ? !isFieldEditable(task, "O") : false}
-              />
-            </>
-          )}
-
-          {mergedVisibility.showSuspension && ( 
-            <>
-              <TextField
-                label="S (Suspension)"
-                type="number"
-                size="small"
-                fullWidth
-                margin="dense"
-                value={task.S ?? 0}
-                onChange={(e) => handleTaskChange(index, "S", Number(e.target.value))}
-                slotProps={{ htmlInput: { min: 0, max: effectiveMaxSuspension, step: 0.1 } }}
-                disabled={isFieldEditable ? !isFieldEditable(task, "S") : false}
-              />
-            </>
-          )}
-        </Box>
+              {mergedVisibility.showSuspension && (allowSuspension || (!mergedVisibility.showSuspensionToggle && (task.suspension !== undefined && task.suspension !== null || (task.S !== undefined && task.S > 0)))) && (
+                <Box
+                  sx={{
+                    minWidth: 0,
+                    borderLeft: "1px solid #e0e0e0",
+                    pl: 2,
+                  }}
+                >
+                  <Box sx={{ display: "grid", gap: 1 }}>
+                    {Array.isArray(task.suspension) ? (
+                      <>
+                        <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
+                          Suspension Bound for dynamic self-suspension
+                        </Typography>
+                        {/* For suspension where you input intervals, show S as upper bound */}
+                        <TextField
+                          label="S (Suspension)"
+                          type="number"
+                          size="small"
+                          fullWidth
+                          value={task.S ?? 0}
+                          onChange={(e) => handleTaskChange(index, "S", Number(e.target.value))}
+                          slotProps={{ htmlInput: { min: 0, max: effectiveMaxSuspension, step: 0.1 } }}
+                          disabled={isFieldEditable ? !isFieldEditable(task, "S") : false}
+                        />
+                      </>
+                    ) : (
+                      <>
+                        <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
+                          Suspension Pattern for segmented self-suspension
+                        </Typography>
+                        {/* For pattern-based suspension, show offset, duration, period */}
+                        <TextField
+                          label="Offset"
+                          type="number"
+                          size="small"
+                          fullWidth
+                          value={task.suspension ? task.suspension.offset : 0}
+                          onChange={(e) => handleSuspensionChange(index, "offset", Number(e.target.value))}
+                          slotProps={{ htmlInput: { min: 0, step: 0.1 } }}
+                          disabled={isFieldEditable ? !isFieldEditable(task, "suspension" as any) : false}
+                        />
+                        <TextField
+                          label="Length"
+                          type="number"
+                          size="small"
+                          fullWidth
+                          value={task.suspension ? task.suspension.duration : 0}
+                          onChange={(e) => handleSuspensionChange(index, "duration", Number(e.target.value))}
+                          slotProps={{ htmlInput: { min: 0, step: 0.1 } }}
+                          disabled={isFieldEditable ? !isFieldEditable(task, "suspension" as any) : false}
+                        />
+                        <TextField
+                          label="Interval"
+                          type="number"
+                          size="small"
+                          fullWidth
+                          value={task.suspension ? task.suspension.period : 0}
+                          onChange={(e) => handleSuspensionChange(index, "period", Number(e.target.value))}
+                          slotProps={{ htmlInput: { min: 0, step: 0.1 } }}
+                          disabled={isFieldEditable ? !isFieldEditable(task, "suspension" as any) : false}
+                        />
+                      </>
+                    )}
+                  </Box>
+                </Box>
+              )}
+            </Box>
+          </AccordionDetails>
+        </Accordion>
       ))}
 
       {/* Button to add a new task */}

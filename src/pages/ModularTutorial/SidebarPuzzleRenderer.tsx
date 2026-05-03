@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Box, Button, TextField, Select, MenuItem, FormControl, InputLabel, Typography, Accordion, AccordionSummary, AccordionDetails } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import SchedulerCanvas from "../../components/Scheduling/SchedulerCanvas";
@@ -69,7 +69,11 @@ export function SidebarPuzzleRenderer({
   const [userInputValues, setUserInputValues] = useState<Record<string, Record<string, number>>>({});
   const [inputsTouched, setInputsTouched] = useState(false);
   const [checkPassed, setCheckPassed] = useState(false);
-  const [selectedAlgorithm, setSelectedAlgorithm] = useState(algorithmName);
+  const [selectedAlgorithm, setSelectedAlgorithm] = useState("");
+
+  useEffect(() => {
+    setSelectedAlgorithm("");
+  }, [algorithmName, puzzleTasks]);
 
   // Create dummy tasks with all zeros for initial display
   const dummyTasks = useMemo(() => {
@@ -210,7 +214,7 @@ export function SidebarPuzzleRenderer({
   };
 
   return (
-    <Box sx={{ display: "flex", gap: 2, height: "100%", minHeight: 0, width: "100%", alignItems: "flex-start" }}>
+    <Box sx={{ display: "flex", gap: 2, height: "100%", minHeight: 0, width: "100%", alignItems: "stretch" }}>
       <SidebarPuzzleCanvasRenderer
         puzzleTasks={puzzleTasks}
         algorithm={algorithm}
@@ -495,10 +499,10 @@ export function SidebarPuzzleFormRenderer({
               },
             }}
           >
+            <MenuItem value="" disabled>Select algorithm</MenuItem>
             <MenuItem value="RM">RM</MenuItem>
             <MenuItem value="EDF">EDF</MenuItem>
             <MenuItem value="DM">DM</MenuItem>
-            <MenuItem value="LLF">LLF</MenuItem>
           </Select>
         </FormControl>
       )}
@@ -640,7 +644,7 @@ export function SidebarPuzzleFormRenderer({
                   inputProps={{ min: 0, max: maxFieldValues?.suspension }}
                 />
               )}
-</AccordionDetails>
+            </AccordionDetails>
             </Accordion>
           );
         })}

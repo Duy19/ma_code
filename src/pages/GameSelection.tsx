@@ -24,7 +24,7 @@ const games: GameCard[] = [
     id: "draw-schedules",
     title: "Draw Schedules",
     description:
-      "Practice drawing real-time task schedules using different scheduling algorithms. Learn how tasks are scheduled over time.",
+      "Practice drawing schedules using different scheduling algorithms. Learn how tasks are scheduled over time.",
     path: "/DrawGame",
     color: "#259bf0",
     imgPath: new URL("../assets/overlay/drawgame.png", import.meta.url).href,
@@ -33,7 +33,7 @@ const games: GameCard[] = [
     id: "deduct-parameters",
     title: "Deduct Parameters",
     description:
-      "Analyze and deduce scheduling parameters from given scenarios. Strengthen your understanding of task characteristics.",
+      "Analyze and deduce task parameters from given schedules. Strengthen your understanding of task characteristics.",
     path: "/DetectiveGame",
     color: "#7b43fe",
     imgPath: new URL("../assets/overlay/deductgame.png", import.meta.url).href,

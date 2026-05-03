@@ -61,7 +61,7 @@ const validateSuspensionIntervals = (
 
   if (userTotal !== totalSuspension) {
     errors.push(
-      `Total suspension time is ${userTotal}, should be ${totalSuspension}`
+      `Total suspension time is ${userTotal}, you have to use ${totalSuspension}`
     );
   }
 
@@ -90,7 +90,7 @@ const validateSuspensionIntervals = (
   });
 
   if (!solutionMatches && errors.length === 0) {
-    errors.push("Intervals don't match the optimal solution");
+    errors.push("The Intervals don't match the solution");
   }
 
   return {
@@ -191,7 +191,7 @@ export function SuspensionPuzzleRenderer({
     setValidationErrors(allErrors);
 
     if (allErrors.length === 0) {
-      alert("✓ Perfect! Your suspension intervals match the schedule.");
+      alert("Well done! Your suspension intervals created a deadline miss.");
       setCheckPassed(true);
       onSuspensionPuzzleComplete();
     }
@@ -259,9 +259,6 @@ export function SuspensionPuzzleRenderer({
           overflow: "auto",
         }}
       >
-        <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
-          Your Schedule
-        </Typography>
         <SchedulerCanvas
           tasks={userTasksWithSuspension}
           hyperperiod={hyperperiod}
@@ -307,7 +304,7 @@ export function SuspensionPuzzleRenderer({
                 color: "#1a1a1a",
               }}
             >
-              Place Suspension Intervals
+              Place Suspension Intervals to create a deadline miss!
             </Typography>
           </Box>
 
@@ -335,13 +332,10 @@ export function SuspensionPuzzleRenderer({
                     Task: {task?.name}
                   </Typography>
                   <Typography variant="body2" sx={{ mb: 0.5 }}>
-                    <strong>Total Suspension Time (S):</strong> {taskSpec.totalSuspension}
-                  </Typography>
-                  <Typography variant="body2" sx={{ mb: 0.5 }}>
                     <strong>Number of Intervals:</strong> {taskSpec.numIntervals}
                   </Typography>
                   <Typography variant="body2">
-                    <strong>Your Current Total:</strong> {taskTotalSuspension} / {taskSpec.totalSuspension}
+                    <strong>Used Suspension/Total Suspension:</strong> {taskTotalSuspension} / {taskSpec.totalSuspension}
                   </Typography>
 
                   {/* Progress bar */}

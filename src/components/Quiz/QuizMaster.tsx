@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Box, Paper, Typography, Container, Button, Tooltip, Switch } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
@@ -22,6 +22,14 @@ export interface QuizQuestion {
   difficulty?: "easy" | "medium" | "hard";
   explanation?: string;
   visualContent?: QuizVisualContent;
+  taskset?: QuizTaskset;
+}
+
+export interface QuizTaskset {
+  tasks: Task[];
+  canvasMode?: "interactive" | "default";
+  algorithm?: string;
+  hyperperiod?: number;
 }
 
 // Visual content for a question, which can be a canvas, image, or nothing
@@ -75,10 +83,29 @@ export default function QuizMaster({
   const selectedAnswerData = question.answers.find((a) => a.id === selectedAnswer);
   const isCorrect = selectedAnswerData?.isCorrect ?? false;
 
+  // Allow questions to provide tasksets directly.
+  const effectiveVisualContent = useMemo(() => {
+    if (question.visualContent) {
+      return question.visualContent;
+    }
+
+    if (question.taskset?.tasks && question.taskset.tasks.length > 0) {
+      return {
+        type: "canvas" as const,
+        tasks: question.taskset.tasks,
+        canvasMode: question.taskset.canvasMode || "default",
+        algorithm: question.taskset.algorithm,
+        hyperperiod: question.taskset.hyperperiod,
+      };
+    }
+
+    return undefined;
+  }, [question.taskset, question.visualContent]);
+
   // Check if visual content exists
-  const hasVisualContent = question.visualContent && question.visualContent.type !== "none";
-  const isCanvasVisual = question.visualContent?.type === "canvas";
-  const isImageVisual = question.visualContent?.type === "image";
+  const hasVisualContent = effectiveVisualContent && effectiveVisualContent.type !== "none";
+  const isCanvasVisual = effectiveVisualContent?.type === "canvas";
+  const isImageVisual = effectiveVisualContent?.type === "image";
 
   // Reset state when question changes
   useEffect(() => {
@@ -177,14 +204,14 @@ export default function QuizMaster({
             {hasVisualContent && (userDisplayMode === "showBoth" || showVisual) && (
               <Box>
                 {/* Rendering Canvas if visual content is of type canvas */}
-                {isCanvasVisual && question.visualContent?.tasks && (
+                {isCanvasVisual && effectiveVisualContent?.tasks && (
                   <Box>
                     {renderCanvas ? (
                       renderCanvas(
-                        question.visualContent.tasks,
-                        question.visualContent.canvasMode || "default",
-                        question.visualContent.hyperperiod || 0,
-                        question.visualContent.algorithm
+                        effectiveVisualContent.tasks,
+                        effectiveVisualContent.canvasMode || "default",
+                        effectiveVisualContent.hyperperiod || 0,
+                        effectiveVisualContent.algorithm
                       )
                     ) : (
                       <Typography color="textSecondary">Canvas content requires renderCanvas prop</Typography>
@@ -193,11 +220,11 @@ export default function QuizMaster({
                 )}
 
                 {/* Rendering Image if visual content is of type image */}
-                {isImageVisual && question.visualContent?.imageUrl && (
+                {isImageVisual && effectiveVisualContent?.imageUrl && (
                   <Box sx={{ borderRadius: 1, overflow: "hidden", maxHeight: "500px" }}>
                     <img
-                      src={question.visualContent.imageUrl}
-                      alt={question.visualContent.imageAlt || "No Picture added"}
+                      src={effectiveVisualContent.imageUrl}
+                      alt={effectiveVisualContent.imageAlt || "No Picture added"}
                       style={{ width: "100%", height: "auto", display: "block" }}
                     />
                   </Box>

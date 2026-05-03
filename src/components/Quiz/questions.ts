@@ -197,6 +197,74 @@ const quizQuestions = [
         ],
         explanation: "The Liu & Layland utilization bound provides a sufficient condition for schedulability, meaning that if a taskset's total utilization is below the bound, it is guaranteed to be schedulable. However, tasksets exceeding the bound may still be schedulable."
     },
+
+
+    // Chapter 3 Questions
+
+    {
+        id: "c3_q1",
+        question: "What is a reason for introducing suspension in real-time systems?",
+        answers: [
+            { id: "a1", text: "Making the system more predictable.", isCorrect: false },
+            { id: "a2", text: "Providing a mechanism to pause executing tasks.", isCorrect: false},
+            { id: "a3", text: "Convert the system to a soft real-time system.", isCorrect: false },
+            { id: "a4", text: "Offloading calculations to a more potent device.", isCorrect: true }
+        ],
+        explanation: "Suspension can have many reasons. Tasks may voluntarily give up the CPU, to offload work to another device. This can help improve performance by allowing other tasks to execute while waiting for the offloaded work to complete with a faster device."
+    },
+
+    {
+        id: "c3_q2",
+        question: "Which of the following statements is correct?",
+        answers: [
+            { id: "a1", text: "Suspension improves schedulability.", isCorrect: false },
+            { id: "a2", text: "Suspension is always predictable.", isCorrect: false},
+            { id: "a3", text: "Suspension can harm schedulability.", isCorrect: true },
+            { id: "a4", text: "Scheduling algorithms work the same way as before.", isCorrect: false }
+        ],
+        explanation: "Suspension can negatively impact schedulability and even destroy all the gains from e.g., offloading if not handled properly."
+    },
+    
+    {
+        id: "c3_q3",
+        question: "Which are the two self-suspending models that have been introduced in Chapter 3?",
+        answers: [
+            { id: "a1", text: "Segmented and 1-Segmented self-suspension.", isCorrect: false },
+            { id: "a2", text: "Hard and Soft self-suspension.", isCorrect: false},
+            { id: "a3", text: "Static and Dynamic self-suspension.", isCorrect: false },
+            { id: "a4", text: "Segmented and Dynamic self-suspension.", isCorrect: true}
+        ],
+        explanation: "The two self-suspending models introduced are Segmented self-suspension and Dynamic self-suspension."
+    },
+
+    {
+        id: "c3_q4",
+        question: "Below a schedule is given with these parameters: Brakes = (C=2, T=8, D=8), Sensor = (C=1, T=4, D=4), Multimedia = (C=2, T=8, D=8, S=4). Assuming the scheduling algorithm is using the RM policy under dynamic self-suspension. Which of the following statements is correct?",
+        answers: [
+            { id: "a1", text: "This is the worst-case scenario.", isCorrect: false },
+            { id: "a2", text: "In the worst case, brakes will miss its deadline.", isCorrect: false},
+            { id: "a3", text: "In the worst case, Multimedia will miss its deadline.", isCorrect: true },
+            { id: "a4", text: "This does not follow the RM policy.", isCorrect: false }
+        ],
+        visualContent: {
+            type: "canvas",
+            tasks: [  
+                { id: "brake", name: "Brakes", C: 2, T: 8, D: 8, color: "#f87171" },
+                { id: "sensor", name: "Sensor", C: 1, T: 4, D: 4, color: "#60a5fa" },
+                { id: "media", name: "Multimedia", C: 2, T: 8, D: 8,
+                    S: 4, 
+                    suspension: [
+                        { start: 2, end: 6 },
+                        { start: 8, end: 11 }
+                    ],  
+                     color: "#34d399" },
+            ],
+            algorithm: "RMWithSuspension",
+            canvasMode: "default",
+            hyperperiod: 12
+        },
+        explanation: "In a worst case scenario Multimedia would suspend itself at time 5 for 4 time units, which would cause it to miss its deadline at time 8. Brakes and Sensor always meet their deadlines, because they have higher priority and do not suspend themselves."
+    },
 ];
 
 export default quizQuestions;

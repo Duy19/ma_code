@@ -1,28 +1,99 @@
 // @ts-nocheck
-
+import { useMemo } from "react";
 import { ModularTutorialTemplate } from "./ModularTutorialTemplate";
 import type { StoryStep } from "./ModularTutorial/types";
+import { simulateRM, simulateDM, simulateEDF } from "../logic/simulator";
+import { TaskGenPuzzleOverlay } from "./ModularTutorial/taskGenPuzzle/TaskGenPuzzleOverlay";
+import { useTaskGenPuzzle } from "./ModularTutorial/taskGenPuzzle/useTaskGenPuzzle";
 
-const STORY: StoryStep[] = [
-  {
-    text: "Here the other game.",
-    canvasMode: "interactive",
-  },
-];
+export default function DrawGame() {
+  const {
+    selectedDifficulty,
+    setSelectedDifficulty,
+    isGenerating,
+    generatedTasks,
+    selectedAlgorithm,
+    errorText,
+    generationVersion,
+    currentPuzzleDifficulty,
+    hyperperiod,
+    onConfirmDifficulty,
+  } = useTaskGenPuzzle({
+    maxRawHyperperiod: 25,
+    maxOffset: 5,
+    taskCountRange: [2, 4],
+    periodRange: [1, 25],
+    executionTimeRange: [1, 25],
+  });
 
-export default function drawGame() {
+  const story: StoryStep[] = useMemo(() => {
+    if (generatedTasks.length === 0) {
+      return [
+        {
+          text: "Generate a draw-the-schedule puzzle first.",
+          showHintCheckboxes: false,
+          showOverlay: true,
+          showCanvas: false,
+          showButtons: false,
+          showSidebar: false,
+          selectedAlgorithm,
+        },
+      ];
+    }
+
+    return [
+      {
+        text: "Draw the full schedule for the shown taskset.",
+        showHintCheckboxes: true,
+        showOverlay: true,
+        showCanvas: true,
+        showButtons: true,
+        showSidebar: true,
+        waitFor: ({ scheduleCorrect }) => scheduleCorrect === true,
+        canvasMode: "interactive",
+        selectedAlgorithm,
+        sidebarVisibleFields: ["executionTime", "periods", "deadlines", "offsets", "algorithmSelection"],
+        sidebarEditableFields: [],
+      },
+    ];
+  }, [generatedTasks, selectedAlgorithm]);
+
   return (
     <ModularTutorialTemplate
-      story={STORY}
-      baseTasks={[]}
-      hyperperiod={1}
-      showSidebar={false}
-      showButtons={false}
+      key={`draw-template-${generationVersion}`}
+      story={story}
+      baseTasks={generatedTasks}
+      hyperperiod={hyperperiod}
+      algorithms={{
+        RM: simulateRM,
+        DM: simulateDM,
+        EDF: simulateEDF,
+      }}
+      hintConfig={[          
+          { type: "fullExecution", unlockAt: 0 },
+          { type: "releaseMarker", unlockAt: 0 },
+          { type: "deadlineMarker", unlockAt: 0 },]}
+      defaultAlgorithm={selectedAlgorithm}
+      showSidebar={generatedTasks.length > 0}
+      showButtons={generatedTasks.length > 0}
       canvasMode="interactive"
-      // hintConfig={[          
-      // { type: "fullExecution", unlockAt: 0 },
-      // { type: "releaseMarker", unlockAt: 0 },
-      // { type: "deadlineMarker", unlockAt: 0 },]}
+      renderOverlay={() => (
+        <TaskGenPuzzleOverlay
+          selectedDifficulty={selectedDifficulty}
+          setSelectedDifficulty={setSelectedDifficulty}
+          onConfirmDifficulty={onConfirmDifficulty}
+          isGenerating={isGenerating}
+          hasTaskset={generatedTasks.length > 0}
+          currentPuzzleDifficulty={currentPuzzleDifficulty}
+          errorText={errorText}
+          title="Draw Schedule Puzzle Generator"
+          description={
+            generatedTasks.length > 0
+              ? `Current puzzle: ${selectedDifficulty.toUpperCase()}${currentPuzzleDifficulty !== null ? ` (${currentPuzzleDifficulty.toFixed(1)}/5)` : ""} | Draw the schedule by filling the timeline blocks.`
+              : undefined
+          }
+        />
+      )}
     />
   );
 }

@@ -254,6 +254,7 @@ export interface HintToggleParams {
   unlockHint: (hintId: string) => void;
   lockHint: (hintId: string) => void;
   setHintTask: (hintId: string, taskId: string) => void;
+  setRandomHintTask: (hintId: string) => void;
 }
 
 export function handleToggleHint(params: HintToggleParams): void {
@@ -266,6 +267,7 @@ export function handleToggleHint(params: HintToggleParams): void {
     unlockHint,
     lockHint,
     setHintTask,
+    setRandomHintTask,
   } = params;
 
   const hint = hints.find((h) => h.id === hintId);
@@ -277,9 +279,13 @@ export function handleToggleHint(params: HintToggleParams): void {
     setVisibility((v) => ({ ...v, showDeadlineMarkers: enabled }));
 
   if (enabled) {
-    if (!hint.taskId) {
-      if (hint.type === "fullExecution") setHintTask(hint.id, "media");
-      else currentTasks.forEach((t) => setHintTask(hint.id, t.id));
+    if (hint.type === "fullExecution") {
+      const hasManualTask = Boolean(hint.taskId) && hint.isTaskAutoSelected !== true;
+      if (!hasManualTask) {
+        setRandomHintTask(hint.id);
+      }
+    } else if (!hint.taskId) {
+      currentTasks.forEach((t) => setHintTask(hint.id, t.id));
     }
     unlockHint(hintId);
   } else {

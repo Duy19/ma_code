@@ -16,6 +16,7 @@ export interface Hint {
   id: string;
   description: string;
   taskId?: string;
+  isTaskAutoSelected?: boolean;
   type: HintType;
   unlocked: boolean;
   unlockAt: number; 
@@ -56,21 +57,21 @@ export function useHints(
   const defaultHints: Hint[] = [
     {
       id: "hint-release",
-      description: "Release-Zeitpunkte anzeigen",
+      description: "Show Release times",
       type: "releaseMarker",
       unlocked: false,
       unlockAt: 1,
     },
     {
       id: "hint-deadline",
-      description: "Deadline-Zeitpunkte anzeigen",
+      description: "Show Deadline times",
       type: "deadlineMarker",
       unlocked: false,
       unlockAt: 2,
     },
     {
       id: "hint-exec",
-      description: "Eine Taskausführung anzeigen",
+      description: "Show a random Task execution",
       type: "fullExecution",
       unlocked: false,
       unlockAt: 3,
@@ -88,6 +89,24 @@ export function useHints(
     : defaultHints; // undefined means use defaults
 
   const [hints, setHints] = useState<Hint[]>(initialHints);
+
+  const getRandomTaskIdForExecutionHint = () => {
+    const taskIdsWithSchedule = Array.from(
+      new Set(
+        actualSchedule
+          .map((entry) => entry.taskId)
+          .filter((taskId): taskId is string => typeof taskId === "string")
+      )
+    );
+    const candidateIds = taskIdsWithSchedule.length > 0
+      ? taskIdsWithSchedule
+      : tasks.map((task) => task.id);
+
+    if (candidateIds.length === 0) return undefined;
+
+    const randomIndex = Math.floor(Math.random() * candidateIds.length);
+    return candidateIds[randomIndex];
+  };
 
   const isHintAvailable = (hint: Hint) =>
     actualFailedCount >= hint.unlockAt;
@@ -114,7 +133,18 @@ export function useHints(
   const setHintTask = (hintId: string, taskId: string) => {
     setHints(prev =>
       prev.map(h =>
-        h.id === hintId ? { ...h, taskId } : h
+        h.id === hintId ? { ...h, taskId, isTaskAutoSelected: false } : h
+      )
+    );
+  };
+
+  const setRandomHintTask = (hintId: string) => {
+    const randomTaskId = getRandomTaskIdForExecutionHint();
+    if (!randomTaskId) return;
+
+    setHints(prev =>
+      prev.map(h =>
+        h.id === hintId ? { ...h, taskId: randomTaskId, isTaskAutoSelected: true } : h
       )
     );
   };
@@ -134,7 +164,19 @@ export function useHints(
       const times = new Set<number>();
       actualSchedule
         .filter(e => e.taskId === hint.taskId)
-        .forEach(e => times.add(e.time));
+        .forEach(e => {
+          const start = e.time;
+          const end = e.time + e.duration;
+          const firstBlock = Math.floor(start);
+          const lastBlock = Math.ceil(end) - 1;
+
+          for (let block = firstBlock; block <= lastBlock; block++) {
+            const overlaps = block < end && block + 1 > start;
+            if (overlaps) {
+              times.add(block);
+            }
+          }
+        });
 
       blocks[hint.taskId] = times;
     });
@@ -190,6 +232,7 @@ export function useHints(
     unlockHint,
     lockHint,
     setHintTask,
+    setRandomHintTask,
 
     getHintBlocks,
     releaseMarkers,

@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import TypewriterText from "./Writer";
 import TutorialCharacter from "./Character";
 
@@ -8,6 +9,36 @@ interface Props {
 }
 
 export default function TutorialOverlay({ visible, text, onNext }: Props) {
+  useEffect(() => {
+    if (!visible) return;
+
+    const isTypingTarget = (target: EventTarget | null) => {
+      const element = target as HTMLElement | null;
+      if (!element) return false;
+
+      const tag = element.tagName;
+      return (
+        tag === "INPUT" ||
+        tag === "TEXTAREA" ||
+        tag === "SELECT" ||
+        element.isContentEditable
+      );
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (isTypingTarget(event.target)) return;
+
+      // Shortcut: press Right Arrow to go to the next tutorial step.
+      if (event.key === "ArrowRight") {
+        event.preventDefault();
+        onNext();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [visible, onNext]);
+
   if (!visible) return null;
 
   return (
@@ -30,6 +61,7 @@ export default function TutorialOverlay({ visible, text, onNext }: Props) {
         {/* Speechbubble */}
         <div
           onClick={onNext}
+          title="Next step (Right Arrow)"
           style={{
             background: "rgba(223, 224, 201, 0.95)",
             borderRadius: "20px",

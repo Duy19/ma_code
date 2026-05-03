@@ -5,7 +5,7 @@ import { Box, Drawer, IconButton, Button } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import DownloadIcon from "@mui/icons-material/Download";
 import { useEffect, useRef, useState } from "react";
-import { simulateEDF, simulateRM, simulateDM, type ScheduleEntry } from "../logic/simulator";
+import { simulateEDF, simulateRM, simulateDM, simulateEDFWithSuspension, simulateRMWithSuspension, simulateDMWithSuspension, type ScheduleEntry } from "../logic/simulator";
 import { lcmArrayWithDecimals } from "../utils/formulas";
 
 const initialTasks: Task[] = [
@@ -20,7 +20,9 @@ export default function FreeScheduler() {
   const [hyperperiod, setHyperperiod] = useState(24);
   const [interval, setInterval] = useState<[number, number]>([0, 24]);
   const [schedule, setSchedule] = useState<ScheduleEntry[]>([]);
+  const [allowSuspension, setAllowSuspension] = useState(false);
   const schedulerCanvasRef = useRef<any>(null);
+  const sidebarWidth = allowSuspension ? 600 : 375;
 
   const handleIntervalChange = (newInterval: [number, number]) => {
     setInterval(newInterval);
@@ -29,11 +31,23 @@ export default function FreeScheduler() {
       const simulationLength = Math.max(hyperperiod, newInterval[1]);
       let newSchedule: ScheduleEntry[] = [];
       if (algorithm === "EDF") {
-        newSchedule = simulateEDF(tasks, simulationLength).schedule;
+        if (allowSuspension) {
+          newSchedule = simulateEDFWithSuspension(tasks, simulationLength);
+        } else {
+          newSchedule = simulateEDF(tasks, simulationLength).schedule;
+        }
       } else if (algorithm === "RM") {
-        newSchedule = simulateRM(tasks, simulationLength).schedule;
+        if (allowSuspension) {
+          newSchedule = simulateRMWithSuspension(tasks, simulationLength);
+        } else {
+          newSchedule = simulateRM(tasks, simulationLength).schedule;
+        }
       } else if (algorithm === "DM") {
-        newSchedule = simulateDM(tasks, simulationLength).schedule;
+        if (allowSuspension) {
+          newSchedule = simulateDMWithSuspension(tasks, simulationLength);
+        } else {
+          newSchedule = simulateDM(tasks, simulationLength).schedule;
+        }
       }
       setSchedule(newSchedule);
     }
@@ -57,25 +71,36 @@ export default function FreeScheduler() {
   
   let newSchedule: ScheduleEntry[] = [];
     if (algorithm === "EDF") {
-      newSchedule = simulateEDF(tasks, hp).schedule;
+      if (allowSuspension) {
+        newSchedule = simulateEDFWithSuspension(tasks, hp);
+      } else {
+        newSchedule = simulateEDF(tasks, hp).schedule;
+      }
     }
 
     else if (algorithm === "RM") {
-      newSchedule = simulateRM(tasks, hp).schedule;
+      if (allowSuspension) {
+        newSchedule = simulateRMWithSuspension(tasks, hp);
+      } else {
+        newSchedule = simulateRM(tasks, hp).schedule;
+      }
     }
     else if (algorithm === "DM") {
-      newSchedule = simulateDM(tasks, hp).schedule;
+      if (allowSuspension) {
+        newSchedule = simulateDMWithSuspension(tasks, hp);
+      } else {
+        newSchedule = simulateDM(tasks, hp).schedule;
+      }
     }
 // TODO: Add more algorithms here as needed
 
   setSchedule(newSchedule);
-}, [tasks, algorithm]);
+}, [tasks, algorithm, allowSuspension]);
 
 
   return (
 
     <Box sx={{ display: "flex", overflow: "hidden" }}>
-
       {!sidebarOpen && (
         <Box sx={{ position: "absolute", top: 16, right: 16, zIndex: (theme) => theme.zIndex.appBar + 1}}>
           <IconButton onClick={() => setSidebarOpen(true)}>
@@ -121,9 +146,9 @@ export default function FreeScheduler() {
         anchor="right"
         open={sidebarOpen}
         sx={{
-          width: 280,
+          width: sidebarWidth,
           flexShrink: 0,
-          "& .MuiDrawer-paper": { width: 350, boxSizing: "border-box", p: 2},
+          "& .MuiDrawer-paper": { width: sidebarWidth, boxSizing: "border-box", p: 2},
         }}>
           <FreeSchedulerSidebar
             tasks={tasks}
@@ -133,6 +158,8 @@ export default function FreeScheduler() {
             onClose={() => setSidebarOpen(false)}
             interval={interval}
             onIntervalChange={handleIntervalChange}
+            allowSuspension={allowSuspension}
+            onAllowSuspensionChange={setAllowSuspension}
           />
       </Drawer>
     </Box>

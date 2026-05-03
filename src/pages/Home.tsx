@@ -36,12 +36,13 @@ const chapters = [
   },
   {
     title: "Chapter 3: Suspension",
-    description: "Handling task suspension in real-time systems",
+    description: "Self-suspending tasks in real-time systems",
     sections: [
-      { name: "What is Suspension?", path: "/chapter3" },
-      { name: "Dynamic Suspension Handling", path: "/" },
-      { name: "Fragmented Suspension", path: "/" },
-      { name: "Quiz", path: "/" },
+      { name: "What is Suspension?", path: "/chapter3_A" },
+      { name: "Dynamic self-suspension", path: "/chapter3_B" },
+      { name: "Segemented self-suspension", path: "/chapter3_C" },
+      { name: "Suspension Game", path: "/chapter3_D" },
+      { name: "Quiz", path: "/chapter3_Quiz" },
     ],
     color: "#ec4899",
   },

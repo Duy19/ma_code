@@ -67,6 +67,7 @@ export function SidebarRenderer({
         showDeadlines: isFieldVisible("deadlines"),
         showOffsets: isFieldVisible("offsets"),
         showSuspension: isFieldVisible("suspension"),
+        showSuspensionToggle: isFieldVisible("suspensionToggle"),
         showTaskControls: isFieldVisible("taskControls"),
         showTaskNames: true,
         showAlgorithmSelection: isFieldVisible("algorithmSelection"),

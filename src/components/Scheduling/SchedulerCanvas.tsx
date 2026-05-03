@@ -32,6 +32,10 @@ function getSuspension(task: Task, hyperperiod: number) : SuspensionInterval[] {
 
   // If pattern is given, generate all the Intervals for hyperperiod
   const {offset, duration, period} = task.suspension as SuspensionPattern;
+  if (duration <= 0 || period <= 0) {
+    return [];
+  }
+
   const intervals: SuspensionInterval[] = [];
 
   for (let i = 0; offset + i * period < hyperperiod; i++) {

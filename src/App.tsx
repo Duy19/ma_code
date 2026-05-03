@@ -14,7 +14,11 @@ import Chapter2_B from "./pages/Chapter2/Chapter2_B";
 import Chapter2_C from "./pages/Chapter2/Chapter2_C";
 import Chapter2_Quiz from "./pages/Chapter2/Chapter2_Quiz";
 import Chapter2_DragDrop from "./pages/Chapter2/Chapter2_DragDrop";
-import Chapter3 from "./pages/Chapter3/Chapter3";
+import Chapter3_A from "./pages/Chapter3/Chapter3_A";
+import Chapter3_B from "./pages/Chapter3/Chapter3_B";
+import Chapter3_C from "./pages/Chapter3/Chapter3_C";
+import Chapter3_D from "./pages/Chapter3/Chapter3_D";
+import Chapter3_Quiz from "./pages/Chapter3/Chapter3_Quiz";
 import Tutorial from "./pages/Tutorial/Tutorial";
 import Tutorial2 from "./pages/Tutorial/Tutorial2";
 import Tutorial3 from "./pages/Tutorial/Tutorial3";
@@ -46,7 +50,11 @@ function App() {
             <Route path="tutorial" element={<Tutorial />} />
             <Route path="tutorial2" element={<Tutorial2 />} />
             <Route path="tutorial3" element={<Tutorial3 />} />
-            <Route path="chapter3" element={<Chapter3 />} />
+            <Route path="chapter3_A" element={<Chapter3_A />} />
+            <Route path="chapter3_B" element={<Chapter3_B />} />
+            <Route path="chapter3_C" element={<Chapter3_C />} />
+            <Route path="chapter3_D" element={<Chapter3_D />} />
+            <Route path="chapter3_Quiz" element={<Chapter3_Quiz />} />
             <Route path="gameSelection" element={<GameSelection />} />
             <Route path="DrawGame" element={<DrawGame />} />
             <Route path="DetectiveGame" element={<DetectiveGame />} />

@@ -63,6 +63,10 @@ function getSuspension(task: Task, hyperperiod: number) : SuspensionInterval[] {
 
   // If pattern is given, generate all the Intervals for hyperperiod
   const {offset, duration, period} = task.suspension as SuspensionPattern;
+  if (duration <= 0 || period <= 0) {
+    return [];
+  }
+
   const intervals: SuspensionInterval[] = [];
 
   for (let i = 0; offset + i * period < hyperperiod; i++) {
@@ -177,6 +181,9 @@ function simulate(
       }
     }
 
+    // Filtering out if any jobs have C=0 or have finished in the meantime 
+    active = active.filter((a) => a.remainingExecution > 0);
+
     active.sort((a, b) => comparePriority(a, b, taskOrder));
     const current = active[0];
 
@@ -280,7 +287,7 @@ function simulate(
     : 0;
 
   const utilization = tasks.reduce((sum, task) => sum + task.C / task.T, 0);  
-  console.log(`Simulation finished: ${schedule.length} schedule entries, ${trackedJobs.length} jobs, U=${utilization.toFixed(2)}, avgPreemptions=${avgPreemptions.toFixed(2)}, avgLaxity=${avgLaxity.toFixed(2)}, giniT=${giniT.toFixed(2)}, giniC=${giniC.toFixed(2)}, giniD=${giniD.toFixed(2)}`);
+  //console.log(`Simulation finished: ${schedule.length} schedule entries, ${trackedJobs.length} jobs, U=${utilization.toFixed(2)}, avgPreemptions=${avgPreemptions.toFixed(2)}, avgLaxity=${avgLaxity.toFixed(2)}, giniT=${giniT.toFixed(2)}, giniC=${giniC.toFixed(2)}, giniD=${giniD.toFixed(2)}`);
   const tasksetForLog = {
     taskset_id: (tasks[0] as any)?.taskset_id ?? "ts_",
     difficulty: (tasks[0] as any)?.difficulty ?? null,
@@ -362,8 +369,9 @@ export function simulateDM(tasks: Task[], hyperperiod: number): ScheduleResult {
 
 /**
   Here are the algorithms but with suspension handling. The idea is to collect all critical time points like releases, and suspension intervals of all tasks.
-  Then sort this list of time points (even if not discrete) and in between these time stamps do the regular Scheduling.
+  Then sort this list of time points and in between these time stamps do the regular Scheduling.
   This is only done this way because suspension in this tool is either a repetetive pattern or manually set by the user.
+  This could be done better in the future, but for the current tool this is sufficient and allows for simple visualization of the suspension intervals in the schedule.
 */
 
 // EDF with Suspension 

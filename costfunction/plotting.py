@@ -42,14 +42,50 @@ def calculate_fit_metrics(y_true, y_pred):
         "tau_pvalue": tau_pvalue,
     }
 
+
+def example_lorenz_curve():
+    data = np.array([2000, 400, 300, 1700, 600])
+    data_sorted = np.sort(data)
+    data_cum = np.cumsum(data_sorted)
+    data_cum = np.insert(data_cum, 0, 0)
+    data_cumulative = np.cumsum(data_sorted) / np.sum(data_sorted)
+
+    holder_cumulative = np.arange(1, len(data) + 1) / len(data) # 5 holders so each one is 20%
+
+    x_plot = np.insert(holder_cumulative, 0, 0)
+    y_plot = np.insert(data_cumulative, 0, 0)
+
+    fig, ax =  plt.subplots(figsize=(8, 6))
+    ax.plot(x_plot, y_plot, marker='o', color='steelblue', label='Lorenz Curve', linewidth=2)
+    ax.plot([0,1], [0,1], label='Line of Perfect Equality', color='orange', linestyle='-')
+    ax.yaxis.set_label_position("right")
+    ax.yaxis.tick_right()
+    ax.set_xlabel('Cumulative Share of Stock Holders', fontsize=12, fontweight='bold')
+    ax.set_ylabel('Cumulative Share of Processor Stocks', fontsize=12, fontweight='bold')
+    x_position = 0.52
+    y_position = 0.35
+
+    for i in range(len(data)):
+        ax.annotate(xy=(x_plot[i], y_plot[i]), text=f'{data_cum[i]}/5000', xytext=(13, 8), textcoords='offset points', fontsize=8, fontweight='bold', color='black', ha='center', va='bottom')
+
+    ax.text(x_position, y_position, "Gini Index", fontsize=12, fontweight='bold', color='black', ha='center')
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
+    ax.fill_between(x_plot, y_plot, x_plot, color='steelblue', alpha=0.3)
+    ax.set_title('Lorenz Curve Example', fontsize=14, fontweight='bold')
+    ax.grid(True, alpha=0.3)
+    ax.legend()
+    plt.show()
+
+
 def plotVariableDifficultyCorrelation():
     variables = [
-        # ('N', N, 'Number of Tasks'),
-        # ('U', U, 'Utilization'),
-        # ('P', P, 'Avg Preemption'),
-        # ('L', L, 'Avg Laxity'),
-        ('giniC', GC, 'Gini Coefficient C'),
-        ('giniT', GT, 'Gini Coefficient T'),
+        ('N', N, 'Number of Tasks'),
+        ('U', U, 'Utilization'),
+        ('P', P, 'Avg Preemption'),
+        ('L', L, 'Avg Laxity'),
+        # ('giniC', GC, 'Gini Coefficient C'),
+        # ('giniT', GT, 'Gini Coefficient T'),
         # ('giniD', GD, 'Gini Coefficient D'),
     ]
 
@@ -132,7 +168,8 @@ def plotVariableDifficultyCorrelation():
 
 
 def main():
-    plotVariableDifficultyCorrelation()
+    example_lorenz_curve()
+    #plotVariableDifficultyCorrelation()
 
 if __name__ == "__main__":
     main()

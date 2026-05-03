@@ -25,6 +25,15 @@ export default function Layout() {
     setAnchorEl2(null);
   };
 
+  const [anchorEl3, setAnchorEl3] = React.useState<null | HTMLElement>(null);
+  const open3 = Boolean(anchorEl3);
+  const handleClick3 = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl3(event.currentTarget);
+  };
+  const handleClose3 = () => {
+    setAnchorEl3(null);
+  };
+
   return (
     <Box sx={{ height: "100vh", display: "flex", flexDirection: "column"}}>
       {!isHomePage && (
@@ -327,8 +336,10 @@ export default function Layout() {
             
             <Button 
               id="Chapter3" 
-              component={Link} 
-              to="/Chapter3"
+              aria-controls={open3 ? 'menu' : undefined} 
+              aria-haspopup="true" 
+              aria-expanded={open3 ? 'true' : undefined} 
+              onClick={handleClick3}
               sx={{
                 textTransform: "none",
                 fontWeight: 500,
@@ -336,12 +347,114 @@ export default function Layout() {
                 transition: "all 0.2s",
                 "&:hover": {
                   transform: "translateY(-2px)",
-                  color: "#ec4899",
+                  color: "#8b5cf6",
                 },
               }}
             >
               Chapter 3
             </Button>
+            <Menu
+              id="fade-menu-chapter3"
+              slotProps={{
+                list: {
+                  'aria-labelledby': 'Chapter3',
+                  sx: {
+                    padding: 1,
+                  },
+                },
+                paper: {
+                  sx: {
+                    backgroundColor: "#ffffff",
+                    borderRadius: 2,
+                    boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
+                    minWidth: 200,
+                    mt: 1,
+                    border: "1px solid",
+                    borderColor: "divider",
+                  },
+                },
+              }}
+              slots={{ transition: Fade }}
+              anchorEl={anchorEl3}
+              open={open3}
+              onClose={handleClose3}
+            >
+              <MenuItem 
+                onClick={handleClose3} 
+                component={Link} 
+                to="/Chapter3_A"
+                sx={{
+                  borderRadius: 1,
+                  mx: 0.5,
+                  "&:hover": {
+                    bgcolor: "#8b5cf620",
+                    color: "#8b5cf6",
+                  },
+                }}
+              >
+                What is Suspension?
+              </MenuItem>
+              <MenuItem 
+                onClick={handleClose3} 
+                component={Link} 
+                to="/Chapter3_B"
+                sx={{
+                  borderRadius: 1,
+                  mx: 0.5,
+                  "&:hover": {
+                    bgcolor: "#8b5cf620",
+                    color: "#8b5cf6",
+                  },
+                }}
+              >
+                Dynamic self-suspension
+              </MenuItem>
+              <MenuItem 
+                onClick={handleClose3} 
+                component={Link} 
+                to="/Chapter3_C"
+                sx={{
+                  borderRadius: 1,
+                  mx: 0.5,
+                  "&:hover": {
+                    bgcolor: "#8b5cf620",
+                    color: "#8b5cf6",
+                  },
+                }}
+              >
+                Segemented self-suspension
+              </MenuItem>
+              <MenuItem 
+                onClick={handleClose3} 
+                component={Link} 
+                to="/Chapter3_D"
+                sx={{
+                  borderRadius: 1,
+                  mx: 0.5,
+                  "&:hover": {
+                    bgcolor: "#8b5cf620",
+                    color: "#8b5cf6",
+                  },
+                }}
+              >
+                Chapter 3 Game
+              </MenuItem>
+              <MenuItem 
+                onClick={handleClose3} 
+                component={Link} 
+                to="/Chapter3_Quiz"
+                sx={{
+                  borderRadius: 1,
+                  mx: 0.5,
+                  "&:hover": {
+                    bgcolor: "#8b5cf620",
+                    color: "#8b5cf6",
+                  },
+                }}
+              >
+                Chapter 3 Quiz
+              </MenuItem>
+            </Menu>
             <Button 
               component={Link} 
               to="/gameSelection"

@@ -6,7 +6,7 @@ from scipy.optimize import curve_fit
 from scipy.stats import kendalltau
 from itertools import combinations
 from pathlib import Path
-
+from sklearn.metrics import r2_score
 
 # Load data from CSV file
 data = pd.read_csv('testTasksets.csv')
@@ -25,9 +25,7 @@ GD = raw[:, 6]
 X = (N, U, P, L, GC, GT, GD)
 
 def calculate_r2(y_true, y_pred):
-    ss_res = np.sum((y_true - y_pred) ** 2)
-    ss_tot = np.sum((y_true - np.mean(y_true)) ** 2)
-    return 1 - (ss_res / ss_tot) if ss_tot != 0 else np.nan
+	return r2_score(y_true, y_pred)
 
 
 def calculate_kendall_tau(y_true, y_pred):
@@ -257,7 +255,7 @@ def testFunctions():
 
 		results_for_markdown.append(
 			{
-				'name': function_name,
+				'function_name': function_name,
 				'fitted_r2': fitted_r2,
 				'fitted_tau': fitted_tau,
 				'test_r2': metrics['r2'],

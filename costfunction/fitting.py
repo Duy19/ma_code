@@ -5,6 +5,7 @@ from pysr import PySRRegressor
 from scipy.optimize import curve_fit
 from scipy.stats import kendalltau
 from itertools import combinations
+from sklearn.metrics import r2_score
 
 # Load data from CSV file
 data = pd.read_csv('learningTasksets.csv')
@@ -27,22 +28,20 @@ DATASETS = {
     "raw": {
         "x": raw,
         "features": ["N", "U", "P", "L", "giniC", "giniT", "giniD"],
-    }
-    # "raw2": {
-    #     "x": raw2,
-    #     "features": ["N", "P", "giniC", "giniT", "giniD"],
-    # },
-    # "rawFirst": {
-    #     "x": rawFirst,
-    #     "features": ["N", "U", "P", "L"],
-    # },
+    },
+    "raw2": {
+        "x": raw2,
+        "features": ["N", "P", "giniC", "giniT", "giniD"],
+    },
+    "rawFirst": {
+        "x": rawFirst,
+        "features": ["N", "U", "P", "L"],
+    },
 }
 
 
 def calculate_r2(y_true, y_pred):
-    ss_res = np.sum((y_true - y_pred) ** 2)
-    ss_tot = np.sum((y_true - np.mean(y_true)) ** 2)
-    return 1 - (ss_res / ss_tot) if ss_tot != 0 else np.nan
+    return r2_score(y_true, y_pred)
 
 
 def calculate_kendall_tau(y_true, y_pred):
@@ -372,6 +371,42 @@ def run_curve_fit_baselines():
 
         print(f"\n Dataset: {dataset_name} ({n_features} features)")
 
+        linear_fn = _linear_model()
+        linear_result = _fit_curve_model(
+            model_name="linear",
+            dataset_name=dataset_name,
+            model_fn=linear_fn,
+            X_tuple=X_tuple,
+            y_true=y,
+            p0=np.ones(n_features),
+        )
+        linear_result["feature_names"] = dataset_info["features"]
+        print(
+            f"  linear -> R^2={linear_result['r2']:.4f}, "
+            f"tau={linear_result['tau']:.4f} (p={linear_result['tau_pvalue']:.4g})"
+        )
+        results.append(linear_result)
+
+        if dataset_name != "raw":
+            quadratic_fn = _quadratic_model(n_features)
+            quadratic_result = _fit_curve_model(
+                model_name="quadratic",
+                dataset_name=dataset_name,
+                model_fn=quadratic_fn,
+                X_tuple=X_tuple,
+                y_true=y,
+                p0=np.zeros(1 + (2 * n_features) + (n_features * (n_features - 1) // 2)),
+            )
+            quadratic_result["feature_names"] = dataset_info["features"]
+            quadratic_result["interaction_terms"] = True
+            print(
+                f"  quadratic -> R^2={quadratic_result['r2']:.4f}, "
+                f"tau={quadratic_result['tau']:.4f} (p={quadratic_result['tau_pvalue']:.4g})"
+            )
+            results.append(quadratic_result)
+        else:
+            print("  quadratic -> skipped for raw dataset (insufficient samples)")
+
         exp_gt_fn = _build_exp_ginit_preference_model(dataset_info["features"])
         if exp_gt_fn is not None:
             exp_gt_result = _fit_curve_model(
@@ -444,7 +479,7 @@ def run_curve_fit_baselines():
             )
             results.append(poly_gini_triplet_result)
 
-    lines = ["## curve_fit baseline results (fair comparison vs PySR)", ""]
+    lines = ["## curve_fit results", ""]
     for result in results:
         lines.append(f"### {result['dataset']} - {result['name']}")
         lines.append(f"R^2 Score: {result['r2']:.4f}")
@@ -461,7 +496,7 @@ def run_curve_fit_baselines():
     with open("curvefit_baselines.md", "w", encoding="utf-8") as file_handle:
         file_handle.write("\n".join(lines).rstrip() + "\n")
 
-    print("\n Saved compact baseline report to 'curvefit_baselines.md'")
+    print("\n Saved markdwon file as 'curvefit_baselines.md'")
     return results
 
 
@@ -519,7 +554,7 @@ def functionFitting():
         if best_overall is None or run_results[0]["r2"] > best_overall["r2"]:
             best_overall = run_results[0]
 
-    lines = ["# Top 5 PySR Fits Per Dataset", ""]
+    lines = ["# Top 5 PySR Functions Per Dataset", ""]
     for dataset_name, _ in datasets:
         top_five = all_results[dataset_name][:5]
         lines.append(f"## Dataset: {dataset_name}")
@@ -544,7 +579,7 @@ def functionFitting():
     best_dataset_x = best_overall["dataset_x"]
 
     print("\n Done training all datasets, now evaluating global best")
-    print("\n Best fitting Fnuction:")
+    print("\n Best fitting Function:")
     print(best_model.sympy())
     print(f"\nDataset: {best_dataset_name}")
     print(f"\nR² Score: {best_overall['r2']:.4f}")
@@ -554,13 +589,12 @@ def functionFitting():
     print("\n Plotting results vs predictions")
     predictions = best_model.predict(best_dataset_x)
 
-    print("\n Show all models found")
     print(best_model.equations)
 
 
 def main():
-    # functionFitting()
-    run_curve_fit_baselines()
+    functionFitting()
+    #run_curve_fit_baselines()
 
 if __name__ == "__main__":
     main()

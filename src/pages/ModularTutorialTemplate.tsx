@@ -197,8 +197,8 @@ export function ModularTutorialTemplate(props: ModularTutorialTemplateProps) {
   const effectiveLayoutStyle = cumulativeState.layoutStyle;
 
   // Hint Manager
-  const { hints, unlockHint, lockHint, setHintTask, getHintBlocks } = useHints({
-    baseTasks,
+  const { hints, unlockHint, lockHint, setHintTask, setRandomHintTask, getHintBlocks } = useHints({
+    baseTasks: currentTasks,
     correctSchedule,
     failedCount,
     hintConfig,
@@ -210,20 +210,30 @@ export function ModularTutorialTemplate(props: ModularTutorialTemplateProps) {
   const correctScheduleMap = useMemo(() => {
     const map: Record<string, Set<number>> = {};
     currentTasks.forEach((task) => {
-      map[task.id] = new Set(
-        correctSchedule
-          .filter((e) => e.taskId === task.id)
-          .map((e) => e.time)
-      );
+      const occupiedBlocks = new Set<number>();
+
+      correctSchedule
+        .filter((e) => e.taskId === task.id)
+        .forEach((e) => {
+          const start = e.time;
+          const end = e.time + e.duration;
+
+          // Convert continuous execution intervals into discrete draw-grid blocks.
+          const firstBlock = Math.floor(start);
+          const lastBlock = Math.ceil(end) - 1;
+
+          for (let block = firstBlock; block <= lastBlock; block++) {
+            const overlaps = block < end && block + 1 > start;
+            if (overlaps) {
+              occupiedBlocks.add(block);
+            }
+          }
+        });
+
+      map[task.id] = occupiedBlocks;
     });
     return map;
   }, [correctSchedule, currentTasks]);
-
-  // Set which task to show for fullExecution hint
-  useEffect(() => {
-    const execHint = hints.find((h) => h.type === "fullExecution");
-    if (execHint && !execHint.taskId) setHintTask(execHint.id, "media");
-  }, [hints]);
 
   // Reset quiz when step changes or showQuiz becomes false
   useEffect(() => {
@@ -321,6 +331,7 @@ export function ModularTutorialTemplate(props: ModularTutorialTemplateProps) {
       unlockHint,
       lockHint,
       setHintTask,
+      setRandomHintTask,
     });
   };
 
@@ -371,7 +382,7 @@ export function ModularTutorialTemplate(props: ModularTutorialTemplateProps) {
   };
 
   const sidebarRenderProps: SidebarRenderProps = {
-    baseTasks,
+    baseTasks: currentTasks,
     algorithm: effectiveAlgorithmName,
   };
 

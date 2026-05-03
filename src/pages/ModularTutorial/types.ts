@@ -68,12 +68,12 @@ export interface StoryState {
   layoutStyle: "standard" | "interactive";
   
   // Sidebar configuration
-  sidebarVisibleFields: ("executionTime" | "periods" | "deadlines" | "offsets" | "suspension" | "taskControls" | "algorithmSelection")[];
-  sidebarEditableFields: ("executionTime" | "periods" | "deadlines" | "offsets" | "suspension" | "taskControls" | "algorithmSelection")[];
+  sidebarVisibleFields: ("executionTime" | "periods" | "deadlines" | "offsets" | "suspension" | "suspensionToggle" | "taskControls" | "algorithmSelection")[];
+  sidebarEditableFields: ("executionTime" | "periods" | "deadlines" | "offsets" | "suspension" | "suspensionToggle" | "taskControls" | "algorithmSelection")[];
   
   // Puzzle configuration
-  puzzleVisibleFields: ("executionTime" | "periods" | "deadlines" | "offsets" | "suspension" | "taskControls" | "algorithmSelection")[];
-  puzzleEditableFields: ("executionTime" | "periods" | "deadlines" | "offsets" | "suspension" | "taskControls" | "algorithmSelection")[];
+  puzzleVisibleFields: ("executionTime" | "periods" | "deadlines" | "offsets" | "suspension" | "suspensionToggle" | "taskControls" | "algorithmSelection")[];
+  puzzleEditableFields: ("executionTime" | "periods" | "deadlines" | "offsets" | "suspension" | "suspensionToggle" | "taskControls" | "algorithmSelection")[];
   editableTasks: string[];
   maxFieldValues: {
     executionTime?: number;
@@ -124,16 +124,16 @@ export interface StoryStep {
   summaryIds?: string[];
   dropGameVaultIds?: string[];
   showDropGame?: boolean;
-  sidebarVisibleFields?: ("executionTime" | "periods" | "deadlines" | "offsets" | "suspension" | "taskControls" | "algorithmSelection")[];
-  sidebarEditableFields?: ("executionTime" | "periods" | "deadlines" | "offsets" | "suspension" | "taskControls" | "algorithmSelection")[];
+  sidebarVisibleFields?: ("executionTime" | "periods" | "deadlines" | "offsets" | "suspension" | "suspensionToggle" | "taskControls" | "algorithmSelection")[];
+  sidebarEditableFields?: ("executionTime" | "periods" | "deadlines" | "offsets" | "suspension" | "suspensionToggle" | "taskControls" | "algorithmSelection")[];
   
   // Canvas patches
   canvasMode?: "interactive" | "default";
   layoutStyle?: "standard" | "interactive";
   
   // Puzzle patches
-  puzzleVisibleFields?: ("executionTime" | "periods" | "deadlines" | "offsets" | "suspension" | "taskControls" | "algorithmSelection")[];
-  puzzleEditableFields?: ("executionTime" | "periods" | "deadlines" | "offsets" | "suspension" | "taskControls" | "algorithmSelection")[];
+  puzzleVisibleFields?: ("executionTime" | "periods" | "deadlines" | "offsets" | "suspension" | "suspensionToggle" | "taskControls" | "algorithmSelection")[];
+  puzzleEditableFields?: ("executionTime" | "periods" | "deadlines" | "offsets" | "suspension" | "suspensionToggle" | "taskControls" | "algorithmSelection")[];
   editableTasks?: string[];
   maxFieldValues?: {
     executionTime?: number;
