@@ -50,11 +50,11 @@ const STORY: StoryStep[] = [
 const DEFINITIONS = [
   {
     term: "RM",
-    definition: "Rate Monotonic - fixed priority based on task period. Shorter periods get higher priority.",
+    definition: "Rate Monotonic - fixed priority based on task period. Shorter periods get higher priority [Liu & Layland in 1973].",
   },
   {
     term: "DM",
-    definition: "Deadline Monotonic - fixed priority based on task deadline. Shorter deadlines get higher priority.",
+    definition: "Deadline Monotonic - fixed priority based on task deadline. Shorter deadlines get higher priority [Leung and Whitehead in 1982].",
   },
 ];
 

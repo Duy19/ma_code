@@ -47,15 +47,15 @@ const STORY: StoryStep[] = [
 const DEFINITIONS = [
   {
     term: "EDF",
-    definition: "Earliest Deadline First - dynamic priority scheduling that always executes the task with the closest deadline.",
+    definition: "Earliest Deadline First - dynamic priority scheduling that always executes the task with the closest deadline [Liu & Layland in 1973].",
   },
   {
     term: "RM",
-    definition: "Rate Monotonic - fixed priority based on task period. Shorter periods get higher priority.",
+    definition: "Rate Monotonic - fixed priority based on task period. Shorter periods get higher priority [Liu & Layland in 1973].",
   },
   {
     term: "DM",
-    definition: "Deadline Monotonic - fixed priority based on task deadline. Shorter deadlines get higher priority.",
+    definition: "Deadline Monotonic - fixed priority based on task deadline. Shorter deadlines get higher priority [Leung and Whitehead in 1982].",
   },
   {
     term: "Note",

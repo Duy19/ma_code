@@ -13,7 +13,7 @@ const tasks: Task[] = [
 
 const STORY: StoryStep[] = [
   {
-    text: "So you already know about Time Demand Analysis (TDA) from before right?. But that is not the only way to analyze the schedulability of a taskset!",
+    text: "So you already know about Time Demand Analysis (TDA) from before right? But that is not the only way to analyze the schedulability of a taskset!",
     showOverlay: true,
     showCanvas: false,
   },
@@ -72,7 +72,10 @@ const STORY: StoryStep[] = [
     text: "For example a taskset with 3 tasks having periods 5, 10, and 20 is harmonic. If their total utilization is below 1, the taskset is guaranteed to be schedulable under RM.",
   },
   {
-    text: "Thats it for methods to analyze Schedulability! I hope this chapter helped you understand the various approaches and their uses! But don't worry here is a small summary of what we learned so far about the topic!",
+    text: "So this is the last one for you and it is very simple. You remember EDF? In case you want to check if a task set is schedulable under EDF, you just have to check if the total utilization is below or equal to 1! Thats it!",
+  },
+  {
+    text: "And thats it for methods to analyze Schedulability! I hope this chapter helped you understand the various approaches and their uses! But don't worry here is a small summary of what we learned so far about the topic!",
     showSummary: true,
     summaryIds: ["chapter2"],
     navigateTo: "/chapter2_Quiz",

@@ -14,11 +14,13 @@ export const Summary : SummaryComponent[] = [
         title: "Real-Time System Model Summary",
         description: "Here you have a quick overview of the Real-Time System Model: ",
         content: [
+            "This model is very important and is the basis for many more topics. This was proposed in the seminal paper by **Liu & Layland in 1973** and is still widely used today.",
             "Imagine our autonomous car and its three tasks **brakes**, **sensor** and **multimedia** as a Real-Time System example.",
             "For now our car has one processor, which tries to plan/schedule all our tasks (**uniprocessor system**).",
             "Tasks can **preempt** each other, meaning a higher priority task can **interrupt** a lower priority one while its executing and run instead (e.g. brakes interrupting multimedia).",
             "Each task has parameters like **execution time (C)**, **period (T)**, **deadline (D)** and **offset (O)**.",
             "In our examples these are all **periodic** tasks. Meaning each task repeats intervals T (highlighted by the green upward arrows). E.g. the sensor task releases every 3 time steps.",
+            "There are also other types like **sporadic** tasks, where **T** is the minimum inter-arrival time between two releases. This is an extension to Liu & Layland's model by **Mok in 1983**.",
             "Because missing a **deadline (D)** of a task (red downward arrows) can lead to catastrophic consequences (e.g. car crash), we call these **Hard Real-Time Systems**.",  
             "There are also different types of deadlines for task sets: **implicit** (D=T), **constrained** (D<=T) and **arbitrary** (D any value). If not stated otherwise implicit deadlines are used for scheduling algorithms.",
         ],
@@ -43,8 +45,9 @@ export const Summary : SummaryComponent[] = [
         content: [
             "Critical Instant Theorem to determine when the Worst-Case Response Time (WCRT) of tasks under Fixed-Priority Scheduling happens.",
             "Time Demand Analysis (TDA) to calculate the WCRT of tasks.",
-            " Sufficient schedulability tests like the Liu & Layland Utilization Bound and the Hyperbolic Bound.",
+            "Sufficient schedulability tests like the Liu & Layland Utilization Bound and the Hyperbolic Bound.",
             "Harmonic tasksets and their special properties regarding schedulability under RM scheduling.",
+            "EDF schedulability test based on total utilization. $U \\leq 1$. This is also an exact test, for all deadline types regarding sporadic tasks. However, for periodic tasks, it is only exact for tasks with the same offset or if not only for implicit deadlines.",
         ],
     },
     {
@@ -60,12 +63,14 @@ export const Summary : SummaryComponent[] = [
             "Example: $\\Delta = 12, \\tau_1 = \\text{Brakes}, C_1 = 2, T_1 = 8$, ",
             "$\\left\\lceil \\frac{12}{8} \\right\\rceil \\cdot 2 = \\left\\lceil 1.5 \\right\\rceil \\cdot 2 = 2 \\cdot 2 = 4$.",
             "Brakes task interferes 2 times in [0-12], thus contributing 4 units of execution time.",
+            "Do this for all higher priority tasks and add $C_k$ to get the total time demand in the interval $\\Delta$. If this is less than or equal to $\\Delta$, the task is schedulable in that interval.",
+            "And there you have it! Thats how TDA works. This was proposed by **Lehoczky et al. in 1989**.",
         ],
     },
     {
         id: "llboundExample",
         title: "Example Liu & Layland Bound Calculation",
-        description: "Here a small example of how to calculate the Liu & Layland Utilization Bound for a taskset with 3 tasks: ",
+        description: "Here a small example of how to calculate the Liu & Layland Utilization Bound [Liu & Layland, 1973] for a taskset with 3 tasks: ",
         content: [
             "We have the 3 tasks Brakes, Sensor and Multimedia with parameters: ",
             "Brakes: C=2, T=8, Sensor: C=1, T=4, Multimedia: C=1, T=10.",
@@ -79,7 +84,7 @@ export const Summary : SummaryComponent[] = [
     {
         id: "hyperboundExample",
         title: "Example Hyperbolic Bound Calculation",
-        description: "Here a small example of how to calculate the Hyperbolic Bound for a taskset with 3 tasks: ",
+        description: "Here a small example of how to calculate the Hyperbolic Bound [Bini and Butazzo, 2001] for a taskset with 3 tasks: ",
         content: [
             "We have the 3 tasks Brakes, Sensor and Multimedia with parameters: ",
             "Brakes: C=2, T=8, Sensor: C=1, T=4, Multimedia: C=1, T=10.",

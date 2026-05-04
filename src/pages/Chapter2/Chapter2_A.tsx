@@ -12,6 +12,7 @@ const STORY: StoryStep[] = [
   {
     text: "You are already familiar with some scheduling strategies from Chapter 1. Fixed-Priority Scheduling has the advantage that it is simpler to implement.",
     showOverlay: true,
+    showDefinitions: false,
     showSidebar: false,
     showButtons: false,
   },
@@ -57,11 +58,19 @@ const STORY: StoryStep[] = [
     waitFor: ({ wcrtCorrect }) => wcrtCorrect,
   },
   {
-    text: "Perfect! You found the WCRT! This happens when all higher priority tasks release their tasks at the same time as Multimedia (the task to inspect) releases its task",
+    text: "Perfect! You found the WCRT! This happens when all higher priority tasks release their tasks at the same time as Multimedia (the task to inspect) releases its task. This is also called the **Critical Instant** of a task. Check the Definitions for more details.",
     showOverlay: true,
+    showDefinitions: true,
     showSidebar: false,
     showButtons: false,
     navigateTo: "/chapter2_B",
+  },
+];
+
+const DEFINITIONS = [
+  {
+    term: "Critical Instant",
+    definition: "The Critical Instant of a task is the time when the task experiences its Worst-Case Response Time (WCRT). For Fixed-Priority Scheduling, this happens when the task is released at the same time as all higher priority tasks [Liu & Layland in 1973]. Be careful though, this does not mean that the WCRT always has to be in the first release of the tasks! It can also happen at later releases, if the offsets of the tasks are such that they align at a later time step.",
   },
 ];
 
@@ -82,6 +91,8 @@ export default function Chapter2_A() {
       layoutStyle="standard"
       sidebarVisibleFields={["executionTime", "periods", "deadlines", "algorithmSelection"]}
       sidebarEditableFields={[]}
+      showDefinitions={true}
+      definitions={DEFINITIONS}
     />
   );
 }

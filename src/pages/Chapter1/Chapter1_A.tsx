@@ -54,7 +54,7 @@ const STORY: StoryStep[] = [
 const DEFINITIONS = [
   {
     term: "EDF",
-    definition: "Earliest Deadline First - dynamic priority scheduling that always executes the task with the closest deadline.",
+    definition: "Earliest Deadline First - dynamic priority scheduling that always executes the task with the closest deadline [Liu & Layland in 1973].",
   },
 ];
 

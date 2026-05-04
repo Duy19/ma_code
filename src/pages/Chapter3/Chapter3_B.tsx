@@ -44,7 +44,9 @@ const STORY: StoryStep[] = [
   },
   {
     text: "First up, the **dynamic self-suspension** model. In this model, the task can suspend itself at any time and for any duration, but it is bounded by the task's suspension  **S**.",
+    showDefinitions: true,
   },
+  
   {
     text: "But instead of talking too much, here is a schedule to look at! In this schedule, Task1 can suspend itself for up to 3 time units. In the first job release it suspended itself **two times** from **time 0-2** and **time 4-5**, and in the second job release it suspended itself from **time 6-9**.",
     tasks: suspensionTaskset,
@@ -63,6 +65,13 @@ const STORY: StoryStep[] = [
 
 ];
 
+const DEFINITIONS = [
+  {
+    term: "Dynamic Self-Suspension",
+    definition: "In the dynamic self-suspension model, a task can suspend itself at any time during its execution and for any duration, as long as the total suspension time does not exceed a specified bound (S). This model is used when the suspension behavior of tasks is unknown or difficult to predict (from Chen et al. 2019).",
+  },
+];
+
 export default function Chapter3() {
   return (
     <ModularTutorialTemplate
@@ -76,6 +85,7 @@ export default function Chapter3() {
       showSidebar={false}
       showButtons={false}
       canvasMode="default"
+      definitions={DEFINITIONS}
     />
   );
 }

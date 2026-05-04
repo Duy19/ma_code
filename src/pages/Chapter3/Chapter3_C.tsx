@@ -41,6 +41,7 @@ const STORY: StoryStep[] = [
     showOverlay: true,
     showSidebarPuzzle: false,
     showCanvas: false,
+    showDefinitions: true,
   },
   {
     text: "Lets directly look at the example schedule below. Here each of Task1's jobs suspend themselves for 2 time units starting from 1 time unit after their release. This pattern repeats every time for a specific interval. Here, it coincides with the task's period, but it doesn't have to be the case. It also **doesn't** mean that the suspension has to be always the same length!",
@@ -62,6 +63,12 @@ const STORY: StoryStep[] = [
   },
 ];
 
+const DEFINITIONS = [
+  {
+    term: "Segmented Self-Suspension",
+    definition: "Segmented self-suspension is a model where the suspension behavior of a task is known beforehand and can be modeled more accurately. In this model, each job of a task can have multiple execution segments separated by suspension segments (from Chen et al. 2019).",
+  },
+];
 export default function Chapter3() {
   return (
     <ModularTutorialTemplate
@@ -75,6 +82,7 @@ export default function Chapter3() {
       showSidebar={false}
       showButtons={false}
       canvasMode="default"
+      definitions={DEFINITIONS}
     />
   );
 }
