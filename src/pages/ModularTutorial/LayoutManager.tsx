@@ -159,6 +159,7 @@ export function LayoutManager({
                     visible
                     text={currentStep?.text || ""}
                     onNext={onNextStep}
+                    onPrev={onPreviousStep}
                   />
                 )}
               </div>
@@ -221,6 +222,7 @@ export function LayoutManager({
                     visible
                     text={currentStep?.text || ""}
                     onNext={onNextStep}
+                    onPrev={onPreviousStep}
                   />
                 )}
               </div>
@@ -338,6 +340,7 @@ export function LayoutManager({
                       visible
                       text={currentStep?.text || ""}
                       onNext={onNextStep}
+                      onPrev={onPreviousStep}
                     />
                     {cumulativeState.renderCompanion && cumulativeState.renderCompanion({
                       text: currentStep?.text || "",

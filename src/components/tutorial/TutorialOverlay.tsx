@@ -6,9 +6,10 @@ interface Props {
   visible: boolean;
   text: string;
   onNext: () => void;
+  onPrev?: () => void;
 }
 
-export default function TutorialOverlay({ visible, text, onNext }: Props) {
+export default function TutorialOverlay({ visible, text, onNext, onPrev }: Props) {
   useEffect(() => {
     if (!visible) return;
 
@@ -33,11 +34,17 @@ export default function TutorialOverlay({ visible, text, onNext }: Props) {
         event.preventDefault();
         onNext();
       }
+
+      // Press Left Arrow to go to the previous tutorial step.
+      if (event.key === "ArrowLeft" && onPrev) {
+        event.preventDefault();
+        onPrev();
+      }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [visible, onNext]);
+  }, [visible, onNext, onPrev]);
 
   if (!visible) return null;
 
@@ -61,7 +68,7 @@ export default function TutorialOverlay({ visible, text, onNext }: Props) {
         {/* Speechbubble */}
         <div
           onClick={onNext}
-          title="Next step (Right Arrow)"
+          title={onPrev ? "Previous (Left Arrow) / Next step (Right Arrow)" : "Next step (Right Arrow)"}
           style={{
             background: "rgba(223, 224, 201, 0.95)",
             borderRadius: "20px",

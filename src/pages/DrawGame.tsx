@@ -20,10 +20,11 @@ export default function DrawGame() {
     onConfirmDifficulty,
   } = useTaskGenPuzzle({
     maxRawHyperperiod: 25,
-    maxOffset: 5,
     taskCountRange: [2, 4],
     periodRange: [1, 25],
-    executionTimeRange: [1, 25],
+    extraConfigOverrides: {
+      maxOffset: 5,
+    },
   });
 
   const story: StoryStep[] = useMemo(() => {
@@ -86,10 +87,10 @@ export default function DrawGame() {
           hasTaskset={generatedTasks.length > 0}
           currentPuzzleDifficulty={currentPuzzleDifficulty}
           errorText={errorText}
-          title="Draw Schedule Puzzle Generator"
+          title="Drawing Game Level Generator"
           description={
             generatedTasks.length > 0
-              ? `Current puzzle: ${selectedDifficulty.toUpperCase()}${currentPuzzleDifficulty !== null ? ` (${currentPuzzleDifficulty.toFixed(1)}/5)` : ""} | Draw the schedule by filling the timeline blocks.`
+              ? `Current puzzle: ${selectedDifficulty.toUpperCase()} | Draw the schedule by clicking or dragging the execution blocks.`
               : undefined
           }
         />

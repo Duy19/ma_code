@@ -5,6 +5,7 @@ from pysr import PySRRegressor
 from scipy.optimize import curve_fit
 from scipy.stats import kendalltau
 from itertools import combinations
+from matplotlib.lines import Line2D
 
 # Load data from CSV file
 data = pd.read_csv('learningTasksets.csv')
@@ -58,10 +59,9 @@ def example_lorenz_curve():
     fig, ax =  plt.subplots(figsize=(8, 6))
     ax.plot(x_plot, y_plot, marker='o', color='steelblue', label='Lorenz Curve', linewidth=2)
     ax.plot([0,1], [0,1], label='Line of Perfect Equality', color='orange', linestyle='-')
-    ax.yaxis.set_label_position("right")
-    ax.yaxis.tick_right()
-    ax.set_xlabel('Cumulative Share of Stock Holders', fontsize=12, fontweight='bold')
-    ax.set_ylabel('Cumulative Share of Processor Stocks', fontsize=12, fontweight='bold')
+
+    ax.set_xlabel('Cumulative percentage Share of Stock Holders', fontsize=12, fontweight='bold')
+    ax.set_ylabel('Cumulative percentage Share of Processor Stocks', fontsize=12, fontweight='bold')
     x_position = 0.52
     y_position = 0.35
 
@@ -73,8 +73,21 @@ def example_lorenz_curve():
     ax.set_ylim(0, 1)
     ax.fill_between(x_plot, y_plot, x_plot, color='steelblue', alpha=0.3)
     ax.set_title('Lorenz Curve Example', fontsize=14, fontweight='bold')
+    ax2 = ax.twinx()
+    ax2.set_yticks([])
+    # Rechte Achse 
+    ax2.spines['right'].set_color('red')
+    ax.spines['bottom'].set_color('red')
+    ax.spines['bottom'].set_linewidth(2)
+    ax2.spines['right'].set_linewidth(2)
     ax.grid(True, alpha=0.3)
-    ax.legend()
+    red_axis = Line2D(
+    [0], [0],
+    color='red',
+    lw=2,
+    label='Axes Highlight (Red)'
+    )
+    ax.legend(loc='upper left', handles=[ax.lines[0], ax.lines[1], red_axis], labels=['Lorenz Curve', 'Line of Perfect Equality', 'Line of Perfect Inequality'], fontsize=10)
     plt.show()
 
 
@@ -165,6 +178,7 @@ def plotVariableDifficultyCorrelation():
     plt.savefig('parameter_difficulty_correlation.png', dpi=150, bbox_inches='tight')
     print("\n Saved plot as 'parameter_difficulty_correlation.png'")
     plt.show()
+
 
 
 def main():

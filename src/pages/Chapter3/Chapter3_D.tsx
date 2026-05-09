@@ -55,10 +55,12 @@ const STORY: StoryStep[] = [
           ],
         },
       ],
-    }
+    },
+    waitFor: (state) => state.suspensionPuzzleCompleted,
   },
   {
     text: "Great job! Now on to the final and last quiz for this chapter!",
+    showSuspensionPuzzle: false,
     navigateTo: "/chapter3_quiz",
   },
 ];

@@ -2,6 +2,7 @@
 
 // Scheduling-Simulator
 import type { Task, SuspensionPattern, SuspensionInterval } from "../core/task";
+
 import { giniCoefficient } from "../utils/formulas";
 
 const Fixed_Decimal = 10;
@@ -184,6 +185,7 @@ function simulate(
     // Filtering out if any jobs have C=0 or have finished in the meantime 
     active = active.filter((a) => a.remainingExecution > 0);
 
+    // Due to the sort algorithm (which should be stable), if two jobs have the same priority, they will be executed in the order they were added.
     active.sort((a, b) => comparePriority(a, b, taskOrder));
     const current = active[0];
 

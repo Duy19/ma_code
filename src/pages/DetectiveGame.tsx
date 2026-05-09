@@ -25,7 +25,12 @@ export default function DetectiveGame() {
     currentPuzzleDifficulty,
     hyperperiod,
     onConfirmDifficulty,
-  } = useTaskGenPuzzle();
+  } = useTaskGenPuzzle({
+    extraConfigOverrides: {
+      maxOffset: 50,
+    },
+  });
+
 
   const story: StoryStep[] = useMemo(() => {
     if (generatedTasks.length === 0) {

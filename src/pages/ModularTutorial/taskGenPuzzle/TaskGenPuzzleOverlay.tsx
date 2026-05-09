@@ -11,6 +11,8 @@ interface TaskGenPuzzleOverlayProps {
   hasTaskset: boolean;
   currentPuzzleDifficulty: number | null;
   errorText: string;
+  title?: string;
+  description?: string;
 }
 
 export function TaskGenPuzzleOverlay({
@@ -19,8 +21,9 @@ export function TaskGenPuzzleOverlay({
   onConfirmDifficulty,
   isGenerating,
   hasTaskset,
-  currentPuzzleDifficulty,
   errorText,
+  title,
+  description,
 }: TaskGenPuzzleOverlayProps) {
   return (
     <div
@@ -36,7 +39,7 @@ export function TaskGenPuzzleOverlay({
       }}
     >
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
-        <h3 style={{ margin: 0, color: "#0f172a" }}>Detective Taskset Generator</h3>
+        <h3 style={{ margin: 0, color: "#0f172a" }}>{title ?? "Detective Game Level Generator"}</h3>
         <button
           type="button"
           onClick={onConfirmDifficulty}
@@ -72,7 +75,7 @@ export function TaskGenPuzzleOverlay({
             fontWeight: 600,
           }}
         >
-          Easy 1-2
+          Easy
         </button>
         <button
           type="button"
@@ -86,7 +89,7 @@ export function TaskGenPuzzleOverlay({
             fontWeight: 600,
           }}
         >
-          Medium 2-4
+          Medium
         </button>
         <button
           type="button"
@@ -100,13 +103,13 @@ export function TaskGenPuzzleOverlay({
             fontWeight: 600,
           }}
         >
-          Hard 4-5
+          Hard
         </button>
       </div>
 
       <p style={{ margin: 0, color: "#334155" }}>
         {hasTaskset
-          ? `Current puzzle: ${selectedDifficulty.toUpperCase()}${currentPuzzleDifficulty !== null ? ` (${currentPuzzleDifficulty.toFixed(1)}/5)` : ""} | Genetic Algorithm`
+          ? (description ?? `Current puzzle difficulty: ${selectedDifficulty.toUpperCase()} | Genetic Algorithm`)
           : "No taskset generated yet. Choose options and click Generate Taskset."}
       </p>
 

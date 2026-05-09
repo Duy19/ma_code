@@ -49,8 +49,7 @@ export default function InteractiveSchedulerCanvas({
   highlightExecutions = [],
 }: Props) {
 
-  const maxOffset = Math.max(...tasks.map(t => t.O ?? 0));
-  const svgWidth = leftLabelWidth + (hyperperiod + maxOffset) * pxPerStep + 40;
+  const svgWidth = leftLabelWidth + hyperperiod * pxPerStep + 40;
   const svgHeight = tasks.length * heightPerTask + 80;
 
   const axisColor = "#0d2b6cff";
@@ -217,7 +216,7 @@ export default function InteractiveSchedulerCanvas({
                   <line
                     x1={leftLabelWidth}
                     y1={centerY - 10}
-                    x2={leftLabelWidth + (hyperperiod + maxOffset) * pxPerStep}
+                    x2={leftLabelWidth + hyperperiod * pxPerStep}
                     y2={centerY - 10}
                     stroke="#1442a5ff"
                     strokeWidth={2}
@@ -227,7 +226,7 @@ export default function InteractiveSchedulerCanvas({
                 {/* Time Ticks */}
                 {mergedVisibility.showTimeTicks && (
                   <g transform={`translate(${leftLabelWidth}, ${yTop + heightPerTask - heightPerTask / 1.75})`}>
-                    {Array.from({ length: hyperperiod + maxOffset + 1 }).map((_, t) => {
+                    {Array.from({ length: hyperperiod + 1 }).map((_, t) => {
                       const x = t * pxPerStep;
                       return (
                         <g key={t}>
@@ -272,7 +271,7 @@ export default function InteractiveSchedulerCanvas({
                 )}
 
                 {/* Execution Blocks with drag&drop */}
-                {Array.from({ length: hyperperiod + maxOffset }).map((_, t) => {
+                {Array.from({ length: hyperperiod }).map((_, t) => {
                   const x = leftLabelWidth + t * pxPerStep;
                   const y = centerY - heightPerTask / 2 + 10;
                   const blockHeight = heightPerTask / 2 - 20;
@@ -299,10 +298,10 @@ export default function InteractiveSchedulerCanvas({
                 })}
 
                 {/* Release and Deadline Markers */}
-                {Array.from({ length: Math.ceil((hyperperiod + (task.O ?? 0)) / task.T) }, (_, k) => {
+                {Array.from({ length: Math.ceil(hyperperiod / task.T) }, (_, k) => {
                   const releaseTime = (task.O ?? 0) + k * task.T;
                   const deadlineTime = releaseTime + task.D;
-                  if (releaseTime >= hyperperiod + (task.O ?? 0)) return null;
+                  if (releaseTime >= hyperperiod) return null;
 
                   return (
                     <g key={k}>
