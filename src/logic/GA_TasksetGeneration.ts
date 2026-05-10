@@ -225,16 +225,15 @@ function evaluateFitness(taskset: Task[], config: GAConfiguration): number {
   return insideToleranceBonus - distance;
 }
 
-function tournamentSelection(population: Individual[], databaseTasksetsCount: number): Individual[] {
+function parentPoolSelection(population: Individual[], databaseTasksetsCount: number, config: GAConfiguration): Individual[] {
   const sorted = [...population]
     .filter((individual) => Number.isFinite(individual.fitness))
     .sort((a, b) => b.fitness - a.fitness);
   const count = Math.max(1, Math.min(databaseTasksetsCount, sorted.length));
 
-  const bestGroup = sorted.slice(0, count);
-  const nextBestGroup = sorted.slice(count, count * 2);
+  const bestGroup = sorted.slice(0, count*2);
 
-  return [...bestGroup, ...nextBestGroup];
+  return bestGroup;
 }
 
 function singlePointCrossover(parent1: Individual, parent2: Individual): Individual {
@@ -248,9 +247,9 @@ function singlePointCrossover(parent1: Individual, parent2: Individual): Individ
 
 
 function mutate(individual: Individual, config: GAConfiguration): void {
-  for (let i = 0; i < individual.taskset.length; i++) {
-    if (Math.random() >= config.mutationRate) continue;
-    else {
+  if (Math.random() >= config.mutationRate);
+  else{
+    for (let i = 0; i < individual.taskset.length; i++) {
       const t = individual.taskset[i];
       const implicitDeadline = t.D === t.T;
       const periodMin = config.periodRange[0];
@@ -330,7 +329,8 @@ export function GA_TasksetGeneration(config: GAConfiguration): Task[] {
       bestIndividual = { ...population[0], taskset: population[0].taskset.map(t => ({ ...t })) };
     }
 
-    const selected = tournamentSelection(population, databaseTasksetsCount);
+    // This is unused for now, but could be added back to use elitism or to ensure parents have good fitness to target difficulty. But for now random just works fine.
+    const selected = parentPoolSelection(population, databaseTasksetsCount, safeConfig);
     if (!selected.length) {
       break;
     }
@@ -340,8 +340,17 @@ export function GA_TasksetGeneration(config: GAConfiguration): Task[] {
     const maxOffspringAttempts = Math.max(safeConfig.populationSize * 10, 20);
 
     while (offspring.length < safeConfig.populationSize && offspringAttempts++ < maxOffspringAttempts) {
-      const parent1 = selected[Math.floor(Math.random() * selected.length)];
-      const parent2 = selected[Math.floor(Math.random() * selected.length)];
+      //const parent1 = selected[Math.floor(Math.random() * selected.length)];
+      const parent1 = population[Math.floor(Math.random() * population.length)];
+      //let parent2 = selected[Math.floor(Math.random() * selected.length)];
+      let parent2 = population[Math.floor(Math.random() * population.length)];
+      if (selected.length > 1) {
+        while (parent2 === parent1) {
+          //parent2 = selected[Math.floor(Math.random() * selected.length)];
+          parent2 = population[Math.floor(Math.random() * population.length)];
+        }
+      }
+
       if (!parent1 || !parent2) {
         continue;
       }
