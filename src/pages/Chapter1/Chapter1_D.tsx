@@ -11,11 +11,11 @@ const BASE_TASKS: Task[] = [
 
 const STORY: StoryStep[] = [
   {
-    text: "Now its your time to shine! Try to create the schedule yourself by drawing the tasks onto the canvas. Click each task and drag it to the correct time slots. If you have problems use the hints next to the canvas.",
+    text: "Now it's your time to shine! Try to create the schedule yourself by drawing the tasks onto the canvas. Click each task and drag it to the correct time slots. If you have problems, use the hints next to the canvas.",
     waitFor: ({ scheduleCorrect }) => scheduleCorrect === true,
   },
   {
-    text: "Very good! Now try it again but this time with a different algorithm.",
+    text: "Very good! Now try it again, but this time with a different algorithm.",
     selectedAlgorithm: "EDF",
     waitFor: ({ scheduleCorrect }) => scheduleCorrect === true,
   },
@@ -27,10 +27,10 @@ const STORY: StoryStep[] = [
     showCanvas: false,
   },
   {
-    text:"EDF is optimal for uniprocessor systems with preemption, meaning if a taskset can be scheduled without deadline misses, EDF will find a way to do so. RM and DM on the other hand are not optimal and can fail to schedule tasksets that are actually schedulable.",
+    text:"EDF is optimal for uniprocessor systems with preemption, meaning that if a task set can be scheduled without deadline misses, EDF will find a way to do so. RM and DM, on the other hand, are not optimal and can fail to schedule task sets that are actually schedulable.",
   },
   {
-    text: "Of course here is a summary of what you learned in this chapter! See you in the next chapter! **Click**.",
+    text: "Of course, here is a summary of what you learned in this chapter! See you in the next chapter! **Click**.",
     showSummary: true,
     summaryIds: ["chapter1"],
     navigateTo: "/",

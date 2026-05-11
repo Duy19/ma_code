@@ -44,7 +44,7 @@ const STORY: StoryStep[] = [
     showDefinitions: true,
   },
   {
-    text: "Lets directly look at the example schedule below. Here each of Task1's jobs suspend themselves for 2 time units starting from 1 time unit after their release. This pattern repeats every time for a specific interval. Here, it coincides with the task's period, but it doesn't have to be the case. It also **doesn't** mean that the suspension has to be always the same length!",
+    text: "Let's look directly at the example schedule below. Here each of Task1's jobs suspend themselves for 2 time units starting 1 time unit after their release. This pattern repeats every time for a specific interval. Here, it coincides with the task's period, but it doesn't have to be the case. It also **doesn't** mean that the suspension has to always be the same length!",
     tasks: suspensionTaskset,
     showOverlay: true,
     showSummary: false,
@@ -55,10 +55,10 @@ const STORY: StoryStep[] = [
     showSidebarPuzzle: false,
   },
   {
-    text: "It is just, that we know how the segmented executions for each job of a task look like beforehand! Here we have a 1-segmented self-suspending task, where each execution is interrupted by exactly 1 suspension interval. But, sadly our student couldn't make all of that in time. So for now you can later play around with this type of repeating suspension behavior in the FreeScheduler page!",
+    text: "It just means that we know how the segmented executions for each job of a task look beforehand! Here we have a 1-segmented self-suspending task, where each execution is interrupted by exactly 1 suspension interval. But sadly, our student couldn't make all of that in time. So for now you can later play around with this type of repeating suspension behavior in the FreeScheduler page!",
   },
   {
-    text: "The sidebar shows the suspension pattern for Task1, which is the offset when the suspension starts every interval, the duration of the suspension and lastly the interval in which this pattern repeats. But for now thats all for the theory! Next up is a small little game where you can be a bit more mischievous using suspension!",
+    text: "The sidebar shows the suspension pattern for Task1, which is the offset when the suspension starts every interval, the duration of the suspension, and lastly the interval in which this pattern repeats. But for now, that's all for the theory! Next up is a small little game where you can be a bit more mischievous using suspension!",
     navigateTo: "/chapter3_D",
   },
 ];

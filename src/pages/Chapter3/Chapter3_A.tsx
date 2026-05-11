@@ -36,13 +36,13 @@ const suspensionTaskset: Task[] = [
 
 const STORY: StoryStep[] = [
   {
-    text: "Hello there! So far you have learned a lot about how to schedule, visualize and analyze tasksets in embedded systems. You learned that EDF is optimal for uniprocessor scheduling, and that RM is a simple and efficient fixed-priority algorithm.",
+    text: "Hello there! So far you have learned a lot about how to schedule, visualize, and analyze task sets in embedded systems. You learned that EDF is optimal for uniprocessor scheduling, and that RM is a simple and efficient fixed-priority algorithm.",
     showOverlay: true,
     showSidebarPuzzle: false,
     showCanvas: false,
   },
   {
-    text: "**However**, real-world systems often have more complex constraints. One that is very common is if tasks suspend themselves during execution. **Suspension** basically means a task is is active, but not executing for some reason. This can have a lot of reasons as to why.",
+    text: "**However**, real-world systems often have more complex constraints. One that is very common is when tasks suspend themselves during execution. **Suspension** basically means a task is active but not executing for some reason. This can happen for many reasons.",
   },
   {
     text: "Here are some reasons listed below for suspension: ",
@@ -64,7 +64,7 @@ const STORY: StoryStep[] = [
     text: "As you can see, Task1 could execute after the first job of Task2. However, it suspended itself from time 2-5, pushing its execution to a later time. If not handled properly, this can cause a lot of issues!",
   },
   {
-    text: "In the next section, lets look at how these suspensions can look like in more detail!",
+    text: "In the next section, let's look at how these suspensions can look in more detail!",
     navigateTo: "/chapter3_B",
   }
 ];

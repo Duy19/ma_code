@@ -15,7 +15,7 @@ const STORY: StoryStep[] = [
     showCanvas: false,
   },
   {
-    text: "Then without further ado, let's get started! Try to answer all questions at least once. If you answer them incorrectly, don't worry about it. This is just to help you learn! Try as many times as you want.",
+    text: "Then, without further ado, let's get started! Try to answer all questions at least once. If you answer them incorrectly, don't worry about it. This is just to help you learn! Try as many times as you want.",
     showOverlay: true,
     showQuiz: true,
     quizQuestionIds: ["c2b_q1", "c2b_q2", "c2b_q3"],

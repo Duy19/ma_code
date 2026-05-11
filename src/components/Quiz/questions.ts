@@ -18,7 +18,7 @@ const quizQuestions = [
 
     {
         id: "c1_q2",
-        question: "EDF and RM are optimal for all problems under uniprocessor systems with preemption?",
+        question: "Are EDF and RM optimal for all problems under uniprocessor systems with preemption?",
         answers: [
             { id: "a1", text: "Yes, they are both optimal.", isCorrect: false },
             { id: "a2", text: "No, they are not optimal.", isCorrect: false},
@@ -30,7 +30,7 @@ const quizQuestions = [
 
     {
         id: "c1_q3",
-        question: "Given are following tasks: $\\tau_1: C=1, T=3, D=3, O = 0$ and $\\tau_2: C=2, T=2, D=3, O=0$. Which statement is true?",
+        question: "Given the following tasks: $\\tau_1: C=1, T=3, D=3, O = 0$ and $\\tau_2: C=2, T=2, D=3, O=0$. Which statement is true?",
         answers: [
             { id: "a1", text: "EDF and DM find a feasible schedule, but RM does not", isCorrect: true },
             { id: "a2", text: "There is no feasible schedule.", isCorrect: false },
@@ -55,7 +55,7 @@ const quizQuestions = [
 
         {
         id: "c1_q5",
-        question: "Which of the below is an example of a Hard Real-Time System?",
+        question: "Which of the following is an example of a Hard Real-Time System?",
         answers: [
             { id: "a1", text: "Your alarm so that your assignment is not late.", isCorrect: false },
             { id: "a2", text: "Bugs in a video game", isCorrect: false},
@@ -70,7 +70,7 @@ const quizQuestions = [
     // Chapter 2_B Questions
     {
         id: "c2b_q1",
-        question: "You are given a Taskset with the following tasks: Brakes, Sensor, and Multimedia (see visual). How much execution time is demanded by all tasks for the interval [0-12]?",
+        question: "You are given a task set with the following tasks: Brakes, Sensor, and Multimedia (see visual). How much execution time is demanded by all tasks for the interval [0-12]?",
         answers: [
             { id: "a1", text: "Demand = 12", isCorrect: false}, 
             { id: "a2", text: "Demand = 8", isCorrect: false}, 
@@ -93,7 +93,7 @@ const quizQuestions = [
 
     {
         id: "c2b_q2",
-        question: "You are given a Taskset with the following tasks: Brakes, Sensor, and Multimedia (see visual). For Multimedia, which tasks are interfering with its execution?",
+        question: "You are given a task set with the following tasks: Brakes, Sensor, and Multimedia (see visual). For Multimedia, which tasks are interfering with its execution?",
         answers: [
             { id: "a1", text: "Only Brakes", isCorrect: false}, 
             { id: "a2", text: "Only Sensor", isCorrect: false}, 
@@ -116,7 +116,7 @@ const quizQuestions = [
 
     {
         id: "c2b_q3",
-        question: "You are given a Taskset with the following tasks: Brakes, Sensor, and Multimedia (see visual). For Multimedia, what is the amount of interference time of higher priority tasks in the interval [0-10]?",
+        question: "You are given a task set with the following tasks: Brakes, Sensor, and Multimedia (see visual). For Multimedia, what is the amount of interference time of higher-priority tasks in the interval [0-10]?",
         answers: [
             { id: "a1", text: "8", isCorrect: false}, 
             { id: "a2", text: "7", isCorrect: true}, 
@@ -141,7 +141,7 @@ const quizQuestions = [
         //Chapter 2 Final Questions
     {
         id: "q1",
-        question: "Given Taskset τ, with tasks τ₁, τ₂, τ₃, τ₄ having periods T₁, T₂, T₃, T₄ respectively. Which one is a harmonic taskset?",
+        question: "Given task set τ, with tasks τ₁, τ₂, τ₃, τ₄ having periods T₁, T₂, T₃, T₄ respectively, which one is a harmonic task set?",
         answers: [
             { id: "a1", text: "T₁ = 2, T₂ = 4, T₃ = 6, T₄ = 8", isCorrect: false}, 
             { id: "a2", text: "T₁ = 3, T₂ = 5, T₃ = 15, T₄ = 30", isCorrect: false}, 
@@ -176,7 +176,7 @@ const quizQuestions = [
 
     {
         id: "q3",
-        question: "Given Taskset τ with Task Utilizations U₁, U₂ and U₃ which of the following options is definitely feasible under the Hyperbolic Bound?",
+        question: "Given task set τ with task utilizations U₁, U₂, and U₃, which of the following options is definitely feasible under the Hyperbolic Bound?",
         answers: [
             { id: "a1", text: "U₁ = 0.33, U₂ = 0.33 and U₃ = 0.33.", isCorrect: false },
             { id: "a2", text: "U₁ = 0.50, U₂ = 0.30 and U₃ = 0.05.", isCorrect: false},
@@ -188,11 +188,11 @@ const quizQuestions = [
 
     {
         id: "q4",
-        question: "Which statement about the Liu & Layland utilization bound is correct? (in the problem 1|spor, prmp, impl, fp| <= D))",
+        question: "Which statement about the Liu & Layland utilization bound is correct? (In the problem 1|spor, prmp, impl, fp| <= D.)",
         answers: [
             { id: "a1", text: "The Liu & Layland utilization bound provides a sufficient but not necessary condition for schedulability.", isCorrect: true },
             { id: "a2", text: "Everything that does not satisfy the bound is definitely not schedulable.", isCorrect: false},
-            { id: "a3", text: "If the a Taskset is feasible under the Hyperbolic Bound, it is also always feasible under the Liu & Layland bound.", isCorrect: false },
+            { id: "a3", text: "If a task set is feasible under the Hyperbolic Bound, it is also always feasible under the Liu & Layland bound.", isCorrect: false },
             { id: "a4", text: "It only works on harmonic tasksets.", isCorrect: false }
         ],
         explanation: "The Liu & Layland utilization bound provides a sufficient condition for schedulability, meaning that if a taskset's total utilization is below the bound, it is guaranteed to be schedulable. However, tasksets exceeding the bound may still be schedulable."
@@ -203,7 +203,7 @@ const quizQuestions = [
 
     {
         id: "c3_q1",
-        question: "What is a reason for introducing suspension in real-time systems?",
+        question: "What is one reason for introducing suspension in real-time systems?",
         answers: [
             { id: "a1", text: "Making the system more predictable.", isCorrect: false },
             { id: "a2", text: "Providing a mechanism to pause executing tasks.", isCorrect: false},
@@ -239,7 +239,7 @@ const quizQuestions = [
 
     {
         id: "c3_q4",
-        question: "Below a schedule is given with these parameters: Brakes = (C=2, T=8, D=8), Sensor = (C=1, T=4, D=4), Multimedia = (C=2, T=8, D=8, S=4). Assuming the scheduling algorithm is using the RM policy under dynamic self-suspension. Which of the following statements is correct?",
+        question: "A schedule is given below with these parameters: Brakes = (C=2, T=8, D=8), Sensor = (C=1, T=4, D=4), Multimedia = (C=2, T=8, D=8, S=4). Assuming the scheduling algorithm uses the RM policy under dynamic self-suspension, which of the following statements is correct?",
         answers: [
             { id: "a1", text: "This is the worst-case scenario.", isCorrect: false },
             { id: "a2", text: "In the worst case, brakes will miss its deadline.", isCorrect: false},

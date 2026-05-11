@@ -37,18 +37,18 @@ const suspensionTaskset: Task[] = [
 ];
 const STORY: StoryStep[] = [
   {
-    text: "Hey nice to have you here! In the previous chapters, you learned reasons for suspension and that it can affect task scheduling. Now lets have a look at one way to model this.",
+    text: "Hey, nice to have you here! In the previous chapters, you learned the reasons for suspension and that it can affect task scheduling. Now let's have a look at one way to model this.",
     showOverlay: true,
     showSidebarPuzzle: false,
     showCanvas: false,
   },
   {
-    text: "First up, the **dynamic self-suspension** model. In this model, the task can suspend itself at any time and for any duration, but it is bounded by the task's suspension  **S**.",
+    text: "First up is the **dynamic self-suspension** model. In this model, the task can suspend itself at any time and for any duration, but it is bounded by the task's suspension **S**.",
     showDefinitions: true,
   },
   
   {
-    text: "But instead of talking too much, here is a schedule to look at! In this schedule, Task1 can suspend itself for up to 3 time units. In the first job release it suspended itself **two times** from **time 0-2** and **time 4-5**, and in the second job release it suspended itself from **time 6-9**.",
+    text: "But instead of talking too much, here is a schedule to look at! In this schedule, Task1 can suspend itself for up to 3 time units. In the first job release, it suspended itself **two times** from **time 0-2** and **time 4-5**, and in the second job release it suspended itself from **time 6-9**.",
     tasks: suspensionTaskset,
     showSidebar: true,
     sidebarVisibleFields: ["executionTime", "periods", "deadlines", "suspension"],
@@ -56,10 +56,10 @@ const STORY: StoryStep[] = [
     showCanvas: true,
   },
   {
-    text: "On the sidebar you can see the suspension field, which even shows which suspension the task has. This model is used if the suspension behavior is unknown or hard to predict. But if we know more about the behavior we can model it more accurately. Lets discuss that in the next part!",
+    text: "On the sidebar you can see the suspension field, which even shows which suspension the task has. This model is used if the suspension behavior is unknown or hard to predict. But if we know more about the behavior, we can model it more accurately. Let's discuss that in the next part!",
   },
   {
-    text: "In the schedule below you can see EDF scheduling the tasks but this time they can suspend themselves. This is highlighted in the schedule with the red blocks.",
+    text: "In the schedule below you can see EDF scheduling the tasks, but this time they can suspend themselves. This is highlighted in the schedule with the red blocks.",
     navigateTo: "/chapter3_C",
     },
 

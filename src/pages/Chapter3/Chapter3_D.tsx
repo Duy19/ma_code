@@ -39,7 +39,7 @@ const suspensionPuzzleTasks: Task[] = [
 
 const STORY: StoryStep[] = [
   {
-    text: "Hey! You made it to the game part! In this game, you can place a suspension interval for Task1. For that you have to enter the start and end time of the suspension interval. But this time, your job is to make the task miss its deadline! You have to use up **all** the suspension time given to you!",
+    text: "Hey! You made it to the game part! In this game, you can place a suspension interval for Task1. For that, you have to enter the start and end time of the suspension interval. But this time, your job is to make the task miss its deadline! You have to use up **all** the suspension time given to you!",
     tasks: suspensionPuzzleTasks,
     showOverlay: true,
     showCanvas: true,
@@ -59,7 +59,7 @@ const STORY: StoryStep[] = [
     waitFor: (state) => state.suspensionPuzzleCompleted,
   },
   {
-    text: "Great job! Now on to the final and last quiz for this chapter!",
+    text: "Great job! Now on to the final quiz for this chapter!",
     showSuspensionPuzzle: false,
     navigateTo: "/chapter3_quiz",
   },

@@ -22,7 +22,7 @@ const STORY: StoryStep[] = [
     waitFor: ({ dropGameCompleted }) => dropGameCompleted === true,
   },
   {
-    text: "Very nice! You completed the drag and drop game. Hope you had fun and it helped you remember the concepts better!",
+    text: "Very nice! You completed the drag-and-drop game. I hope you had fun and it helped you remember the concepts better!",
     showOverlay: true,
     navigateTo: "/",
   },

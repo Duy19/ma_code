@@ -10,12 +10,12 @@ const tasks: Task[] = [
 
 const STORY: StoryStep[] = [
   {
-    text: "Hey there! This is a small quiz to recap what you have learned so far about the Models and Scheduling Strategies in Chapter 1.",
+    text: "Hey there! This is a small quiz to recap what you have learned so far about the models and scheduling strategies in Chapter 1.",
     showOverlay: true,
     showCanvas: false,
   },
   {
-    text: "Then without further ado, let's get started! Try to answer all questions at least once. If you answer them incorrectly, don't worry about it. This is just to help you learn! Try as many times as you want.",
+    text: "Then, without further ado, let's get started! Try to answer all questions at least once. If you answer them incorrectly, don't worry about it. This is just to help you learn! Try as many times as you want.",
     showOverlay: true,
     showQuiz: true,
     quizQuestionIds: ["c1_q1", "c1_q2", "c1_q3", "c1_q4", "c1_q5"],
@@ -23,7 +23,7 @@ const STORY: StoryStep[] = [
     navigateTo: "/chapter2_A",
   },
   {
-    text: "Hopefully this helped you understand Models and Scheduling Strategies better. In the next chapter we will learn some interesting analysis techniques. See you there!",
+    text: "Hopefully this helped you understand models and scheduling strategies better. In the next chapter we will learn some interesting analysis techniques. See you there!",
     showOverlay: false,
     showQuiz: false,
     navigateTo: "/chapter2_A",

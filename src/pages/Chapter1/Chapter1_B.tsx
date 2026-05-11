@@ -11,21 +11,21 @@ const BASE_TASKS2: Task[] = [
 
 const STORY: StoryStep[] = [
     { 
-    text: "Now lets look at a new example, but this time with a **Fixed-Priority Scheduling**. ", 
+    text: "Now let's look at a new example, this time with **Fixed-Priority Scheduling**.", 
     showSidebar: true,
     },
 
     { 
-    text: "With Fixed-Priority Scheduling, tasks are scheduled with given fixed priorities. These remain unchanged over the entire period.", 
+    text: "With Fixed-Priority Scheduling, tasks are scheduled with fixed priorities. These remain unchanged over the entire period.", 
     },
     { 
-    text: "I will introduce both **Rate-Monotonic (RM)** and **Deadline-Monotonic (DM)** to you as strategies.", 
+    text: "I will introduce both **Rate-Monotonic (RM)** and **Deadline-Monotonic (DM)** as strategies.", 
     },
     { 
     text: "With Rate-Monotonic, tasks with shorter periods are given higher priority. Feel free to take a look at the schedule below.", 
     },
     { 
-    text: "With Deadline-Monotonic, on the other hand, tasks with shorter deadlines are given higher priority. Let’s now look at the schedule using DM. **(Click)**.", 
+    text: "With Deadline-Monotonic, on the other hand, tasks with shorter deadlines are given higher priority. Let's now look at the schedule using DM. **(Click)**.", 
     showDefinitions: true,  
     },
     { 
@@ -40,7 +40,7 @@ const STORY: StoryStep[] = [
     text: "The priorities were also quite different this time. In **this case**, DM is better suited to avoid missing deadlines.", 
     },
     {
-    text: "In the next step, let’s take another look at an example using all the algorithms we have learned so far.", 
+    text: "In the next step, let's take another look at an example using all the algorithms we have learned so far.", 
     navigateTo: "/Chapter1_C"
     },        
 ];

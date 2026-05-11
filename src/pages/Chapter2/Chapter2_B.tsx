@@ -11,29 +11,29 @@ const tasks: Task[] = [
 
 const STORY: StoryStep[] = [
   {
-    text: "After seeing the Critical Instant in chapter 2, how do we even calculate the Worst-Case Response Time (WCRT) of a task? Not everyone has the time to check all possible cases by drawing them. There has to be some kind of formula, right?",
+    text: "After seeing the Critical Instant in Chapter 2, how do we even calculate the Worst-Case Response Time (WCRT) of a task? Not everyone has the time to check all possible cases by drawing them. There has to be some kind of formula, right?",
     showOverlay: true,
     showCanvas: false,
   },
   {
-    text: "Don't worry, there is a formula for that. The response time $R_i$ of a task $\\tau_i$ can be calculated using the so called Time Demand Analysis (TDA).",
+    text: "Don't worry, there is a formula for that. The response time $R_i$ of a task $\\tau_i$ can be calculated using the so-called Time Demand Analysis (TDA).",
     showOverlay: true,
   },
   {
-    text: "But before I show the formula, lets have a little quiz. You can choose an answer and then click confirm. Sometimes you will also get some visual content to help you understand the question better.",
+    text: "But before I show the formula, let's have a little quiz. You can choose an answer and then click confirm. Sometimes you will also get some visual content to help you understand the question better.",
     showOverlay: true,
     showQuiz: true,
     quizQuestionIds: ["c2b_q1", "c2b_q2", "c2b_q3"],
     waitFor: ({ quizCompleted }) => quizCompleted === true,
   },
   {
-    text: "Very good! Now that was surely an easy warm-up for you. These questions were basics about interference and demand, which are important to understand. Now let's look at the TDA formula. **(Click)**",
+    text: "Very good! That was surely an easy warm-up for you. These questions covered the basics of interference and demand, which are important to understand. Now let's look at the TDA formula. **(Click)**",
     showOverlay: true,
     showQuiz: false,
     highlight: null,
   },
   {
-    text: "Here it is! ... I know, its beautiful, isn't it? Well, until you know what each part means. Let's break it down together!",
+    text: "Here it is! ... I know, it's beautiful, isn't it? Well, that is true until you know what each part means. Let's break it down together!",
     showOverlay: true,
     showSidebar: false,
     showButtons: false,
@@ -42,7 +42,7 @@ const STORY: StoryStep[] = [
   },
   
   {
-    text: "Here a break down of the formula. Values are taken from an example taskset. (see Sidebar)", 
+    text: "Here is a breakdown of the formula. Values are taken from an example task set. (See sidebar.)", 
     showOverlay: true,
     showSidebar: true,
     showSummary: true,

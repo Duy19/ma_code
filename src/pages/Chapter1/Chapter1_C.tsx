@@ -12,32 +12,32 @@ const BASE_TASKS: Task[] = [
 
 const STORY: StoryStep[] = [
     { 
-    text: "So another example. Hopefully you kept everything in mind if not thats also fine as you can look up the definitions down below if you scroll a bit for each algorithm.", 
+    text: "Here's another example. Hopefully you kept everything in mind. If not, that's also fine, as you can look up the definitions on the right side for each algorithm. Just click on the blue icon next to the sidebar.", 
     sidebarEditableFields: [],
     },
     { 
-    text: "First of all the EDF Schedule for the taskset. In the next step I will show you the RM Schedule. Think about it for yourself a second what is going to happen. Ready? (Click)", 
+    text: "First of all, the EDF schedule for the task set. In the next step I will show you the RM schedule. Think about what is going to happen for a second. Ready? (Click)", 
     },
     { 
-    text: "Now we have the RM Schedule! Did you see any changes?", 
+    text: "Now we have the RM schedule! Did you see any changes?", 
     },
     { 
-    text: "Wait nothing happened? Upsi daisy... Well I will fix it later, but for now you can use this cool feature on the sidebar. Just **change the algorithmm** at the top manually to **RM**.", 
+    text: "Wait, nothing happened? Upsi daisy... Well, I will fix it later, but for now you can use this cool feature on the sidebar. Just **change the algorithm** at the top manually to **RM**.", 
   
     sidebarEditableFields: ["algorithmSelection"],
     waitFor: ({selectedAlgorithm}) => selectedAlgorithm === "RM",
     },
     { 
-    text: "Cool feature right? Well lets get back on track, shall we? Now we have the RM Schedule. At **timestep 8** the RM algorithm preferred the **brake task** over multimedia as multimedia has a larger period.",
+    text: "Cool feature, right? Well, let's get back on track, shall we? Now we have the RM schedule. At **timestep 8**, the RM algorithm preferred the **brake task** over multimedia, as multimedia has a larger period.",
     sidebarEditableFields: [],
     highlightExecutions: [{ taskId: "brake", steps: [8,9] }],
     },   
     {
-    text: "Because of that multimedia could not meet its deadline at 12. Should not be too critical but also kinda sad.", 
+    text: "Because of that, multimedia could not meet its deadline at 12. It should not be too critical, but it is still kind of sad.", 
     highlightExecutions: [{ taskId: "media", steps: [8, 9, 14] }],  
     },
     {
-    text: "As you can see algorithms can behave differently depending on the task parameters. For now lets move on!", 
+    text: "As you can see, algorithms can behave differently depending on the task parameters. For now, let's move on!", 
     highlightExecutions: [],
     navigateTo: "/Chapter1_D",
     },
@@ -59,7 +59,7 @@ const DEFINITIONS = [
   },
   {
     term: "Note",
-    definition: "Ties in priority are broken by task order e.g. Brakes over Sensor or Multimedia.",
+    definition: "Ties in priority are broken by index, which also is represented in the task order e.g. Brakes over Sensor or Multimedia.",
   }
 ];
 

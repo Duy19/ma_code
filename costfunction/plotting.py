@@ -93,13 +93,13 @@ def example_lorenz_curve():
 
 def plotVariableDifficultyCorrelation():
     variables = [
-        ('N', N, 'Number of Tasks'),
-        ('U', U, 'Utilization'),
-        ('P', P, 'Avg Preemption'),
-        ('L', L, 'Avg Laxity'),
-        # ('giniC', GC, 'Gini Coefficient C'),
-        # ('giniT', GT, 'Gini Coefficient T'),
-        # ('giniD', GD, 'Gini Coefficient D'),
+        # ('N', N, 'Number of Tasks'),
+        # ('U', U, 'Utilization'),
+        # ('P', P, 'Avg Preemption'),
+        # ('L', L, 'Avg Laxity'),
+        ('giniC', GC, 'Gini Coefficient C'),
+        ('giniT', GT, 'Gini Coefficient T'),
+        ('giniD', GD, 'Gini Coefficient D'),
     ]
 
     n_rows = 2
@@ -137,9 +137,8 @@ def plotVariableDifficultyCorrelation():
         mae_poly = np.mean(np.abs(y - y_pred_poly))
         delta_mae = mae_poly - mae_linear
 
-        # Compute Pearson and Kendall tau for raw x vs y
-        correlation = np.corrcoef(var_data, y)[0, 1]
-        tau, tau_pvalue = calculate_kendall_tau(var_data, y)
+        # Compute Kendall tau for raw x vs y
+        tau, _ = calculate_kendall_tau(var_data, y)
 
         ax.plot(
             x_trend,
@@ -147,7 +146,7 @@ def plotVariableDifficultyCorrelation():
             color='orange',
             linestyle='-',
             linewidth=1.8,
-            label=f'Linear: Pearson={correlation:.3f}, Tau={tau:.3f}, R²={r2_linear:.3f}',
+            label=f'Linear: Tau={tau:.3f}, R²={r2_linear:.3f}',
             alpha=0.9,
         )
 
@@ -156,12 +155,12 @@ def plotVariableDifficultyCorrelation():
             poly_fn(x_trend),
             'r--',
             linewidth=2,
-            label=f'Polynomial 2nd order: Pearson={correlation:.3f}, Tau={tau:.3f}, R²={r2_poly:.3f}',
+            label=f'Polynomial 2nd order: Tau={tau:.3f}, R²={r2_poly:.3f}',
             alpha=0.8,
         )
         
         print(
-            f"{var_name}: Pearson={correlation:.4f}, Tau={tau:.4f} (p={tau_pvalue:.4g}) | "
+            f"{var_name}: Tau={tau:.4f} | "
             f"Linear R²={r2_linear:.4f} vs Polynomial 2nd order R²={r2_poly:.4f} | ΔR²={delta_r2:+.4f}"
         )
         
@@ -182,8 +181,8 @@ def plotVariableDifficultyCorrelation():
 
 
 def main():
-    example_lorenz_curve()
-    #plotVariableDifficultyCorrelation()
+    #example_lorenz_curve()
+    plotVariableDifficultyCorrelation()
 
 if __name__ == "__main__":
     main()

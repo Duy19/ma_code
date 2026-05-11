@@ -11,7 +11,7 @@ const tutorialTasks: Task[] = [
 
 const STORY: StoryStep[] = [
   {
-    text: "IT IS TIME FOR THE **FINAL QUIZ**! Will you become a milllionaire? NO! But maybe you have learned something about suspension!",
+    text: "IT IS TIME FOR THE **FINAL QUIZ**! Will you become a millionaire? NO! But maybe you have learned something about suspension!",
     showOverlay: true,
     showSidebarPuzzle: false,
     showCanvas: false,
